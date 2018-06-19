@@ -20,7 +20,7 @@ def Solving_global_prob(ratios, D_n):
     constraints += [cvx.sum_entries(tau) <= T_com, C_n*cvx.max(D_n*cvx.inv_pos(f)) <= T_cmp]
 
     for n in range(NumbDevs):
-        constraints += [p[n] == ratios[n]*(pow(2,W*cvx.inv_pos(tau[n])))]
+        constraints += [p[n] == ratios[n]*(pow(2,W*cvx.inv_pos(tau[n])) - 1)]
 
     E_com = np.transpose(tau) * p
     E_cmp = cvx.sum_entries(alpha/2*C_n*np.transpose(D_n*cvx.square(f)))
