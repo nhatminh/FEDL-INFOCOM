@@ -1,0 +1,164 @@
+
+Gurobi 8.0.0 (win64, Python) logging started 06/26/18 19:05:43
+
+Academic license - for non-commercial use only
+Parameter OutputFlag unchanged
+   Value: 1  Min: 0  Max: 1  Default: 1
+Changed value of parameter QCPDual to 1
+   Prev: 0  Min: 0  Max: 1  Default: 0
+Optimize a model with 5 rows, 5 columns and 8 nonzeros
+Model has 1 quadratic constraint
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+00]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e-04, 1e+00]
+Presolve removed 4 rows and 3 columns
+Presolve time: 0.03s
+Presolved: 2 rows, 3 columns, 3 nonzeros
+Presolved model has 1 second-order cone constraint
+Ordering time: 0.00s
+
+Barrier statistics:
+ AA' NZ     : 1.000e+00
+ Factor NZ  : 3.000e+00
+ Factor Ops : 5.000e+00 (less than 1 second per iteration)
+ Threads    : 1
+
+                  Objective                Residual
+Iter       Primal          Dual         Primal    Dual     Compl     Time
+   0   4.98758201e-03  0.00000000e+00  4.99e-03 9.90e-03  4.15e-03     0s
+   1   5.20928924e-06 -5.16504749e-08  4.96e-06 1.08e-05  4.54e-06     0s
+   2   1.57465365e-08  9.96710736e-09  5.51e-09 1.20e-08  4.99e-09     0s
+
+Barrier solved model in 2 iterations and 0.04 seconds
+Optimal objective 1.57465365e-08
+
+Solving KKT system to obtain QCP duals...
+
+Optimize a model with 6 rows, 5 columns and 11 nonzeros
+Coefficient statistics:
+  Matrix range     [4e-04, 2e+00]
+  Objective range  [2e-04, 2e+00]
+  QObjective range [2e+00, 2e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e-08, 1e+00]
+Presolve removed 2 rows and 0 columns
+Presolve time: 0.04s
+Presolved: 4 rows, 5 columns, 9 nonzeros
+Ordering time: 0.00s
+
+Barrier statistics:
+ AA' NZ     : 4.000e+00
+ Factor NZ  : 1.000e+01
+ Factor Ops : 3.000e+01 (less than 1 second per iteration)
+ Threads    : 1
+
+                  Objective                Residual
+Iter       Primal          Dual         Primal    Dual     Compl     Time
+   0   1.00005014e+06 -1.00855168e+06  1.00e+03 1.00e+03  1.00e+06     0s
+   1   2.90219896e+05 -2.95141704e+05  1.11e+02 1.11e+02  1.61e+05     0s
+   2   7.32285660e+04 -7.75989075e+04  5.58e-01 4.95e-01  2.19e+04     0s
+   3   9.09717518e+03 -1.03318861e+04  1.43e-04 1.43e-04  2.78e+03     0s
+   4   9.03450752e+02 -1.09663361e+03  2.12e-07 2.12e-07  2.86e+02     0s
+   5   1.04840843e+02 -1.38454655e+02  2.21e-09 2.21e-09  3.48e+01     0s
+   6   1.41335887e+01 -2.35230924e+01  2.24e-15 2.00e-15  5.38e+00     0s
+   7   1.66467733e+00 -3.59871268e+00  4.44e-16 6.38e-16  7.52e-01     0s
+   8   1.61354699e-01 -3.37354369e-01  4.44e-16 2.22e-16  7.12e-02     0s
+   9   1.24353094e-02 -9.88389286e-03  1.96e-17 2.22e-16  3.19e-03     0s
+  10   7.47616681e-04 -7.61753176e-04  8.16e-18 6.94e-18  2.16e-04     0s
+  11   1.05226055e-04 -1.16494005e-04  2.95e-18 2.22e-16  3.17e-05     0s
+  12   1.49471854e-05 -1.61438953e-05  3.52e-19 2.22e-16  4.44e-06     0s
+  13   2.16050801e-06 -2.23598353e-06  5.15e-19 4.34e-19  6.28e-07     0s
+  14   3.27887612e-07 -2.92991568e-07  1.90e-19 4.34e-19  8.87e-08     0s
+  15   5.95764282e-08 -2.78470109e-08  2.71e-20 5.42e-20  1.25e-08     0s
+  16   1.82024520e-08  6.16998275e-09  2.71e-20 2.22e-16  1.72e-09     0s
+
+Barrier solved model in 16 iterations and 0.04 seconds
+Optimal objective 1.82024520e-08
+
+
+Freed default Gurobi environment
+
+Gurobi 8.0.0 (win64, Python) logging started 06/26/18 19:06:10
+
+Academic license - for non-commercial use only
+Parameter OutputFlag unchanged
+   Value: 1  Min: 0  Max: 1  Default: 1
+Changed value of parameter QCPDual to 1
+   Prev: 0  Min: 0  Max: 1  Default: 0
+Optimize a model with 5 rows, 5 columns and 8 nonzeros
+Model has 1 quadratic constraint
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+00]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e-04, 1e+00]
+Presolve removed 4 rows and 3 columns
+Presolve time: 0.00s
+Presolved: 2 rows, 3 columns, 3 nonzeros
+Presolved model has 1 second-order cone constraint
+Ordering time: 0.00s
+
+Barrier statistics:
+ AA' NZ     : 1.000e+00
+ Factor NZ  : 3.000e+00
+ Factor Ops : 5.000e+00 (less than 1 second per iteration)
+ Threads    : 1
+
+                  Objective                Residual
+Iter       Primal          Dual         Primal    Dual     Compl     Time
+   0   4.98758201e-03  0.00000000e+00  4.99e-03 9.90e-03  4.15e-03     0s
+   1   5.20928924e-06 -5.16504749e-08  4.96e-06 1.08e-05  4.54e-06     0s
+   2   1.57465365e-08  9.96710736e-09  5.51e-09 1.20e-08  4.99e-09     0s
+
+Barrier solved model in 2 iterations and 0.00 seconds
+Optimal objective 1.57465365e-08
+
+Solving KKT system to obtain QCP duals...
+
+Optimize a model with 6 rows, 5 columns and 11 nonzeros
+Coefficient statistics:
+  Matrix range     [4e-04, 2e+00]
+  Objective range  [2e-04, 2e+00]
+  QObjective range [2e+00, 2e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e-08, 1e+00]
+Presolve removed 2 rows and 0 columns
+Presolve time: 0.00s
+Presolved: 4 rows, 5 columns, 9 nonzeros
+Ordering time: 0.00s
+
+Barrier statistics:
+ AA' NZ     : 4.000e+00
+ Factor NZ  : 1.000e+01
+ Factor Ops : 3.000e+01 (less than 1 second per iteration)
+ Threads    : 1
+
+                  Objective                Residual
+Iter       Primal          Dual         Primal    Dual     Compl     Time
+   0   1.00005014e+06 -1.00855168e+06  1.00e+03 1.00e+03  1.00e+06     0s
+   1   2.90219896e+05 -2.95141704e+05  1.11e+02 1.11e+02  1.61e+05     0s
+   2   7.32285660e+04 -7.75989075e+04  5.58e-01 4.95e-01  2.19e+04     0s
+   3   9.09717518e+03 -1.03318861e+04  1.43e-04 1.43e-04  2.78e+03     0s
+   4   9.03450752e+02 -1.09663361e+03  2.12e-07 2.12e-07  2.86e+02     0s
+   5   1.04840843e+02 -1.38454655e+02  2.21e-09 2.21e-09  3.48e+01     0s
+   6   1.41335887e+01 -2.35230924e+01  2.24e-15 2.00e-15  5.38e+00     0s
+   7   1.66467733e+00 -3.59871268e+00  4.44e-16 6.38e-16  7.52e-01     0s
+   8   1.61354699e-01 -3.37354369e-01  4.44e-16 2.22e-16  7.12e-02     0s
+   9   1.24353094e-02 -9.88389286e-03  1.96e-17 2.22e-16  3.19e-03     0s
+  10   7.47616681e-04 -7.61753176e-04  8.16e-18 6.94e-18  2.16e-04     0s
+  11   1.05226055e-04 -1.16494005e-04  2.95e-18 2.22e-16  3.17e-05     0s
+  12   1.49471854e-05 -1.61438953e-05  3.52e-19 2.22e-16  4.44e-06     0s
+  13   2.16050801e-06 -2.23598353e-06  5.15e-19 4.34e-19  6.28e-07     0s
+  14   3.27887612e-07 -2.92991568e-07  1.90e-19 4.34e-19  8.87e-08     0s
+  15   5.95764282e-08 -2.78470109e-08  2.71e-20 5.42e-20  1.25e-08     0s
+  16   1.82024520e-08  6.16998275e-09  2.71e-20 2.22e-16  1.72e-09     0s
+
+Barrier solved model in 16 iterations and 0.00 seconds
+Optimal objective 1.82024520e-08
+
+
+Freed default Gurobi environment

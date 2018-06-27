@@ -19,7 +19,7 @@ alpha    = 2e-28
 ### LEARNING PARAMS ###
 D_min   = 8* 1e6 #1 MB, datasize range (-> bits)
 D_max   = 8* 2e6 #2 MB (-> bits)
-W       = 10e3 *8 #10KB, weight params size (-> bits)
+S_n       = 10e3 *8 #10KB, weight params size (-> bits), and gradient
 kappa   = 1.    #coeff of T_iter
 
 ### PROGRAM SETTING ###
