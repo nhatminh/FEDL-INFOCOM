@@ -18,22 +18,26 @@ end
 
 function main()
     dist_list, gain_list, ratios, D_n = mobile_gen()
-    # T_com, p, tau, E_com = Solving_sub_prob2(ratios)
-    # T_cmp, f, E_cmp     = Solving_sub_prob1(D_n)
-    # T_cmp1, f1, E_cmp1  = Solving_sub1(D_n)
-    # println("\n---->> Check Sub1 Solution: ", check([T_cmp, f, E_cmp], [T_cmp1, f1, E_cmp1]))
 
+    ### Sub1 ###
+    T_cmp, f, E_cmp     = Solving_sub_prob1(D_n)
+    T_cmp1, f1, E_cmp1  = Solving_sub1(D_n)
+    println("\n---->> Check Sub1 Solution: ", check([T_cmp, f, E_cmp], [T_cmp1, f1, E_cmp1]))
+
+    ### Sub2 ###
     T_com, p, tau, E_com    = Solving_sub_prob2(ratios)
     T_com1, p1, tau1, E_com1= Solving_sub2(ratios)
     println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
-    # Theta  = Solving_sub_prob3(T_cmp,E_cmp,T_com,E_com)
-    # Theta1 = Solving_sub3(T_cmp,E_cmp,T_com,E_com)
-    # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
+    ### Sub3 ###
+    Theta  = Solving_sub_prob3(T_cmp,E_cmp,T_com,E_com)
+    Theta1 = Solving_sub3(T_cmp,E_cmp,T_com,E_com)
+    println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
 
-    # rs2 = Solving_global_prob(D_n,ratios)
-    # rs  = [T_cmp, E_cmp, T_com, E_com, Theta]
-    # println("\n---->> Check Global Solution: ", check(rs, rs2))
+    ### Global ###
+    rs2 = Solving_global_prob(D_n,ratios)
+    rs  = [T_cmp, E_cmp, T_com, E_com, Theta]
+    println("\n---->> Check Global Solution: ", check(rs, rs2))
 end
 
 main()

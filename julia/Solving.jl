@@ -31,7 +31,7 @@ function Solving_global_prob(D_n, ratios)
 
     for n =1:NumbDevs
         @NLconstraint(prob, C_n*(D_n[n]*1e-9/f[n]) <= T_cmp)
-        @NLconstraint(prob, S_n/BW /log2(Ptx_Max/ratios[n] +1) <= tau[n]  <= S_n/BW/ log2(Ptx_Min/ratios[n] + 1))
+        @NLconstraint(prob, S_n/BW /log(Ptx_Max/ratios[n] +1) <= tau[n]  <= S_n/BW/ log(Ptx_Min/ratios[n] + 1))
     end
 
     @NLobjective(prob, Min, 1/(1 - Theta) * (sum(tau[n] * ratios[n]*(e^(S_n/(tau[n]*BW)) - 1) for n=1:NumbDevs) -
@@ -47,7 +47,7 @@ function Solving_global_prob(D_n, ratios)
 
     rs_T_com = getvalue(T_com)
     rs_tau = getvalue(tau)[:]
-    rs_p = ratios.*(2.^(S_n./(rs_tau*BW)) - 1)
+    rs_p = ratios.*(e.^(S_n./(rs_tau*BW)) - 1)
     rs_E_com = rs_tau'rs_p
 
     rs_Theta = getvalue(Theta)
@@ -272,12 +272,13 @@ function Solving_sub2(ratios)
         inv_g_min  = inv_g_func(tau_max, 1/ratios[n])
 
         if(kappa >= inv_g_max)
-            println("*** Sub2: CASE 1 ***")
+            # println("*** Sub2: CASE 1 ***")
             rs_tau[n] = tau_min
         elseif (kappa <= inv_g_min)
-            println("*** Sub2: CASE 2 ***")
+            # println("*** Sub2: CASE 2 ***")
             rs_tau[n] = tau_max
         else
+            println("Dev ", n)
             println("*** Sub2: CASE 3 ***")
             rs_tau[n] = g_func(kappa,1/ratios[n])
         end

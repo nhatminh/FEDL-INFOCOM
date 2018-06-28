@@ -10,3 +10,5 @@ fzero(fx, 1)			          # 1.4296118247255558
 
 # ## use a different order
 # fzero(sin, 3, order=16)		  # 3.141592653589793
+
+println(log(e))
