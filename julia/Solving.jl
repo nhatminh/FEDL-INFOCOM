@@ -207,10 +207,22 @@ function Solving_sub1(D_n)
     f_max = cpu_max*ones(NumbDevs)
     f_min = cpu_min*ones(NumbDevs)
 
+    println(sum(alpha * f_max.^3)) ### 16
+    println(sum(alpha * f_min.^3)) ### 0.002
+
     if(kappa >= sum(alpha * f_max.^3))
         println("*** Sub1: CASE 1 ***")
-        rs_f = f_max
-        rs_T_cmp =  maximum(C_n*D_n./f_max)
+        time = C_n*D_n./f_max
+        rs_T_cmp =  maximum(time)
+
+        for n=1:NumbDevs
+            if(abs(time[n]-rs_T_cmp)<1e-6)
+                rs_f[n]=f_max[n]
+            else
+                rs_f[n]= C_n*D_n[n]/rs_T_cmp
+            end
+        end
+
     elseif (kappa <= sum(alpha * f_min.^3))
         println("*** Sub1: CASE 2 ***")
         rs_f = f_min
