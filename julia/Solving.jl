@@ -1,4 +1,4 @@
-using Convex
+# using Convex
 using ECOS
 using Gurobi
 using SCS
@@ -8,6 +8,7 @@ using JuMP
 using Ipopt
 using LambertW
 using Roots
+using DataStructures
 include("Setting.jl")
 
 eps = 1e-4
@@ -71,9 +72,6 @@ function Solving_sub_prob1(D_n)
     println("\n===== Solving Sub1: Solver =====\n")
     println("D_n: ",D_n)
     prob = Model(solver=IpoptSolver(tol=1e-7, max_iter=10000, print_level =0))
-    # prob = Model(solver=ECOSSolver())
-    # prob = Model(solver=BonminNLSolver())
-    # prob = Model(solver=OsilBonminSolver())
 
     @variable(prob, T_cmp >= 0 + eps)                               # T computing
     @variable(prob, cpu_min *1e-9<= f[1:NumbDevs]<= cpu_max *1e-9)  # CPU freq.
@@ -106,9 +104,6 @@ function Solving_sub_prob2(ratios)
     println("\n===== Solving Sub2: Solver =====\n")
     println("ratios: ", ratios)
     prob = Model(solver=IpoptSolver(tol=1e-10, max_iter=1000000, print_level =1))
-    # prob = Model(solver=ECOSSolver())
-    # prob = Model(solver=BonminNLSolver())
-    # prob = Model(solver=OsilBonminSolver())
 
     @variable(prob, T_com >= 0 + eps)                     # T communications
     @variable(prob, tau[1:NumbDevs]>= 0 + eps)            # Time slot of TDMA
@@ -167,9 +162,6 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     println("\n===== Solving Sub3: Solver =====\n")
 
     prob = Model(solver=IpoptSolver(tol=1e-10, max_iter=1000000, print_level =1))
-    # prob = Model(solver=ECOSSolver())
-    # prob = Model(solver=BonminNLSolver())
-    # prob = Model(solver=OsilBonminSolver())
 
     @variable(prob, 0 + eps <= Theta <= 1 - eps)
 
@@ -198,6 +190,14 @@ end
 ############ CLOSED FORM ############
 ############ ############ ############
 
+function compute_T_cmp(D_n, list)
+    tmp = 0
+    for n in list
+        tmp += alpha*(C_n*D_n[n])^3/kappa
+    end
+    return tmp ^(1/3)
+end
+
 function Solving_sub1(D_n)
     println("\n===== Solving Sub1: Closed Form =====\n")
     println("D_n: ",D_n)
@@ -220,12 +220,37 @@ function Solving_sub1(D_n)
         not_sastify  = []
         rs_T_cmp =  (sum(alpha*(C_n*D_n).^3 / kappa))^(1/3)
 
-        # for n=1:NumbDevs
-        #     if()
-        # end
+        # sorted_UEs = SortedDict(Dict{Float64,Float64}(), Base.Reverse)
+        UEs = Dict{Int32,Float64}()
+        sorted_UEs = OrderedDict{Int32,Float64}()
+        for n = 1:NumbDevs
+            UEs[n] = C_n*D_n[n]/cpu_min
+        end
 
-        rs_T_cmp =  (sum(alpha*(C_n*D_n).^3 / kappa))^(1/3)
-        rs_f = C_n*D_n/rs_T_cmp
+        sorted_UEs_array = sort(collect(UEs), by=x->x[2], rev=true)
+        # println(sorted_UEs_array)
+        for n=1:NumbDevs
+            k,v = sorted_UEs_array[n]
+            sorted_UEs[k] = v
+        end
+
+        println("N: ",sorted_UEs)
+        i = NumbDevs
+        for (k,v) in sorted_UEs
+            if(sorted_UEs[k]<compute_T_cmp(D_n, keys(sorted_UEs)))
+                delete!(sorted_UEs,k)
+                rs_f[k] = cpu_min
+            end
+            i -= 1
+        end
+
+        println("N':",sorted_UEs)
+        rs_T_cmp = compute_T_cmp(D_n,keys(sorted_UEs))
+        for (k,v) in sorted_UEs
+            rs_f[k] = C_n*D_n[k]/rs_T_cmp
+        end
+        # rs_T_cmp =  (sum(alpha*(C_n*D_n).^3 / kappa))^(1/3)
+        # rs_f = C_n*D_n/rs_T_cmp
     end
 
     rs_f = rs_f * 1e-9

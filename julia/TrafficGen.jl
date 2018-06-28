@@ -68,4 +68,4 @@ function simple_read_data()
     end
 end
 
-mobile_gen()
+# mobile_gen()

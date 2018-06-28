@@ -12,3 +12,12 @@ fzero(fx, 1)			          # 1.4296118247255558
 # fzero(sin, 3, order=16)		  # 3.141592653589793
 
 println(log(e))
+
+UEs = Dict{Float64,Float64}()
+UEs[1] = 2
+UEs[2] = 1
+sorted_UEs_array = sort(collect(UEs), by=x->x[2])
+println(typeof(sorted_UEs_array))
+# for k in sorted_UEs_array
+#     print(k)
+# end
