@@ -95,6 +95,7 @@ function Solving_sub_prob1(D_n)
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
+        println("Objective: ", rs_E_cmp + kappa*rs_T_cmp )
     end
 
     return rs_T_cmp, rs_f, rs_E_cmp
@@ -225,8 +226,18 @@ function Solving_sub1(D_n)
 
     elseif (kappa <= sum(alpha * f_min.^3))
         println("*** Sub1: CASE 2 ***")
-        rs_f = f_min
-        rs_T_cmp =  maximum(C_n*D_n./f_min)
+        # rs_f = f_min
+        # rs_T_cmp =  maximum(C_n*D_n./f_min)
+        time = C_n*D_n./f_min
+        rs_T_cmp =  minimum(time)
+
+        for n=1:NumbDevs
+            if(abs(time[n]-rs_T_cmp)<1e-6)
+                rs_f[n]=f_min[n]
+            else
+                rs_f[n]= C_n*D_n[n]/rs_T_cmp
+            end
+        end
     else
         println("*** Sub1: CASE 3 ***")
         not_sastify  = []
@@ -274,6 +285,7 @@ function Solving_sub1(D_n)
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
+        println("Objective: ", rs_E_cmp + kappa*rs_T_cmp )
     end
 
     return rs_T_cmp, rs_f, rs_E_cmp
