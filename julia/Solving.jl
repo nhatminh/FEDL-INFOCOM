@@ -211,6 +211,7 @@ function Solving_sub1(D_n)
     rs_f = zeros(NumbDevs)
 
     # println(sum(alpha * f_max.^3)) ### 16
+    # println(minimum(alpha * f_min.^3)) ### 0.0002
     # println(sum(alpha * f_min.^3)) ### 0.002
 
     if(kappa >= sum(alpha * f_max.^3))
@@ -226,20 +227,28 @@ function Solving_sub1(D_n)
             end
         end
 
-    elseif (kappa <= sum(alpha * f_min.^3))
+    elseif (kappa <= minimum(alpha * f_min.^3))
         println("*** Sub1: CASE 2 ***")
-        # rs_f = f_min
-        # rs_T_cmp =  maximum(C_n*D_n./f_min)
-        time = C_n*D_n./f_min
-        rs_T_cmp =  minimum(time)
+        rs_f = f_min
+        rs_T_cmp = maximum(C_n*D_n./f_min)
+        # # val,idx_max = findmax(alpha*f_min.^3)
+        # # println(idx_max)
+        # rs_T_cmp = minimum(C_n*D_n./f_min)
+        # println(findmin(C_n*D_n./f_min))
+        # println(D_n[7])
+        # println(findmax(C_n*D_n./f_min))
+        # println(D_n[2])
+        # println(C_n*D_n./f_min)
+        #
+        # for n=1:NumbDevs
+        #     if(C_n*D_n[n]/f_min[n] <= rs_T_cmp)
+        #         rs_f[n]=f_min[n]
+        #     else
+        #         rs_f[n]= C_n*D_n[n]/rs_T_cmp
+        #     end
+        # end
 
-        for n=1:NumbDevs
-            if(abs(time[n]-rs_T_cmp)<1e-6)
-                rs_f[n]=f_min[n]
-            else
-                rs_f[n]= C_n*D_n[n]/rs_T_cmp
-            end
-        end
+
     else
         println("*** Sub1: CASE 3 ***")
 
@@ -250,7 +259,7 @@ function Solving_sub1(D_n)
             UEs[n] = C_n*D_n[n]/cpu_min
         end
 
-        sorted_UEs_array = sort(collect(UEs), by=x->x[2], rev=true)
+        sorted_UEs_array = sort(collect(UEs), by=x->x[2])
         # println(sorted_UEs_array)
         for n=1:NumbDevs
             k,v = sorted_UEs_array[n]
@@ -259,8 +268,12 @@ function Solving_sub1(D_n)
 
         println("N: ",sorted_UEs)
         i = NumbDevs
-        for (k,v) in sorted_UEs
+        println(keys(sorted_UEs))
+        sorted_UEs1 = copy(sorted_UEs)
+        for (k,v) in sorted_UEs1
+            # println("cur:", k)
             if(sorted_UEs[k]<compute_T_cmp(D_n, keys(sorted_UEs)))
+                # println("delete:", k)
                 delete!(sorted_UEs,k)
                 rs_f[k] = cpu_min
             end

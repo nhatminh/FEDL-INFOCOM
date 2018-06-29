@@ -22,9 +22,9 @@ alpha    = 2e-28
 D_min   = 8* 1e6 #1 MB, datasize range (-> bits)
 D_max   = 8* 2e6 #2 MB (-> bits)
 S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats (1bits/ln2)
-kappa   = 0.002    #coeff of T_iter
+kappa   = 0.003    #coeff of T_iter
 
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations
-REUSED_TRAFFIC = false
+REUSED_TRAFFIC = true
 DEBUG = 1 #LEVEL 0, 1, 2, 3
