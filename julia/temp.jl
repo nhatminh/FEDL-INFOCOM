@@ -17,7 +17,7 @@ UEs = Dict{Float64,Float64}()
 UEs[1] = 2
 UEs[2] = 1
 sorted_UEs_array = sort(collect(UEs), by=x->x[2])
-println(typeof(sorted_UEs_array))
-# for k in sorted_UEs_array
+println(size(sorted_UEs_array)[1])
+# for k,v in size(sorted_UEs_array)
 #     print(k)
 # end

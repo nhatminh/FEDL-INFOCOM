@@ -13,6 +13,8 @@ Ptx_Max  = 1   # 1W   -> 30dBm
 ### COMPUTING PARAMS ###
 cpu_min  = .1e9 #GHz, cyles/1sec
 cpu_max  = 2.e9  #GHz, cyles/1sec
+f_max = cpu_max*ones(NumbDevs)
+f_min = cpu_min*ones(NumbDevs)
 C_n      = 100   #cycles/bits
 alpha    = 2e-28
 
@@ -23,5 +25,6 @@ S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats 
 kappa   = 0.002    #coeff of T_iter
 
 ### PROGRAM SETTING ###
-REUSED_TRAFFIC = true
+Numb_SIMs = 1  #Number of simulations
+REUSED_TRAFFIC = false
 DEBUG = 1 #LEVEL 0, 1, 2, 3

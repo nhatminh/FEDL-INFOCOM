@@ -20,17 +20,19 @@ function Solving_global_prob(D_n, ratios)
     # prob = Model(solver=BonminNLSolver())
     # prob = Model(solver=OsilBonminSolver())
 
-    @variable(prob, T_cmp >= 0 + eps)                               # T computing
-    @variable(prob, cpu_min *1e-9<= f[1:NumbDevs]<= cpu_max *1e-9)  # CPU freq.
+    @variable(prob, T_cmp >= 0 + eps)                   # T computing
+    @variable(prob, f[1:NumbDevs] >= 0)                 # CPU freq.
 
-    @variable(prob, T_com >= 0 + eps)                     # T communications
-    @variable(prob, tau[1:NumbDevs]>= 0 + eps)            # Time slot of TDMA
+    @variable(prob, T_com >= 0 + eps)                   # T communications
+    @variable(prob, tau[1:NumbDevs]>= 0 + eps)          # Time slot of TDMA
 
     @variable(prob, 0 + eps <= Theta <= 1 - eps)
 
     @constraint(prob, sum(tau[n] for n=1:NumbDevs) <= T_com )
 
     for n =1:NumbDevs
+        @constraint(prob, f[n] <= f_max[n] *1e-9)
+        @constraint(prob, f[n] >= f_min[n] *1e-9)
         @NLconstraint(prob, C_n*(D_n[n]*1e-9/f[n]) <= T_cmp)
         @NLconstraint(prob, S_n/BW /log(Ptx_Max/ratios[n] +1) <= tau[n]  <= S_n/BW/ log(Ptx_Min/ratios[n] + 1))
     end
@@ -73,10 +75,12 @@ function Solving_sub_prob1(D_n)
     println("D_n: ",D_n)
     prob = Model(solver=IpoptSolver(tol=1e-7, max_iter=10000, print_level =0))
 
-    @variable(prob, T_cmp >= 0 + eps)                               # T computing
-    @variable(prob, cpu_min *1e-9<= f[1:NumbDevs]<= cpu_max *1e-9)  # CPU freq.
+    @variable(prob, T_cmp >= 0 + eps)                   # T computing
+    @variable(prob, f[1:NumbDevs] >= 0)                 # CPU freq.
 
     for n =1:NumbDevs
+        @constraint(prob, f[n] <= f_max[n] *1e-9)
+        @constraint(prob, f[n] >= f_min[n] *1e-9)
         @NLconstraint(prob, C_n*(D_n[n]*1e-9/f[n]) <= T_cmp)
     end
 
@@ -205,11 +209,9 @@ function Solving_sub1(D_n)
 
     rs_T_cmp = 0
     rs_f = zeros(NumbDevs)
-    f_max = cpu_max*ones(NumbDevs)
-    f_min = cpu_min*ones(NumbDevs)
 
-    println(sum(alpha * f_max.^3)) ### 16
-    println(sum(alpha * f_min.^3)) ### 0.002
+    # println(sum(alpha * f_max.^3)) ### 16
+    # println(sum(alpha * f_min.^3)) ### 0.002
 
     if(kappa >= sum(alpha * f_max.^3))
         println("*** Sub1: CASE 1 ***")
@@ -240,8 +242,6 @@ function Solving_sub1(D_n)
         end
     else
         println("*** Sub1: CASE 3 ***")
-        not_sastify  = []
-        rs_T_cmp =  (sum(alpha*(C_n*D_n).^3 / kappa))^(1/3)
 
         # sorted_UEs = SortedDict(Dict{Float64,Float64}(), Base.Reverse)
         UEs = Dict{Int32,Float64}()

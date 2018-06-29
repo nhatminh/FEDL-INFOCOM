@@ -32,19 +32,20 @@ function mobile_gen()
     if(REUSED_TRAFFIC)
         return simple_read_data()
     else
-        dist_list = rand(Dist_min:Dist_max,NumbDevs)
-        gain_list = zeros(NumbDevs)
-        ratios    = zeros(NumbDevs)
+        dist_list = zeros(Numb_SIMs,NumbDevs)
+        gain_list = zeros(Numb_SIMs,NumbDevs)
+        ratios    = zeros(Numb_SIMs,NumbDevs)
+        D_n       = zeros(Numb_SIMs,NumbDevs)
+        for s =1:Numb_SIMs
+            dist_list[s,:] = rand(Dist_min:Dist_max,NumbDevs)
+            D_n[s,:]       = rand(D_min:D_max,NumbDevs)
+            for n=1:NumbDevs
+                gain_list[s,n] = exp_gain(dist_list[n])
+                ratios[s,n]    = noise_per_gain(gain_list[n])
+            end
 
-        for n=1:NumbDevs
-            gain_list[n] = exp_gain(dist_list[n])
-            ratios[n]    = noise_per_gain(gain_list[n])
         end
-
-        D_n       = rand(D_min:D_max,NumbDevs)
-
         simple_save_data(dist_list, gain_list, ratios, D_n)
-
         return dist_list, gain_list, ratios, D_n
     end
 end
