@@ -21,3 +21,6 @@ println(size(sorted_UEs_array)[1])
 # for k,v in size(sorted_UEs_array)
 #     print(k)
 # end
+
+a = 1:3
+println(typeof(a))

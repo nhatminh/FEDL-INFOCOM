@@ -195,12 +195,46 @@ end
 ############ CLOSED FORM ############
 ############ ############ ############
 
-function compute_T_cmp(D_n, list)
+function T_N3k(D_n, list, k)
+    tmp = 0
+    N_C = []
+    for n in list
+        tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
+        if (n!=k )
+            # tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
+            push!(N_C, n)
+        end
+    end
+    return tmp^(1/3), N_C
+end
+
+function T_N3(D_n, list)
     tmp = 0
     for n in list
-        tmp += alpha*(C_n*D_n[n])^3/kappa
+        tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
     end
-    return tmp ^(1/3)
+    return tmp^(1/3)
+end
+
+function T_N1(D_n,list)
+    tmp = 0
+    for n in list
+        tmp = max(tmp, C_n*D_n[n]/f_max[n])
+    end
+    return tmp
+end
+
+function T_N2(D_n,list)
+    tmp = 0
+    for n in list
+        tmp = max(tmp, C_n*D_n[n]/f_min[n])
+    end
+    tmp1 = 0
+    for n in list
+        tmp1 = min(tmp, C_n*D_n[n]/f_min[n])
+    end
+    println("min Tcmp_N2: ",tmp1)
+    return tmp
 end
 
 function Solving_sub1(D_n)
@@ -210,11 +244,13 @@ function Solving_sub1(D_n)
     rs_T_cmp = 0
     rs_f = zeros(NumbDevs)
 
-    # println(sum(alpha * f_max.^3)) ### 16
-    # println(minimum(alpha * f_min.^3)) ### 0.0002
+    println(sum(alpha * f_max.^3)) ### 16
     # println(sum(alpha * f_min.^3)) ### 0.002
+    println(minimum(alpha * f_min.^3)) ### 0.0002
+    println(maximum(alpha * f_max.^3)) ### 16
 
     if(kappa >= sum(alpha * f_max.^3))
+    # if(kappa >= maximum(alpha * f_max.^3))
         println("*** Sub1: CASE 1 ***")
         time = C_n*D_n./f_max
         rs_T_cmp =  maximum(time)
@@ -248,45 +284,166 @@ function Solving_sub1(D_n)
         #     end
         # end
 
-
     else
         println("*** Sub1: CASE 3 ***")
 
-        # sorted_UEs = SortedDict(Dict{Float64,Float64}(), Base.Reverse)
-        UEs = Dict{Int32,Float64}()
-        sorted_UEs = OrderedDict{Int32,Float64}()
+        # # sorted_UEs = SortedDict(Dict{Float64,Float64}(), Base.Reverse)
+        # UEs = Dict{Int32,Float64}()
+        # sorted_UEs = OrderedDict{Int32,Float64}()
+        # for n = 1:NumbDevs
+        #     UEs[n] = C_n*D_n[n]/f_min[n]
+        # end
+        #
+        # sorted_UEs_array = sort(collect(UEs), by=x->x[2])
+        # # println(sorted_UEs_array)
+        # for n=1:NumbDevs
+        #     k,v = sorted_UEs_array[n]
+        #     sorted_UEs[k] = v
+        # end
+        #
+        # println("N: ",sorted_UEs)
+        # i = NumbDevs
+        # println(keys(sorted_UEs))
+        # sorted_UEs1 = copy(sorted_UEs)
+        #
+        # T_latest_del = 0
+        # for (k,v) in sorted_UEs1
+        #     # println("cur:", sorted_UEs[k])
+        #     println("TN3k:", T_N3(D_n, keys(sorted_UEs)))
+        #     if(sorted_UEs[k]<T_N3(D_n, keys(sorted_UEs)))
+        #         println("delete:", k)
+        #         T_latest_del = sorted_UEs[k]
+        #         rs_f[k] = f_min[k]
+        #         delete!(sorted_UEs,k)
+        #     end
+        #     i -= 1
+        # end
+        #
+        # println("N':",sorted_UEs)
+        # rs_T_cmp = max(T_N3(D_n,keys(sorted_UEs)),T_latest_del)
+        # for (k,v) in sorted_UEs
+        #     rs_f[k] = C_n*D_n[k]/rs_T_cmp
+        # end
+
+
+        ### ------------
+        # N1 = Int32[]
+        # N2 = Int32[]
+        # N3 = collect(1:NumbDevs)
+        #
+        # for n = 1:NumbDevs
+        #     Tcmp_N3, N3_t = T_N3k(D_n, N3, n)
+        #     if (C_n*D_n[n]/f_max[n] >= Tcmp_N3)
+        #         push!(N1, n)
+        #         N3 = N3_t
+        #         # println("Add N1: ", n)
+        #         # println("N3: ", N3)
+        #         # delete!(N3, n)
+        #         rs_f[n] = f_max[n]
+        #     elseif (C_n*D_n[n]/f_min[n] <= Tcmp_N3)
+        #         push!(N2, n)
+        #         N3 = N3_t
+        #         # println("Add N2: ", n)
+        #         # println("N3: ", N3)
+        #         # delete!(N3, n)
+        #         rs_f[n] = f_min[n]
+        #     end
+        # end
+
+        #### ------------
+        UEs_min, UEs_max = Dict{Int32,Float64}(), Dict{Int32,Float64}()
+        sorted_UEs_min, sorted_UEs_max = OrderedDict{Int32,Float64}(), OrderedDict{Int32,Float64}()
+
         for n = 1:NumbDevs
-            UEs[n] = C_n*D_n[n]/cpu_min
+            UEs_min[n] = C_n*D_n[n]/f_min[n]
+            UEs_max[n] = C_n*D_n[n]/f_max[n]
         end
 
-        sorted_UEs_array = sort(collect(UEs), by=x->x[2])
-        # println(sorted_UEs_array)
+        sorted_UEs_min_arr = sort(collect(UEs_min), by=x->x[2])
+        sorted_UEs_max_arr = sort(collect(UEs_max), by=x->x[2])
+        # println(sorted_UEs_min_arr)
+        # println(sorted_UEs_max_arr)
+
         for n=1:NumbDevs
-            k,v = sorted_UEs_array[n]
-            sorted_UEs[k] = v
+            k,v = sorted_UEs_min_arr[n]
+            sorted_UEs_min[k] = v
+            k,v = sorted_UEs_max_arr[n]
+            sorted_UEs_max[k] = v
         end
 
-        println("N: ",sorted_UEs)
+        println("N_min: ",sorted_UEs_min)
+        println("N_max: ",sorted_UEs_max)
+
         i = NumbDevs
-        println(keys(sorted_UEs))
-        sorted_UEs1 = copy(sorted_UEs)
-        for (k,v) in sorted_UEs1
-            # println("cur:", k)
-            if(sorted_UEs[k]<compute_T_cmp(D_n, keys(sorted_UEs)))
-                # println("delete:", k)
-                delete!(sorted_UEs,k)
-                rs_f[k] = cpu_min
+        N1C, N2C = collect(keys(sorted_UEs_min)), collect(keys(sorted_UEs_max))
+        println("Order1: ", N1C)
+        println("Order2: ", N2C)
+
+        N1, N2= Int32[], Int32[]
+        N1C_rs, N2C_rs = copy(N1C), copy(N2C)
+        N3 = collect(1:NumbDevs)
+        ord = 1
+        for ord = 1:NumbDevs
+            i = N1C[NumbDevs+1 - ord]
+            j = N2C[ord]
+
+            # println("N3: ", N3)
+            T_i, N1C_i = T_N3k(D_n, N3, i)
+            # println("T_i: ", T_i)
+            if (C_n * D_n[i]/f_max[i] >= T_i)
+                # println("delete i:", i)
+                N1C_rs = copy(N1C_i)
+                push!(N1,i)
+                rs_f[j] = f_max[j]
+                # delete!(sorted_UEs,k)
             end
-            i -= 1
+            # println("T_j: ", T_i)
+            T_j, N2C_j = T_N3k(D_n, N3, j)
+            if (C_n * D_n[j]/f_min[j] <= T_j)
+                # println("delete j:", j)
+                N2C_rs = copy(N2C_j)
+                push!(N2,j)
+                 rs_f[j] = f_min[j]
+                # delete!(sorted_UEs,k)
+            end
+            N3 = intersect(N1C_rs, N2C_rs)
         end
 
-        println("N':",sorted_UEs)
-        rs_T_cmp = compute_T_cmp(D_n,keys(sorted_UEs))
-        for (k,v) in sorted_UEs
+        #### ------------
+        Tcmp_N1 = T_N1(D_n, N1)
+        Tcmp_N2 = T_N2(D_n, N2)
+        Tcmp_N3 = T_N3(D_n, N3)
+        rs_T_cmp = max(Tcmp_N1, Tcmp_N2, Tcmp_N3)
+
+        println("N1: ", N1)
+        println("-> Tcmp1: ", Tcmp_N1)
+        println("N2: ", N2)
+        println("-> Tcmp2: ", Tcmp_N2)
+        println("N3: ", N3)
+        println("-> Tcmp3: ", Tcmp_N3)
+
+        for k in N3
             rs_f[k] = C_n*D_n[k]/rs_T_cmp
         end
-        # rs_T_cmp =  (sum(alpha*(C_n*D_n).^3 / kappa))^(1/3)
-        # rs_f = C_n*D_n/rs_T_cmp
+
+        if (abs(Tcmp_N1-rs_T_cmp)<1e-6)
+            time = C_n*D_n./f_max
+
+            for n =1:NumbDevs
+                if(abs(time[n]-rs_T_cmp)<1e-6)
+                    rs_f[n]=f_max[n]
+                else
+                    rs_f[n]= C_n*D_n[n]/rs_T_cmp
+                end
+            end
+        elseif ((abs(Tcmp_N2-rs_T_cmp)<1e-6))
+            for n in N2
+                rs_f[n] = f_min[n]
+            end
+            for k in N3
+                rs_f[k] = max(C_n*D_n[k]/rs_T_cmp, f_min[k])
+            end
+        end
     end
 
     rs_f = rs_f * 1e-9
