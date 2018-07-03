@@ -250,71 +250,6 @@ function Solving_sub1(D_n)
     println(maximum(alpha * f_max.^3)) ### 16
 
 
-    println("*** Sub1: CASE 3 ***")
-
-    # # sorted_UEs = SortedDict(Dict{Float64,Float64}(), Base.Reverse)
-    # UEs = Dict{Int32,Float64}()
-    # sorted_UEs = OrderedDict{Int32,Float64}()
-    # for n = 1:NumbDevs
-    #     UEs[n] = C_n*D_n[n]/f_min[n]
-    # end
-    #
-    # sorted_UEs_array = sort(collect(UEs), by=x->x[2])
-    # # println(sorted_UEs_array)
-    # for n=1:NumbDevs
-    #     k,v = sorted_UEs_array[n]
-    #     sorted_UEs[k] = v
-    # end
-    #
-    # println("N: ",sorted_UEs)
-    # i = NumbDevs
-    # println(keys(sorted_UEs))
-    # sorted_UEs1 = copy(sorted_UEs)
-    #
-    # T_latest_del = 0
-    # for (k,v) in sorted_UEs1
-    #     # println("cur:", sorted_UEs[k])
-    #     println("TN3k:", T_N3(D_n, keys(sorted_UEs)))
-    #     if(sorted_UEs[k]<T_N3(D_n, keys(sorted_UEs)))
-    #         println("delete:", k)
-    #         T_latest_del = sorted_UEs[k]
-    #         rs_f[k] = f_min[k]
-    #         delete!(sorted_UEs,k)
-    #     end
-    #     i -= 1
-    # end
-    #
-    # println("N':",sorted_UEs)
-    # rs_T_cmp = max(T_N3(D_n,keys(sorted_UEs)),T_latest_del)
-    # for (k,v) in sorted_UEs
-    #     rs_f[k] = C_n*D_n[k]/rs_T_cmp
-    # end
-
-
-    ### ------------
-    # N1 = Int32[]
-    # N2 = Int32[]
-    # N3 = collect(1:NumbDevs)
-    #
-    # for n = 1:NumbDevs
-    #     Tcmp_N3, N3_t = T_N3k(D_n, N3, n)
-    #     if (C_n*D_n[n]/f_max[n] >= Tcmp_N3)
-    #         push!(N1, n)
-    #         N3 = N3_t
-    #         # println("Add N1: ", n)
-    #         # println("N3: ", N3)
-    #         # delete!(N3, n)
-    #         rs_f[n] = f_max[n]
-    #     elseif (C_n*D_n[n]/f_min[n] <= Tcmp_N3)
-    #         push!(N2, n)
-    #         N3 = N3_t
-    #         # println("Add N2: ", n)
-    #         # println("N3: ", N3)
-    #         # delete!(N3, n)
-    #         rs_f[n] = f_min[n]
-    #     end
-    # end
-
     #### ------------
     UEs_min = Dict{Int32,Float64}()
     UEs_max = zeros(NumbDevs)
@@ -325,16 +260,21 @@ function Solving_sub1(D_n)
         UEs_max[n] = C_n[n]*D_n[n]/f_max[n]
     end
 
-    N1_max = maximum(UEs_max)
-    N1 = find(a->a==N1_max, UEs_max)
+    N1=Int32[]
     N3 = collect(1:NumbDevs)
-    N3 = setdiff(N3,N1)
-    println("N1: ",N1)
-    println("N3 - N1: ",N3)
-
-    for n in N1
-        rs_f[n] = f_max[n]
-    end
+    # T_N3_init = T_N3(D_n, N3)
+    # N1_max = maximum(UEs_max)
+    #
+    # if (N1_max >= T_N3_init)
+    #     N1 = find(a->a==N1_max, UEs_max)
+    # end
+    #
+    # N3 = setdiff(N3,N1)
+    # println("N1: ",N1)
+    # println("N3 - N1: ",N3)
+    # for n in N1
+    #     rs_f[n] = f_max[n]
+    # end
 
     sorted_UEs_min_arr = sort(collect(UEs_min), by=x->x[2])
     # println(sorted_UEs_min_arr)
@@ -354,12 +294,25 @@ function Solving_sub1(D_n)
     for j in N2C
         T_j, N2C_j = T_N3k(D_n, N3, j)
         if (C_n[j] * D_n[j]/f_min[j] <= T_j)
-            println("delete j:", j)
+            # println("delete j:", j)
             N3 = copy(N2C_j)
             push!(N2,j)
              rs_f[j] = f_min[j]
         end
     end
+
+    T_N3_init = T_N3(D_n, N3)
+    N1_max = maximum(UEs_max)
+
+    if (N1_max >= T_N3_init)
+        N1 = find(a->a==N1_max, UEs_max)
+    end
+
+    for n in N1
+        rs_f[n] = f_max[n]
+    end
+
+    N3 = setdiff(N3,N1)
 
     #### ------------
     Tcmp_N1 = T_N1(D_n, N1)

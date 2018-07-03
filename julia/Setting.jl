@@ -42,4 +42,4 @@ alpha    = 2e-28
 D_min   = 8* 1e6 #1 MB, datasize range (-> bits)
 D_max   = 8* 2e6 #2 MB (-> bits)
 S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats (1bits/ln2)
-kappa   = 20   #coeff of T_iter
+kappa   = 0.0002   #coeff of T_iter
