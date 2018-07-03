@@ -1,3 +1,5 @@
+using Distributions
+
 NumbDevs = 10
 
 ### PROGRAM SETTING ###
@@ -19,9 +21,12 @@ if HETEROGENEOUS
     cpu_min2  = .2  #GHz, cyles/1sec
     cpu_max1  = 1.  #GHz, cyles/1sec
     cpu_max2  = 2.  #GHz, cyles/1sec
-    f_min = rand(cpu_min1:cpu_min2,NumbDevs)*1e9  #Hz
-    f_max = rand(cpu_max1:cpu_max2,NumbDevs)*1e9  #Hz
+    f_min = rand(Uniform(cpu_min1,cpu_min2),NumbDevs)*1e9  #Hz
+    f_max = rand(Uniform(cpu_max1,cpu_max2),NumbDevs)*1e9  #Hz
     C_n   = rand(50:150,NumbDevs)   #cycles/bits
+    println(C_n)
+    println(f_min)
+    println(f_max)
 else
     cpu_min  = .1 #GHz, cyles/1sec
     cpu_max  = 2.  #GHz, cyles/1sec
@@ -37,4 +42,4 @@ alpha    = 2e-28
 D_min   = 8* 1e6 #1 MB, datasize range (-> bits)
 D_max   = 8* 2e6 #2 MB (-> bits)
 S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats (1bits/ln2)
-kappa   = 0.001   #coeff of T_iter
+kappa   = 20   #coeff of T_iter
