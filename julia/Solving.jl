@@ -33,12 +33,12 @@ function Solving_global_prob(D_n, ratios)
     for n =1:NumbDevs
         @constraint(prob, f[n] <= f_max[n] *1e-9)
         @constraint(prob, f[n] >= f_min[n] *1e-9)
-        @NLconstraint(prob, C_n*(D_n[n]*1e-9/f[n]) <= T_cmp)
+        @NLconstraint(prob, C_n[n]*(D_n[n]*1e-9/f[n]) <= T_cmp)
         @NLconstraint(prob, S_n/BW /log(Ptx_Max/ratios[n] +1) <= tau[n]  <= S_n/BW/ log(Ptx_Min/ratios[n] + 1))
     end
 
     @NLobjective(prob, Min, 1/(1 - Theta) * (sum(tau[n] * ratios[n]*(e^(S_n/(tau[n]*BW)) - 1) for n=1:NumbDevs) -
-                            log(Theta)*sum( alpha/2 * C_n * D_n[n] *f[n]^2 * 1e18 for n =1:NumbDevs) +
+                            log(Theta)*sum( alpha/2 * C_n[n] * D_n[n] *f[n]^2 * 1e18 for n =1:NumbDevs) +
                             kappa * (T_com - log(Theta)*T_cmp)))
 
     status = solve(prob)
@@ -46,7 +46,7 @@ function Solving_global_prob(D_n, ratios)
 
     rs_T_cmp = getvalue(T_cmp)
     rs_f = getvalue(f)[:]
-    rs_E_cmp = alpha / 2 * C_n * sum(D_n.*(rs_f.^2)) * 1e18
+    rs_E_cmp = alpha / 2 * sum(C_n .* D_n.*(rs_f.^2)) * 1e18
 
     rs_T_com = getvalue(T_com)
     rs_tau = getvalue(tau)[:]
@@ -56,7 +56,7 @@ function Solving_global_prob(D_n, ratios)
     rs_Theta = getvalue(Theta)
 
     if (DEBUG > 0)
-        println("Sub1 constraint: ", maximum(C_n*(D_n*1e-9./rs_f)))
+        println("Sub1 constraint: ", maximum(C_n.*(D_n*1e-9./rs_f)))
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
@@ -81,21 +81,21 @@ function Solving_sub_prob1(D_n)
     for n =1:NumbDevs
         @constraint(prob, f[n] <= f_max[n] *1e-9)
         @constraint(prob, f[n] >= f_min[n] *1e-9)
-        @NLconstraint(prob, C_n*(D_n[n]*1e-9/f[n]) <= T_cmp)
+        @NLconstraint(prob, C_n[n]*(D_n[n]*1e-9/f[n]) <= T_cmp)
     end
 
-    @NLobjective(prob, Min, sum( alpha/2 * C_n * D_n[n] *f[n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp)
+    @NLobjective(prob, Min, sum( alpha/2 * C_n[n] * D_n[n] *f[n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp)
 
     status = solve(prob)
     println("Solve Status: ",status)
 
     rs_T_cmp = getvalue(T_cmp)
     rs_f = getvalue(f)[:]
-    rs_E_cmp = alpha / 2 * C_n * sum(D_n.*(rs_f.^2)) * 1e18
+    rs_E_cmp = alpha / 2 * sum(C_n.* D_n.*(rs_f.^2)) * 1e18
     # println("here: " ,sum(D_n.*(rs_f.^2)))
 
     if (DEBUG > 0)
-        println("Sub1 constraint: ", maximum(C_n*(D_n*1e-9./rs_f)))
+        println("Sub1 constraint: ", maximum(C_n.*(D_n*1e-9./rs_f)))
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
@@ -199,9 +199,9 @@ function T_N3k(D_n, list, k)
     tmp = 0
     N_C = []
     for n in list
-        tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
+        tmp += alpha*1e24*(C_n[n]*D_n[n]*1e-8)^3/kappa
         if (n!=k )
-            # tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
+            # tmp += alpha*1e24*(C_n[n]*D_n[n]*1e-8)^3/kappa
             push!(N_C, n)
         end
     end
@@ -211,7 +211,7 @@ end
 function T_N3(D_n, list)
     tmp = 0
     for n in list
-        tmp += alpha*1e24*(C_n*D_n[n]*1e-8)^3/kappa
+        tmp += alpha*1e24*(C_n[n]*D_n[n]*1e-8)^3/kappa
     end
     return tmp^(1/3)
 end
@@ -219,7 +219,7 @@ end
 function T_N1(D_n,list)
     tmp = 0
     for n in list
-        tmp = max(tmp, C_n*D_n[n]/f_max[n])
+        tmp = max(tmp, C_n[n]*D_n[n]/f_max[n])
     end
     return tmp
 end
@@ -227,11 +227,11 @@ end
 function T_N2(D_n,list)
     tmp = 0
     for n in list
-        tmp = max(tmp, C_n*D_n[n]/f_min[n])
+        tmp = max(tmp, C_n[n]*D_n[n]/f_min[n])
     end
     tmp1 = 0
     for n in list
-        tmp1 = min(tmp, C_n*D_n[n]/f_min[n])
+        tmp1 = min(tmp, C_n[n]*D_n[n]/f_min[n])
     end
     println("min Tcmp_N2: ",tmp1)
     return tmp
@@ -252,21 +252,21 @@ function Solving_sub1(D_n)
     if(kappa >= sum(alpha * f_max.^3))
     # if(kappa >= maximum(alpha * f_max.^3))
         println("*** Sub1: CASE 1 ***")
-        time = C_n*D_n./f_max
+        time = C_n.*D_n./f_max
         rs_T_cmp =  maximum(time)
 
         for n=1:NumbDevs
             if(abs(time[n]-rs_T_cmp)<1e-6)
                 rs_f[n]=f_max[n]
             else
-                rs_f[n]= C_n*D_n[n]/rs_T_cmp
+                rs_f[n]= C_n[n]*D_n[n]/rs_T_cmp
             end
         end
 
     elseif (kappa <= minimum(alpha * f_min.^3))
         println("*** Sub1: CASE 2 ***")
         rs_f = f_min
-        rs_T_cmp = maximum(C_n*D_n./f_min)
+        rs_T_cmp = maximum(C_n.*D_n./f_min)
         # # val,idx_max = findmax(alpha*f_min.^3)
         # # println(idx_max)
         # rs_T_cmp = minimum(C_n*D_n./f_min)
@@ -355,8 +355,8 @@ function Solving_sub1(D_n)
         sorted_UEs_min, sorted_UEs_max = OrderedDict{Int32,Float64}(), OrderedDict{Int32,Float64}()
 
         for n = 1:NumbDevs
-            UEs_min[n] = C_n*D_n[n]/f_min[n]
-            UEs_max[n] = C_n*D_n[n]/f_max[n]
+            UEs_min[n] = C_n[n]*D_n[n]/f_min[n]
+            UEs_max[n] = C_n[n]*D_n[n]/f_max[n]
         end
 
         sorted_UEs_min_arr = sort(collect(UEs_min), by=x->x[2])
@@ -390,7 +390,7 @@ function Solving_sub1(D_n)
             # println("N3: ", N3)
             T_i, N1C_i = T_N3k(D_n, N3, i)
             # println("T_i: ", T_i)
-            if (C_n * D_n[i]/f_max[i] >= T_i)
+            if (C_n[i] * D_n[i]/f_max[i] >= T_i)
                 # println("delete i:", i)
                 N1C_rs = copy(N1C_i)
                 push!(N1,i)
@@ -399,7 +399,7 @@ function Solving_sub1(D_n)
             end
             # println("T_j: ", T_i)
             T_j, N2C_j = T_N3k(D_n, N3, j)
-            if (C_n * D_n[j]/f_min[j] <= T_j)
+            if (C_n[j] * D_n[j]/f_min[j] <= T_j)
                 # println("delete j:", j)
                 N2C_rs = copy(N2C_j)
                 push!(N2,j)
@@ -423,17 +423,17 @@ function Solving_sub1(D_n)
         println("-> Tcmp3: ", Tcmp_N3)
 
         for k in N3
-            rs_f[k] = C_n*D_n[k]/rs_T_cmp
+            rs_f[k] = C_n[k]*D_n[k]/rs_T_cmp
         end
 
         if (abs(Tcmp_N1-rs_T_cmp)<1e-6)
-            time = C_n*D_n./f_max
+            time = C_n.*D_n./f_max
 
             for n =1:NumbDevs
                 if(abs(time[n]-rs_T_cmp)<1e-6)
                     rs_f[n]=f_max[n]
                 else
-                    rs_f[n]= C_n*D_n[n]/rs_T_cmp
+                    rs_f[n]= C_n[n]*D_n[n]/rs_T_cmp
                 end
             end
         elseif ((abs(Tcmp_N2-rs_T_cmp)<1e-6))
@@ -441,17 +441,17 @@ function Solving_sub1(D_n)
                 rs_f[n] = f_min[n]
             end
             for k in N3
-                rs_f[k] = max(C_n*D_n[k]/rs_T_cmp, f_min[k])
+                rs_f[k] = max(C_n[k]*D_n[k]/rs_T_cmp, f_min[k])
             end
         end
     end
 
     rs_f = rs_f * 1e-9
-    rs_E_cmp = alpha / 2 * C_n * sum(D_n.*(rs_f.^2)) * 1e18
+    rs_E_cmp = alpha / 2 * sum(C_n.* D_n.*(rs_f.^2)) * 1e18
     # println("here: " ,sum(D_n.*(rs_f.^2)))
 
     if (DEBUG > 0)
-        println("Sub1 constraint: ", maximum(C_n*(D_n*1e-9./rs_f)))
+        println("Sub1 constraint: ", maximum(C_n.*(D_n*1e-9./rs_f)))
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
