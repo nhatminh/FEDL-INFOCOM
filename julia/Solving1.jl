@@ -9,7 +9,7 @@ using Ipopt
 using LambertW
 using Roots
 using DataStructures
-include("Setting.jl")
+#include("Setting.jl")
 
 eps = 1e-4
 function Solving_global_prob(D_n, ratios)
@@ -181,14 +181,15 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
 
     status = solve(prob)
     println("Solve Status: ",status)
-
     rs_Theta = getvalue(Theta)
+    Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
     if (DEBUG > 0)
         println("Theta: ", rs_Theta)
-        # println("Obj: ", 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp)))
+        println("Obj: ", Obj)
+        println("Obj1: ", getobjectivevalue(prob))
     end
 
-    return rs_Theta
+    return rs_Theta, Obj
 end
 
 ############ ############ ############
@@ -431,19 +432,17 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
     println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
-    rs_Theta = find_zero(fx,0.001)
-    Thetas = find_zeros(fx, 0+eps, 1-eps)
+    rs_Theta = find_zero(fx,1e-9)
+    Thetas = find_zeros(fx, 0+0.00001, 1-0.00001)
     println("Roots: ", Thetas)
-    # @NLobjective(prob, Min, 1/(1 - Theta) * (E_com - log(Theta)*E_cmp + kappa * (T_com - log(Theta)*T_cmp)))
-    #
-    # status = solve(prob)
-    # println("Solve Status: ",status)
+
+    Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
 
     if (DEBUG > 0)
         println("fx: ", fx(rs_Theta))
         println("Theta: ", rs_Theta)
-        # println("Obj: ", 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp)))
+        println("Obj: ", Obj)
     end
 
-    return rs_Theta
+    return rs_Theta, Obj, 1/eta
 end

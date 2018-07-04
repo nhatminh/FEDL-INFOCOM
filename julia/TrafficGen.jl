@@ -1,4 +1,4 @@
-include("Setting.jl")
+#include("Setting.jl")
 using Distributions
 using HDF5
 

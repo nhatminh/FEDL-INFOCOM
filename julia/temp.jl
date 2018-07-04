@@ -24,7 +24,26 @@
 #
 # a = 1:3
 # println(typeof(a))
-using Distributions
 
 
-println(rand(Uniform(1, 2), 5))
+# using Distributions
+# println(rand(Uniform(1, 2), 5))
+
+# using PyCall
+# pygui(:qt5)
+
+using PyPlot
+clf()
+figure(1)
+x = linspace(0,2*pi,1000);
+ y = sin.(5*x + 4*cos.(2*x))
+plot(x, y, color="red", linewidth=2.0, linestyle="--")
+show()
+savefig("plot.png")
+
+# using Plots
+# pyplot() # Switch to using the PyPlot.jl backend
+# plot(rand(5,5),linewidth=2,title="My Plot") # The same plotting command works
+
+x = collect(0:.1:10)
+println(x.^2)
