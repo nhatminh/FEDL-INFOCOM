@@ -106,5 +106,10 @@ function main1()
     end
 end
 
-# main()
-plot_scale_result()
+# for numb in Numb_devs
+#     global NumbDevs = numb
+#     main()
+# end
+
+main()
+# plot_scale_result()

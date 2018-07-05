@@ -1,8 +1,9 @@
 using Distributions
 using HDF5
 
-NumbDevs = 20 #1, 5, 10, 15, 20
-Numb_devs =  [1, 5, 10, 15, 20] #[1, 3, 5, 7, 10, 13, 15, 17, 20]
+NumbDevs = 5 #1, 5, 10, 15, 20
+# Numb_devs =  [1, 5, 10, 15, 20]
+# Numb_devs =  collect(1:15)
 
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations

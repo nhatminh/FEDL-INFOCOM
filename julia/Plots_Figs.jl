@@ -178,7 +178,7 @@ end
 
 function plot_scale_result()
     Numb_kaps = size(kaps)[1]
-    Sims = 5
+    Sims = size(Numb_devs)[1]
     Thetas = zeros(Sims, Numb_kaps)
     Objs   = zeros(Sims, Numb_kaps)
     Objs_E = zeros(Sims, Numb_kaps)
