@@ -437,7 +437,8 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
     println("Roots: ", Thetas)
 
     Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
-
+    Obj_E = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp)
+    Obj_T = 1/(1 - rs_Theta) *(T_com - log(rs_Theta)*T_cmp)
     if (DEBUG > 0)
         println("fx: ", fx(rs_Theta))
         println("Theta: ", rs_Theta)
@@ -446,5 +447,5 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
 
     # println("Test sub3:", abs(log(rs_Theta) + 1/rs_Theta - 1/eta))
 
-    return rs_Theta, Obj, 1/eta
+    return rs_Theta, Obj, Obj_E, Obj_T, 1/eta
 end

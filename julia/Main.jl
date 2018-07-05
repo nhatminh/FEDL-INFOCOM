@@ -37,6 +37,7 @@ function main()
 
     Theta, Theta1   = zeros(Numb_kaps), zeros(Numb_kaps)
     Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps)
+    Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
     d_eta  = zeros(Numb_kaps)
 
     # println("Numb_kaps: ", Numb_kaps)
@@ -55,7 +56,7 @@ function main()
 
             ### Sub3 ###
             Theta[k], Obj[k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
-            Theta1[k], Obj1[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
+            Theta1[k], Obj1[k], Obj_E[k], Obj_T[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
             # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
 
             # ### Global ###

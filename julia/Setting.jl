@@ -18,8 +18,8 @@ S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats 
 ### COMMUNICATIONS PARAMS ###
 Ptx_Max = 1.
 Ptx_Min = 0.1
-N0  = 1e-12    #    -> Decrease BW -> Increase Theta
-BW  = 20e6     #Mhz -> Increase BW -> Increase Theta
+N0  = 1e-10    #    -> Decrease BW -> Increase Theta
+BW  = 1e6     #Mhz -> Increase BW -> Increase Theta
 
 Dist_min = 2  #2m
 Dist_max = 50 #50m

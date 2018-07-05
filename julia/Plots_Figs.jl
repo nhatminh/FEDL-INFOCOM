@@ -125,19 +125,27 @@ function plot_sub3_cvx(kaps, Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E
     # savefig(string(folder,"Sub3_obj.png"))
 
     x = collect(1.e-5:0.001:0.99)
-    obj  = zeros(size(x)[1])
-    id = 9
+    obj   = zeros(size(x)[1])
+    glob_cost_iter = zeros(size(x)[1])
+    glob_numb_iter = zeros(size(x)[1])
+    id = 19
     println("Convex for kappa: ",  kaps[id])
     for i=1:size(x)[1]
         obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
+        glob_cost_iter[i] = E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id])
+        glob_numb_iter[i] = 1/(1 - x[i])
+        # obj[i]   = obj_E[i] + obj_T[i]
     end
-    plot(x, obj,linestyle="-",color="k", label=string("\$\\kappa\$ =", kaps[id]))
+    plot(x, obj,linestyle="-",color="k", label=string("Objective: \$\\kappa\$ =", kaps[id]))
+    plot(x, glob_cost_iter,linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
+    plot(x, glob_numb_iter,linestyle="--",color=colors[3], label=string("\$ 1/(1 - \\Theta)\$"))
     # println(x)
-    plot(Theta1[id], Obj1[id],color="r", marker=markers[1], markersize=marker_size)
+    plot(Theta1[id], Obj1[id],color="r", marker=markers[2], markersize=marker_size)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
-    ylabel("Objective",fontsize=label_fontsize1+1)
+    # ylabel("Objective",fontsize=label_fontsize1+1)
+    yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub3_obj.png"))
     println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
