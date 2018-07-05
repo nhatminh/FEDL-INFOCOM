@@ -364,7 +364,7 @@ function Solving_sub1(D_n)
         println("Objective: ", rs_E_cmp + kappa*rs_T_cmp )
     end
 
-    return rs_T_cmp, rs_f, rs_E_cmp
+    return rs_T_cmp, rs_f, rs_E_cmp, Tcmp_N1, Tcmp_N2, Tcmp_N3, size(N1)[1], size(N2)[1], size(N3)[1]
 end
 
 function inv_g_func(tau, ratio)
@@ -432,7 +432,7 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
     println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
-    rs_Theta = find_zero(fx,1e-9)
+    rs_Theta = find_zero(fx,1e-6)
     Thetas = find_zeros(fx, 0+0.00001, 1-0.00001)
     println("Roots: ", Thetas)
 
@@ -443,6 +443,8 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
         println("Theta: ", rs_Theta)
         println("Obj: ", Obj)
     end
+
+    # println("Test sub3:", abs(log(rs_Theta) + 1/rs_Theta - 1/eta))
 
     return rs_Theta, Obj, 1/eta
 end

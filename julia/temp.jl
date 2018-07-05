@@ -47,3 +47,5 @@ savefig("plot.png")
 
 x = collect(0:.1:10)
 println(x.^2)
+
+println(true & false)

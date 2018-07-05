@@ -20,29 +20,23 @@ end
 function main()
     #Generate data
     dist_list, gain_list, ratios, D_n = mobile_gen()
-    # kaps = collect(0:.01:10)
-    kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 1e2]
+    # kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 1e2]
+    kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 7e1, 1e2]
     Numb_kaps = size(kaps)[1]
-    T_cmp    = zeros(Numb_kaps)
-    T_cmp1   = zeros(Numb_kaps)
-    E_cmp    = zeros(Numb_kaps)
-    E_cmp1   = zeros(Numb_kaps)
-    f        = zeros(Numb_kaps,NumbDevs)
-    f1       = zeros(Numb_kaps,NumbDevs)
+    T_cmp, T_cmp1   = zeros(Numb_kaps), zeros(Numb_kaps)
+    E_cmp, E_cmp1   = zeros(Numb_kaps), zeros(Numb_kaps)
+    f, f1           = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)
+    N1, N2, N3      = zeros(Numb_kaps), zeros(Numb_kaps), zeros(Numb_kaps)
+    Tcmp_N1, Tcmp_N2, Tcmp_N3   = zeros(Numb_kaps), zeros(Numb_kaps), zeros(Numb_kaps)
 
-    T_com    = zeros(Numb_kaps)
-    T_com1   = zeros(Numb_kaps)
-    E_com    = zeros(Numb_kaps)
-    E_com1   = zeros(Numb_kaps)
-    p        = zeros(Numb_kaps,NumbDevs)
-    p1       = zeros(Numb_kaps,NumbDevs)
-    tau      = zeros(Numb_kaps,NumbDevs)
-    tau1     = zeros(Numb_kaps,NumbDevs)
 
-    Theta    = zeros(Numb_kaps)
-    Theta1   = zeros(Numb_kaps)
-    Obj    = zeros(Numb_kaps)
-    Obj1   = zeros(Numb_kaps)
+    T_com, T_com1   = zeros(Numb_kaps),zeros(Numb_kaps)
+    E_com, E_com1   = zeros(Numb_kaps), zeros(Numb_kaps)
+    p, p1           = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)
+    tau, tau1       = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)
+
+    Theta, Theta1   = zeros(Numb_kaps), zeros(Numb_kaps)
+    Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps)
     d_eta  = zeros(Numb_kaps)
 
     # println("Numb_kaps: ", Numb_kaps)
@@ -51,7 +45,7 @@ function main()
             global kappa = kaps[k]
             ### Sub1 ###
             T_cmp[k], f[k,:], E_cmp[k]     = Solving_sub_prob1(D_n[s,:])
-            T_cmp1[k], f1[k,:], E_cmp1[k]  = Solving_sub1(D_n[s,:])
+            T_cmp1[k], f1[k,:], E_cmp1[k], Tcmp_N1[k], Tcmp_N2[k], Tcmp_N3[k],N1[k], N2[k], N3[k]   = Solving_sub1(D_n[s,:])
             # println("\n---->> Check Sub1 Solution: ", check([T_cmp, f, E_cmp], [T_cmp1, f1, E_cmp1]))
 
             ### Sub2 ###
@@ -70,14 +64,15 @@ function main()
             # println("\n---->> Check Global Solution: ", check(rs, rs2))
         end
    end
-   println(T_cmp)
-   println(T_cmp1)
-   plot_sub1(kaps, T_cmp, T_cmp1)
+
+   plot_sub1_T(kaps, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+   plot_sub1_N(kaps, N1, N2, N3)
+   plot_sub1_f(kaps, f, f1)
    plot_sub2_tau(kaps, tau, tau1)
    plot_sub2_p(kaps, p, p1)
 
    plot_sub3_equation(kaps, d_eta)
-   plot_sub3_cvx(kaps, Theta, Theta1, Obj, Obj1)
+   plot_sub3_cvx(kaps, Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 function main1()
