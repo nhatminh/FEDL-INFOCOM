@@ -38,7 +38,12 @@ function mobile_gen()
         D_n       = zeros(Numb_SIMs,NumbDevs)
         for s =1:Numb_SIMs
             dist_list[s,:] = rand(Dist_min:Dist_max,NumbDevs)
-            D_n[s,:]       = rand(D_min:D_max,NumbDevs)
+            if(SCALE)
+                D_n[s,:]       = D_Total/NumbDevs
+            else
+                D_n[s,:]       = rand(D_min:D_max,NumbDevs)
+            end
+
             for n=1:NumbDevs
                 gain_list[s,n] = exp_gain(dist_list[n])
                 ratios[s,n]    = noise_per_gain(gain_list[n])

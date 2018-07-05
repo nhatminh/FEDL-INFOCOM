@@ -20,8 +20,6 @@ end
 function main()
     #Generate data
     dist_list, gain_list, ratios, D_n = mobile_gen()
-    # kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 1e2]
-    kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 7e1, 1e2]
     Numb_kaps = size(kaps)[1]
     T_cmp, T_cmp1   = zeros(Numb_kaps), zeros(Numb_kaps)
     E_cmp, E_cmp1   = zeros(Numb_kaps), zeros(Numb_kaps)
@@ -66,14 +64,19 @@ function main()
         end
    end
 
-   plot_sub1_T(kaps, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
-   plot_sub1_N(kaps, N1, N2, N3)
-   plot_sub1_f(kaps, f, f1)
-   plot_sub2_tau(kaps, tau, tau1)
-   plot_sub2_p(kaps, p, p1)
+   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
 
-   plot_sub3_equation(kaps, d_eta)
-   plot_sub3_cvx(kaps, Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+   plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+   plot_sub1_N(N1, N2, N3)
+
+   if(NumbDevs <=5)
+       plot_sub1_f(f, f1)
+       plot_sub2_tau(tau, tau1)
+       plot_sub2_p(p, p1)
+   end
+
+   plot_sub3_equation(d_eta)
+   plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 function main1()
@@ -103,5 +106,5 @@ function main1()
     end
 end
 
-main()
-# main1()
+# main()
+plot_scale_result()

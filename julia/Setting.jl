@@ -1,17 +1,21 @@
 using Distributions
 using HDF5
 
-NumbDevs = 5
+NumbDevs = 20 #1, 5, 10, 15, 20
+Numb_devs =  [1, 5, 10, 15, 20] #[1, 3, 5, 7, 10, 13, 15, 17, 20]
 
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations
 REUSED_TRAFFIC = false
+READ_RESULT = false
 DEBUG = 1 #LEVEL 0, 1, 2, 3
-HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
+HETEROGENEOUS = 0  # 0: homogeneous, 1: heterogeneous, 2: reused
+SCALE = true
 
 ### LEARNING PARAMS ###
-D_min   = 8* 1e6 #1 MB, datasize range (-> bits)
-D_max   = 8* 2e6 #2 MB (-> bits)
+D_min   = 8* 1e6  #1 MB, datasize range (-> bits)
+D_max   = 8* 2e6  #2 MB (-> bits)
+D_Total = 8* 20e6 #20 MB (-> bits)
 S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats (1bits/ln2)
 # kappa   = 0.001   #coeff of T_iter
 
@@ -69,3 +73,4 @@ println(f_min)
 println(f_max)
 
 alpha    = 2e-28
+kaps = [5e-5, 8e-5, 1e-4, 3e-4, 5e-4, 7e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 1.,3., 5., 7., 1e1, 5e1, 7e1, 1e2]
