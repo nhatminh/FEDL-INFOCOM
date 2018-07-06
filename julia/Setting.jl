@@ -11,7 +11,7 @@ REUSED_TRAFFIC = false
 READ_RESULT = false
 DEBUG = 1 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 0  # 0: homogeneous, 1: heterogeneous, 2: reused
-SCALE = true
+SCALE = false
 
 ### LEARNING PARAMS ###
 D_min   = 8* 1e6  #1 MB, datasize range (-> bits)

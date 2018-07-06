@@ -111,5 +111,6 @@ end
 #     main()
 # end
 
-main()
+# main()
 # plot_scale_result()
+plot_sub3_kappa_theta()

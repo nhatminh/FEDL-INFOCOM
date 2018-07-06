@@ -32,7 +32,7 @@ function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     xscale("log")
     ylabel("\$T_{cmp}\$ (sec)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_T.png"))
+    savefig(string(folder,"Sub1_T.pdf"))
 end
 
 function plot_sub1_N(N1, N2, N3)
@@ -48,7 +48,7 @@ function plot_sub1_N(N1, N2, N3)
     xscale("log")
     ylabel("Numb of Devs",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_N.png"))
+    savefig(string(folder,"Sub1_N.pdf"))
 end
 
 function plot_sub1_f(f, f1)
@@ -75,7 +75,7 @@ function plot_sub1_f(f, f1)
     xscale("log")
     ylabel("f (GHz)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_f.png"))
+    savefig(string(folder,"Sub1_f.pdf"))
 end
 
 function plot_sub2_tau(tau, tau1)
@@ -91,7 +91,7 @@ function plot_sub2_tau(tau, tau1)
     xscale("log")
     ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub2_Tau.png"))
+    savefig(string(folder,"Sub2_Tau.pdf"))
 end
 
 function plot_sub2_p(p, p1)
@@ -109,7 +109,7 @@ function plot_sub2_p(p, p1)
     xscale("log")
     ylabel("p (Watt)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub2_p.png"))
+    savefig(string(folder,"Sub2_p.pdf"))
 end
 
 function plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
@@ -122,7 +122,7 @@ function plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     # xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     # ylabel("Objective",fontsize=label_fontsize1+1)
     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    # savefig(string(folder,"Sub3_obj.png"))
+    # savefig(string(folder,"Sub3_obj.pdf"))
 
     x = collect(1.e-5:0.001:0.99)
     obj   = zeros(size(x)[1])
@@ -147,8 +147,34 @@ function plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     # ylabel("Objective",fontsize=label_fontsize1+1)
     yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub3_obj.png"))
+    savefig(string(folder,"Sub3_obj.pdf"))
     println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
+end
+
+function plot_sub3_kappa_theta()
+
+    Theta, Obj, Obj_E, Obj_T, T_cmp1, E_cmp1, T_com1, E_com1,
+    N1, N2, N3, f1, tau1, p1,
+    d_eta = read_result(string("result5_hete.h5"))
+
+    Theta1, Obj1, Obj_E1, Obj_T1, T_cmp11, E_cmp11, T_com11, E_com11,
+    N11, N21, N31, f11, tau11, p11,
+    d_eta1 = read_result(string("result5_homo.h5"))
+
+
+    clf()
+    figure(10,figsize=fig_size)
+    # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
+    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous")
+    plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous")
+
+
+    legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
+    ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
+    xscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"sub3_kappa_theta.pdf"))
 end
 
 function plot_sub3_equation(d_eta)
@@ -173,7 +199,7 @@ function plot_sub3_equation(d_eta)
     xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     ylabel("\$\\log(e^{1/\\Theta} \\Theta)\$",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub3_eq.png"))
+    savefig(string(folder,"Sub3_eq.pdf"))
 end
 
 function plot_scale_result()
@@ -202,7 +228,7 @@ function plot_scale_result()
     # # ylabel("Objective",fontsize=label_fontsize1+1)
     # # yscale("log")
     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    # savefig(string(folder,"Scale_obj.png"))
+    # savefig(string(folder,"Scale_obj.pdf"))
     #
     # clf()
     # figure(9,figsize=fig_size)
@@ -217,7 +243,7 @@ function plot_scale_result()
     # # ylabel("Objective",fontsize=label_fontsize1+1)
     # # yscale("log")
     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    # savefig(string(folder,"Scale_theta.png"))
+    # savefig(string(folder,"Scale_theta.pdf"))
 
     clf()
     figure(10,figsize=fig_size)
@@ -231,7 +257,7 @@ function plot_scale_result()
     ylabel("Energy cost",fontsize=label_fontsize1+1)
     # yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Scale_obj_E.png"))
+    savefig(string(folder,"Scale_obj_E.pdf"))
 
     clf()
     figure(11,figsize=fig_size)
@@ -245,7 +271,7 @@ function plot_scale_result()
     ylabel("Time cost",fontsize=label_fontsize1+1)
     # yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Scale_obj_T.png"))
+    savefig(string(folder,"Scale_obj_T.pdf"))
 
 end
 
