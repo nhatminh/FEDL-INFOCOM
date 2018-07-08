@@ -65,19 +65,21 @@ function main()
         end
    end
 
-   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
+   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
 
-   plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+   plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
    plot_sub1_N(N1, N2, N3)
 
    if(NumbDevs <=5)
-       plot_sub1_f(f, f1)
-       plot_sub2_tau(tau, tau1)
-       plot_sub2_p(p, p1)
+       plot_sub1_f(f1)
+       plot_sub2_tau(tau1)
+       plot_sub2_p(p1)
    end
 
    plot_sub3_equation(d_eta)
-   plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+   plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+   plot_sub3_kappa_theta(Theta1, d_eta)
+   plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 function main1()
@@ -108,8 +110,27 @@ function main1()
 end
 
 if READ_RESULT
-    # plot_scale_result()
-    plot_sub3_kappa_theta()
+    Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+    E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
+    d_eta = read_result(string("result5.h5"))
+    #
+    # Theta1, Obj1, Obj_E1, Obj_T1, T_cmp11, E_cmp11, T_com11, E_com11,
+    # N11, N21, N31, f11, tau11, p11,
+    # d_eta1 = read_result(string("result5_homo.h5"))
+
+    plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+    plot_sub1_N(N1, N2, N3)
+
+    if(NumbDevs <=5)
+        plot_sub1_f(f1)
+        plot_sub2_tau(tau1)
+        plot_sub2_p(p1)
+    end
+
+    plot_sub3_equation(d_eta)
+    plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+    plot_sub3_kappa_theta(Theta1, d_eta)
+    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 else
     main()
 end
