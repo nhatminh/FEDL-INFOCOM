@@ -10,7 +10,7 @@ Numb_SIMs = 1  #Number of simulations
 REUSED_TRAFFIC = false
 READ_RESULT = false
 DEBUG = 1 #LEVEL 0, 1, 2, 3
-HETEROGENEOUS = 0  # 0: homogeneous, 1: heterogeneous, 2: reused
+HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
 SCALE = false
 
 ### LEARNING PARAMS ###

@@ -263,19 +263,6 @@ function Solving_sub1(D_n)
 
     N1=Int32[]
     N3 = collect(1:NumbDevs)
-    # T_N3_init = T_N3(D_n, N3)
-    # N1_max = maximum(UEs_max)
-    #
-    # if (N1_max >= T_N3_init)
-    #     N1 = find(a->a==N1_max, UEs_max)
-    # end
-    #
-    # N3 = setdiff(N3,N1)
-    # println("N1: ",N1)
-    # println("N3 - N1: ",N3)
-    # for n in N1
-    #     rs_f[n] = f_max[n]
-    # end
 
     sorted_UEs_min_arr = sort(collect(UEs_min), by=x->x[2])
     # println(sorted_UEs_min_arr)
@@ -304,8 +291,8 @@ function Solving_sub1(D_n)
 
     T_N3_init = T_N3(D_n, N3)
     N1_max = maximum(UEs_max)
-
-    if (N1_max >= T_N3_init)
+    # println("HERE: ", N3)
+    if (N1_max >= T_N3_init) & (T_N3_init > 0)
         N1 = find(a->a==N1_max, UEs_max)
     end
 

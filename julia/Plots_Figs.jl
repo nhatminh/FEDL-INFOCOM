@@ -39,9 +39,9 @@ function plot_sub1_N(N1, N2, N3)
     clf()
     figure(2,figsize=fig_size)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(kaps,N1,color=colors[2],linestyle="--",linewidth=l_width,label="N1")
-    plot(kaps,N2,color=colors[4],linestyle="--",linewidth=l_width,label="N2")
-    plot(kaps,N3,color=colors[5],linestyle="--",linewidth=l_width,label="N3")
+    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="N1")
+    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="N2")
+    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="N3")
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
@@ -152,7 +152,6 @@ function plot_sub3_cvx(Theta, Theta1, Obj, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 function plot_sub3_kappa_theta()
-
     Theta, Obj, Obj_E, Obj_T, T_cmp1, E_cmp1, T_com1, E_com1,
     N1, N2, N3, f1, tau1, p1,
     d_eta = read_result(string("result5_hete.h5"))
@@ -165,13 +164,15 @@ function plot_sub3_kappa_theta()
     clf()
     figure(10,figsize=fig_size)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous")
-    plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous")
+    plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
+    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous: \$\\kappa\$")
+    # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
+    # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
 
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
+    # ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta.pdf"))

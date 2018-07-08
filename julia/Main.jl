@@ -40,6 +40,7 @@ function main()
 
     # println("Numb_kaps: ", Numb_kaps)
     for s =1:Numb_SIMs
+        # for k=1:1
         for k=1:Numb_kaps
             global kappa = kaps[k]
             ### Sub1 ###
@@ -106,11 +107,9 @@ function main1()
     end
 end
 
-# for numb in Numb_devs
-#     global NumbDevs = numb
-#     main()
-# end
-
-# main()
-# plot_scale_result()
-plot_sub3_kappa_theta()
+if READ_RESULT
+    # plot_scale_result()
+    plot_sub3_kappa_theta()
+else
+    main()
+end
