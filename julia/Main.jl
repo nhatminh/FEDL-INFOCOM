@@ -70,11 +70,9 @@ function main()
    plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
    plot_sub1_N(N1, N2, N3)
 
-   if(NumbDevs <=5)
-       plot_sub1_f(f1)
-       plot_sub2_tau(tau1)
-       plot_sub2_p(p1)
-   end
+   plot_sub1_f(f1)
+   plot_sub2_tau(tau1)
+   plot_sub2_p(p1)
 
    plot_sub3_equation(d_eta)
    plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
@@ -121,11 +119,9 @@ if READ_RESULT
     plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     plot_sub1_N(N1, N2, N3)
 
-    if(NumbDevs <=5)
-        plot_sub1_f(f1)
-        plot_sub2_tau(tau1)
-        plot_sub2_p(p1)
-    end
+    plot_sub1_f(f1)
+    plot_sub2_tau(tau1)
+    plot_sub2_p(p1)
 
     plot_sub3_equation(d_eta)
     plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)

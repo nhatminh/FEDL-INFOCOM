@@ -8,7 +8,7 @@ NumbDevs = 5 #1, 5, 10, 15, 20
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations
 REUSED_TRAFFIC = false
-READ_RESULT = true
+READ_RESULT = false
 
 DEBUG = 1 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused

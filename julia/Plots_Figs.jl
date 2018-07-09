@@ -14,7 +14,7 @@ stride = 6
 
 colors=["m","b","coral","g","k","r"]
 algs = ["PBCD", "Consensus_BCD2", "JP-ADMM", "JP-ADMM_BCD4","IpOpt Solver","Exhaustive Search"]
-markers = ["x","o",">","^", "."]
+markers = ["x","o",">","^", ".","s"]
 
 folder = string("figs//")
 
@@ -22,7 +22,7 @@ function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     clf()
     figure(1,figsize=fig_size)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(kaps,T_cmp1,color=colors[6],linestyle="-",linewidth=l_width,label="T_cmp_opt")
+    plot(kaps,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="T_cmp_opt")
     plot(kaps,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="Tcmp_N1")
     plot(kaps,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="Tcmp_N2")
     plot(kaps,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="Tcmp_N3")
@@ -39,9 +39,9 @@ function plot_sub1_N(N1, N2, N3)
     clf()
     figure(2,figsize=fig_size)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="N1")
-    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="N2")
-    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="N3")
+    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="N1", marker=markers[2], markersize=marker_size, markevery=11)
+    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="N2", marker=markers[3], markersize=marker_size, markevery=11)
+    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="N3", marker=markers[6], markersize=marker_size, markevery=11)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
@@ -60,8 +60,8 @@ function plot_sub1_f(f1)
         plot(kaps,f_max[1]*ones(size(kaps))*1e-9,linestyle="--",color=colors[6])
     end
 
-    for n = 1:NumbDevs
-        if (HETEROGENEOUS > 0)
+    for n = 1:5
+        if (HETEROGENEOUS > 0)  & (abs(f_max[n]*1e-9 - maximum(f1[:,n])) < 1e-3)
             plot(kaps,f_max[n]*ones(size(kaps))*1e-9,linestyle="--",color=colors[n])
             # plot(kaps,f_min[n]*ones(size(kaps))*1e-9,linestyle=":",color=colors[n])
         end
@@ -81,7 +81,7 @@ end
 function plot_sub2_tau(tau1)
     clf()
     figure(4,figsize=fig_size)
-    for n = 1:NumbDevs
+    for n = 1:5
         plot(kaps,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("Dev ",n))
     end
     # plot(kaps,T_comps1,marker=markers[2],color=colors[2], markersize=marker_size,linestyle=":",linewidth=l_width,label="Tcmp1")
@@ -99,7 +99,7 @@ function plot_sub2_p(p1)
     figure(5,figsize=fig_size)
     plot(kaps,Ptx_Max*ones(size(kaps)),linestyle=":",color=colors[6])
     plot(kaps,Ptx_Min*ones(size(kaps)),linestyle=":",color=colors[6])
-    for n = 1:NumbDevs
+    for n = 1:5
         plot(kaps,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("Dev ",n))
     end
     # plot(kaps,T_comps1,marker=markers[2],color=colors[2], markersize=marker_size,linestyle=":",linewidth=l_width,label="Tcmp1")
@@ -195,6 +195,7 @@ function plot_sub3_equation(d_eta)
     end
 
     legend(loc="best",fontsize=legend_fontsize-2)
+    xlim(0, 0.5)
     ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
     xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     ylabel("\$\\log(e^{1/\\Theta} \\Theta)\$",fontsize=label_fontsize1+1)

@@ -37,11 +37,11 @@ function mobile_gen()
         ratios    = zeros(Numb_SIMs,NumbDevs)
         D_n       = zeros(Numb_SIMs,NumbDevs)
         for s =1:Numb_SIMs
-            dist_list[s,:] = rand(Dist_min:Dist_max,NumbDevs)
+            dist_list[s,:] = rand(Uniform(Dist_min,Dist_max),NumbDevs)
             if(SCALE)
                 D_n[s,:]       = D_Total/NumbDevs
             else
-                D_n[s,:]       = rand(D_min:D_max,NumbDevs)
+                D_n[s,:]       = rand(Uniform(D_min,D_max),NumbDevs)
             end
 
             for n=1:NumbDevs
