@@ -1,7 +1,7 @@
 using Distributions
 using HDF5
 
-NumbDevs = 5 #1, 5, 10, 15, 20
+NumbDevs = 20 #1, 5, 10, 15, 20
 # Numb_devs =  [1, 5, 10, 15, 20]
 # Numb_devs =  collect(1:15)
 
@@ -12,7 +12,16 @@ READ_RESULT = false
 
 DEBUG = 1 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
-SCALE = false
+# SCALE = false
+NUMERICAL_RS = true
+if(NUMERICAL_RS)
+    HETEROGENEOUS = 0
+    D_ratios = collect(0.1:0.1:0.9)
+    Numb_D = size(D_ratios)[1]
+    Dis_ratios = collect(0.1:0.1:0.8) # => h_ratios
+    Numb_Dis = size(Dis_ratios)[1]
+end
+
 if(READ_RESULT)
     REUSED_TRAFFIC = true
     HETEROGENEOUS = 2
@@ -79,5 +88,8 @@ println(f_min)
 println(f_max)
 
 alpha    = 2e-28
-kaps = [5e-5, 8e-5, 9e-5, 1e-4, 1.3e-4, 1.7e-4, 2e-4, 2.3e-4, 2.7e-4, 3e-4, 3.5e-4, 4e-4, 4.5e-4, 5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4, 1e-3, 2e-3, 4e-3, 6e-3, 8e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 5e1, 7e1, 1e2]
+kaps = [5e-5, 8e-5, 9e-5, 1e-4, 1.3e-4, 1.7e-4, 2e-4, 2.3e-4, 2.7e-4, 3e-4, 3.5e-4, 4e-4, 4.5e-4,
+5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4,
+1e-3, 1.5e-3, 2e-3, 2.5e-3, 3e-3, 4e-3, 6e-3, 8e-3, 1e-2, 3e-2, 5e-2, 7e-2,
+1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 5e1, 7e1, 1e2]
 Numb_kaps = size(kaps)[1]

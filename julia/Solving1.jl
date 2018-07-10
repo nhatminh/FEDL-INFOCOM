@@ -390,8 +390,8 @@ function Solving_sub2(ratios)
             # println("*** Sub2: CASE 2 ***")
             rs_tau[n] = tau_max
         else
-            println("Dev ", n)
-            println("*** Sub2: CASE 3 ***")
+            # println("Dev ", n)
+            # println("*** Sub2: CASE 3 ***")
             rs_tau[n] = g_func(kappa,1/ratios[n])
         end
         x = S_n/(rs_tau[n]*BW)

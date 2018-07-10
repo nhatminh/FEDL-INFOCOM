@@ -21,93 +21,22 @@ markers = ["x","o",">","^", ".","s"]
 
 folder = string("figs//")
 
-function kappa_finding_sub1(f1)
-    global kaps_draw = zeros(3)
-    global kaps_draw_idx = zeros(Int32,3)
-    # UEs_min = Numb_kaps * ones(NumbDevs, Numb_kaps)
-    min_UEs1 = Numb_kaps
-    min_UEs2 = 1
-    max_UEs  = Numb_kaps
-
-    for n =1:NumbDevs
-        UEs_min  = find(a->abs(a-f_min[n]*1e-9)<5e-4, f1[:,n])
-        UEs_max  = find(a->abs(a-f_max[n]*1e-9)<5e-4, f1[:,n])
-
-        if size(UEs_min)[1] > 0
-            min_UEs1 = min(min_UEs1, maximum(UEs_min))
-            min_UEs2 = max(min_UEs2, maximum(UEs_min))
-        end
-        if size(UEs_max)[1] > 0
-            max_UEs  = min(max_UEs, minimum(UEs_max))
-        end
-    end
-
-    kaps_draw[1] = kaps[min_UEs1]
-    kaps_draw[2] = kaps[min_UEs2+1]
-    kaps_draw[3] = kaps[max_UEs]
-    kaps_draw_idx[1] = min_UEs1
-    kaps_draw_idx[2] = min_UEs2+1
-    kaps_draw_idx[3] = max_UEs
-    println("kaps_thresh1: ", kaps_draw)
-end
-
-function kappa_finding_sub2(p1)
-    global kaps_draw2 = zeros(2)
-    global kaps_draw_idx2 = zeros(Int32,2)
-    # UEs_min = Numb_kaps * ones(NumbDevs, Numb_kaps)
-    min_UEs1 = Numb_kaps
-    max_UEs  = 1
-
-    for n =1:NumbDevs
-        UEs_min  = find(a->abs(a-Ptx_Min)<1e-4, p1[:,n])
-        UEs_max  = find(a->abs(a-Ptx_Max)<1e-4, p1[:,n])
-
-        if size(UEs_min)[1] > 0
-            min_UEs1 = min(min_UEs1, maximum(UEs_min))
-        end
-        if size(UEs_max)[1] > 0
-            max_UEs  = max(max_UEs, minimum(UEs_max))
-        end
-    end
-
-    kaps_draw2[1] = kaps[min_UEs1]
-    kaps_draw2[2] = kaps[max_UEs]
-    kaps_draw_idx2[1] = min_UEs1
-    kaps_draw_idx2[2] = max_UEs
-    println("kaps_thresh2: ", kaps_draw2)
-end
-
 function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     clf()
     cfig = figure(1,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(kaps,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
-    plot(kaps,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_1}\$")
-    plot(kaps,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_2}\$")
-    plot(kaps,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
-
-    r1 = patch.Rectangle([0,0],kaps_draw[1],T_cmp1[1]+1., alpha=0.07,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],T_cmp1[kaps_draw_idx[1]]+0.5, alpha=0.12,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw[2],0],kaps_draw[3] - kaps_draw[2],T_cmp1[kaps_draw_idx[2]]+0.5, alpha=0.16,fc="k",ec="blue",linewidth=.7)
-    r4 = patch.Rectangle([kaps_draw[3],0],maximum(kaps)- kaps_draw[3],T_cmp1[kaps_draw_idx[3]]+0.5, alpha=0.2,fc="k",ec="blue",linewidth=.7)
-    ax[:add_patch](r1)
-    ax[:add_patch](r2)
-    ax[:add_patch](r3)
-    ax[:add_patch](r4)
-
-    annotate("A", xy=[kaps_draw[1]/3;(T_cmp1[1]+1.)/2.], xycoords="data",size=19)
-    annotate("B", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/7; (T_cmp1[kaps_draw_idx[1]]+0.5)/2], xycoords="data",size=19)
-    annotate("C", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;(T_cmp1[kaps_draw_idx[2]]+0.5)/2], xycoords="data",size=19)
-    annotate("D", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/10;(T_cmp1[kaps_draw_idx[3]]+0.5)/3.5], xycoords="data",size=19)
+    plot(t_ratios,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
+    plot(t_ratios,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_1}\$")
+    plot(t_ratios,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_2}\$")
+    plot(t_ratios,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    xscale("log")
+    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
     ylabel("\$T_{cmp}\$ (sec)",fontsize=label_fontsize1+1)
     ylim(0, T_cmp1[1]+1.2)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_T.pdf"))
+    savefig(string(folder,"Sub1_T_rs.pdf"))
 end
 
 function plot_sub1_N(N1, N2, N3)
@@ -115,78 +44,47 @@ function plot_sub1_N(N1, N2, N3)
     cfig = figure(2,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
-    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
-    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
-
-    r1 = patch.Rectangle([0,0],kaps_draw[1],NumbDevs, alpha=0.07,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],NumbDevs, alpha=0.12,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw[2],0],kaps_draw[3] - kaps_draw[2],NumbDevs, alpha=0.16,fc="k",ec="blue",linewidth=.7)
-    r4 = patch.Rectangle([kaps_draw[3],0],maximum(kaps)- kaps_draw[3],NumbDevs, alpha=0.2,fc="k",ec="blue",linewidth=.7)
-    ax[:add_patch](r1)
-    ax[:add_patch](r2)
-    ax[:add_patch](r3)
-    ax[:add_patch](r4)
-
-    annotate("A", xy=[kaps_draw[1]/3; NumbDevs/2.], xycoords="data",size=19)
-    annotate("B", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/10;NumbDevs/2.], xycoords="data",size=19)
-    annotate("C", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;NumbDevs/2.], xycoords="data",size=19)
-    annotate("D", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/14;NumbDevs/2.], xycoords="data",size=19)
+    step(t_ratios,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
+    step(t_ratios,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
+    step(t_ratios,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    xscale("log")
+    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
     ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_N.pdf"))
+    savefig(string(folder,"Sub1_N_rs.pdf"))
 end
 
 function plot_sub1_f(f1)
-    kappa_finding_sub1(f1)
-
     clf()
     cfig = figure(3,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    plot(kaps,f_min[1]*ones(Numb_kaps)*1e-9,linestyle=":",color=colors[6])
+    plot(t_ratios,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
 
     if (HETEROGENEOUS == 0) # Homogeneous
-        plot(kaps,f_max[1]*ones(Numb_kaps)*1e-9,linestyle="--",color=colors[6])
+        plot(t_ratios,f_max[1]*ones(Numb_D)*1e-9,linestyle="--",color=colors[6])
     end
 
-    for n = 1:5
-        if (HETEROGENEOUS > 0)  & (abs(f_max[n]*1e-9 - maximum(f1[:,n])) < 1e-3)
-            plot(kaps,f_max[n]*ones(Numb_kaps)*1e-9,linestyle="--",color=colors[n])
-            # plot(kaps,f_min[n]*ones(Numb_kaps)*1e-9,linestyle=":",color=colors[n])
-        end
+    # for n = 1:5
+    #     if (HETEROGENEOUS > 0)  & (abs(f_max[n]*1e-9 - maximum(f1[:,n])) < 1e-3)
+    #         plot(D_ratios1,f_max[n]*ones(Numb_D)*1e-9,linestyle="--",color=colors[n])
+    #         # plot(kaps,f_min[n]*ones(size(kaps))*1e-9,linestyle=":",color=colors[n])
+    #     end
+    #
+    #     plot(D_ratios1,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+    # end
 
-        plot(kaps,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+    for n = 1:NumbDevs
+        plot(t_ratios,f1[:,n],linestyle="-",linewidth=l_width)
     end
 
-    r1 = patch.Rectangle([0,0],kaps_draw[1],minimum(f1)+0.1, alpha=0.07,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],minimum(f1)+ 0.3, alpha=0.12,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw[2],0],kaps_draw[3] - kaps_draw[2],maximum(f1), alpha=0.16,fc="k",ec="blue",linewidth=.7)
-    r4 = patch.Rectangle([kaps_draw[3],0],maximum(kaps)- kaps_draw[3],maximum(f1) + 0.15, alpha=0.2,fc="k",ec="blue",linewidth=.7)
-    ax[:add_patch](r1)
-    ax[:add_patch](r2)
-    ax[:add_patch](r3)
-    ax[:add_patch](r4)
 
-    annotate("A", xy=[kaps_draw[1]/3;(minimum(f1)+0.1)/1.5], xycoords="data",size=19)
-    annotate("B", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/7;(minimum(f1)+ 0.3)/2], xycoords="data",size=19)
-    annotate("C", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;maximum(f1)/2], xycoords="data",size=19)
-    annotate("D", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/14;(maximum(f1) + 0.15)/2], xycoords="data",size=19)
-
-    # axvline(x=kaps_draw[1])
-    # axvline(x=kaps_draw[2])
-    # axvline(x=kaps_draw[3])
-
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    xscale("log")
-    ylim(0,maximum(f1) + 0.2 )
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
+    # ylim(0,maximum(f1) + 0.2 )
     ylabel("f (GHz)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub1_f.pdf"))
+    savefig(string(folder,"Sub1_f_rs.pdf"))
 end
 
 function plot_sub2_tau(tau1)
@@ -194,63 +92,41 @@ function plot_sub2_tau(tau1)
     cfig = figure(4,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
 
-    for n = 1:5
-        plot(kaps,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
+    # for n = 1:5
+    #     plot(tau_ratios,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
+    # end
+    for n = 1:NumbDevs
+        plot(tau_ratios_sorted,tau1[:,n],linestyle="-",linewidth=l_width)
     end
 
     max_tau = maximum(tau1[1,:])
 
-    r1 = patch.Rectangle([0,0],kaps_draw2[1], 1.1*max_tau, alpha=0.09,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw2[1],0],kaps_draw2[2] - kaps_draw2[1],maximum(tau1[kaps_draw_idx2[1],:]), alpha=0.14,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw2[2],0],maximum(kaps)- kaps_draw2[2],maximum(tau1[kaps_draw_idx2[2],:]), alpha=0.2,fc="k",ec="blue",linewidth=.7)
-    ax[:add_patch](r1)
-    ax[:add_patch](r2)
-    ax[:add_patch](r3)
-
-    annotate("A", xy=[kaps_draw2[1]/7;(1.1*max_tau)/2], xycoords="data",size=19)
-    annotate("B", xy=[kaps_draw2[1] + (kaps_draw2[2] - kaps_draw2[1])/50;maximum(tau1[kaps_draw_idx2[1],:])/2], xycoords="data",size=19)
-    annotate("C", xy=[kaps_draw2[2] + (maximum(kaps)- kaps_draw2[2])/10;maximum(tau1[kaps_draw_idx2[2],:])/2.5], xycoords="data",size=19)
-
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    xscale("log")
-    ylim(0, 1.15*max_tau)
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("Homogeneous_Sub2_ratio",fontsize=label_fontsize1+1)
     ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub2_Tau.pdf"))
+    savefig(string(folder,"Sub2_Tau_rs.pdf"))
 end
 
 function plot_sub2_p(p1)
-    kappa_finding_sub2(p1)
-
     clf()
     cfig = figure(5,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
 
-    plot(kaps,Ptx_Max*ones(Numb_kaps),linestyle=":",color=colors[6])
-    plot(kaps,Ptx_Min*ones(Numb_kaps),linestyle=":",color=colors[6])
-    for n = 1:5
-        plot(kaps,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+    plot(tau_ratios_sorted,Ptx_Max*ones(Numb_Dis),linestyle=":",color=colors[6])
+    plot(tau_ratios_sorted,Ptx_Min*ones(Numb_Dis),linestyle=":",color=colors[6])
+    # for n = 1:5
+    #     plot(tau_ratios,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+    # end
+    for n = 1:NumbDevs
+        plot(tau_ratios_sorted,p1[:,n],linestyle="-",linewidth=l_width)
     end
 
-    r1 = patch.Rectangle([0,0],kaps_draw2[1],minimum(p1)+0.1, alpha=0.09,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw2[1],0],kaps_draw2[2] - kaps_draw2[1],maximum(p1), alpha=0.14,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw2[2],0],maximum(kaps)- kaps_draw2[2],maximum(p1) + 0.1, alpha=0.2,fc="k",ec="blue",linewidth=.7)
-    ax[:add_patch](r1)
-    ax[:add_patch](r2)
-    ax[:add_patch](r3)
-
-    annotate("A", xy=[kaps_draw2[1]/7;(minimum(p1)+0.1)/1.5], xycoords="data",size=19)
-    annotate("B", xy=[kaps_draw2[1] + (kaps_draw2[2] - kaps_draw2[1])/50;maximum(p1)/2], xycoords="data",size=19)
-    annotate("C", xy=[kaps_draw2[2] + (maximum(kaps)- kaps_draw2[2])/10;(maximum(p1) + 0.1)/2], xycoords="data",size=19)
-
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    xscale("log")
-    ylim(0,maximum(p1) + 0.15)
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("Homogeneous_Sub2_ratio",fontsize=label_fontsize1+1)
     ylabel("p (Watt)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub2_p.pdf"))
+    savefig(string(folder,"Sub2_p_rs.pdf"))
 end
 
 function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
@@ -302,6 +178,7 @@ function plot_sub3_kappa_theta(Theta, d_eta)
 end
 
 function plot_sub3_equation(d_eta)
+    Numb_kaps = size(kaps)[1]
     clf()
     x = collect(1.e-6:0.001:0.999)
 
@@ -342,6 +219,7 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 # function plot_scale_result()
+#     Numb_kaps = size(kaps)[1]
 #     Sims = size(Numb_devs)[1]
 #     Thetas = zeros(Sims, Numb_kaps)
 #     Objs   = zeros(Sims, Numb_kaps)
