@@ -288,7 +288,7 @@ function plot_sub3_kappa_theta(Theta, d_eta)
     figure(10,figsize=fig_size)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
     plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous: \$\\kappa\$")
+    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous: \$\\Theta\$")
     # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
     # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
 
@@ -298,7 +298,7 @@ function plot_sub3_kappa_theta(Theta, d_eta)
     # ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"sub3_kappa_theta.pdf"))
+    savefig(string(folder,"sub3_kappa_theta_rs.pdf"))
 end
 
 function plot_sub3_equation(d_eta)

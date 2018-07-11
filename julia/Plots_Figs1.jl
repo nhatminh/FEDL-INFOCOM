@@ -21,15 +21,15 @@ markers = ["x","o",">","^", ".","s"]
 
 folder = string("figs//")
 
-function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
     clf()
     cfig = figure(1,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(t_ratios,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
-    plot(t_ratios,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_1}\$")
-    plot(t_ratios,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_2}\$")
-    plot(t_ratios,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
+    plot(levels,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
+    plot(levels,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_1}\$")
+    plot(levels,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_2}\$")
+    plot(levels,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
@@ -39,14 +39,14 @@ function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     savefig(string(folder,"Sub1_T_rs.pdf"))
 end
 
-function plot_sub1_N(N1, N2, N3)
+function plot_sub1_N(N1, N2, N3, levels)
     clf()
     cfig = figure(2,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    step(t_ratios,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
-    step(t_ratios,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
-    step(t_ratios,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
+    step(levels,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
+    step(levels,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
+    step(levels,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
@@ -55,14 +55,14 @@ function plot_sub1_N(N1, N2, N3)
     savefig(string(folder,"Sub1_N_rs.pdf"))
 end
 
-function plot_sub1_f(f1)
+function plot_sub1_f(f1,levels)
     clf()
     cfig = figure(3,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    plot(t_ratios,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
+    plot(levels,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
 
-    if (HETEROGENEOUS == 0) # Homogeneous
-        plot(t_ratios,f_max[1]*ones(Numb_D)*1e-9,linestyle="--",color=colors[6])
+    if (HETEROGENEOUS != 1 ) # Homogeneous
+        plot(levels,f_max[1]*ones(Numb_D)*1e-9,linestyle="--",color=colors[6])
     end
 
     # for n = 1:5
@@ -75,7 +75,7 @@ function plot_sub1_f(f1)
     # end
 
     for n = 1:NumbDevs
-        plot(t_ratios,f1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,f1[:,n],linestyle="-",linewidth=l_width)
     end
 
 
@@ -87,7 +87,7 @@ function plot_sub1_f(f1)
     savefig(string(folder,"Sub1_f_rs.pdf"))
 end
 
-function plot_sub2_tau(tau1)
+function plot_sub2_tau(tau1,levels)
     clf()
     cfig = figure(4,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
@@ -96,7 +96,7 @@ function plot_sub2_tau(tau1)
     #     plot(tau_ratios,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
     # end
     for n = 1:NumbDevs
-        plot(tau_ratios_sorted,tau1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,tau1[:,n],linestyle="-",linewidth=l_width)
     end
 
     max_tau = maximum(tau1[1,:])
@@ -108,18 +108,18 @@ function plot_sub2_tau(tau1)
     savefig(string(folder,"Sub2_Tau_rs.pdf"))
 end
 
-function plot_sub2_p(p1)
+function plot_sub2_p(p1,levels)
     clf()
     cfig = figure(5,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
 
-    plot(tau_ratios_sorted,Ptx_Max*ones(Numb_Dis),linestyle=":",color=colors[6])
-    plot(tau_ratios_sorted,Ptx_Min*ones(Numb_Dis),linestyle=":",color=colors[6])
+    plot(levels,Ptx_Max*ones(Numb_Dis),linestyle=":",color=colors[6])
+    plot(levels,Ptx_Min*ones(Numb_Dis),linestyle=":",color=colors[6])
     # for n = 1:5
     #     plot(tau_ratios,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
     # end
     for n = 1:NumbDevs
-        plot(tau_ratios_sorted,p1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,p1[:,n],linestyle="-",linewidth=l_width)
     end
 
     # legend(loc="best",fontsize=legend_fontsize-2)
@@ -129,7 +129,9 @@ function plot_sub2_p(p1)
     savefig(string(folder,"Sub2_p_rs.pdf"))
 end
 
-function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1,levels)
+    Numb_Levels = size(levels)[1]
+
     clf()
     figure(6,figsize=fig_size)
     x = collect(1.e-5:0.001:0.99)
@@ -159,26 +161,30 @@ function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
 end
 
-function plot_sub3_kappa_theta(Theta, d_eta)
+function plot_sub3_kappa_theta(Theta, d_eta,levels, sub)
+    Numb_Levels = size(levels)[1]
+
     clf()
     figure(10,figsize=fig_size)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous: \$\\kappa\$")
-    # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
-    # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
-
+    plot(kaps, 1./d_eta[1,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[1],2)))
+    plot(kaps, Theta[1,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[1],2)))
+    plot(kaps, 1./d_eta[4,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[4],2)))
+    plot(kaps, Theta[4,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[4],2)))
+    plot(kaps, 1./d_eta[end,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[end],2)))
+    plot(kaps, Theta[end,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[end],2)))
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
     # ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"sub3_kappa_theta.pdf"))
+    savefig(string(folder,"sub3_kappa_theta_rs",sub,".pdf"))
 end
 
-function plot_sub3_equation(d_eta)
-    Numb_kaps = size(kaps)[1]
+function plot_sub3_equation(d_eta,levels)
+    Numb_Levels = size(levels)[1]
+
     clf()
     x = collect(1.e-6:0.001:0.999)
 
@@ -197,102 +203,67 @@ function plot_sub3_equation(d_eta)
     savefig(string(folder,"Sub3_eq.pdf"))
 end
 
-function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
+function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, sub)
+    Numb_Levels = size(levels)[1]
+    if sub == 1
+        # idx_levels = [1, 9]
+        idx_levels = 1:9
+    else
+        # idx_levels = [1, 9]
+        idx_levels = 1:8
+    end
     clf()
     figure(9,figsize=fig_size)
+    for idx in idx_levels
+        E_obj   = zeros(Numb_kaps)
+        T_obj   = zeros(Numb_kaps)
 
-    E_obj   = zeros(Numb_kaps)
-    T_obj   = zeros(Numb_kaps)
-
-    for i=1:Numb_kaps
-        E_obj[i] = 1/(1 - Theta1[i])* (E_com1[i] - log(Theta1[i])*E_cmp1[i])
-        T_obj[i] = 1/(1 - Theta1[i])* (T_com1[i] - log(Theta1[i])*T_cmp1[i])
+        for i=1:Numb_kaps
+            E_obj[i] = 1/(1 - Theta1[idx,i])* (E_com1[idx,i] - log(Theta1[idx,i])*E_cmp1[idx,i])
+            T_obj[i] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
+        end
+        scatter(E_obj, T_obj,label=string("level",sub,"=",round(levels[idx],2)))
     end
-    scatter(E_obj, T_obj)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("E_obj",fontsize=label_fontsize1+1)
     ylabel("T_obj",fontsize=label_fontsize1+1)
-    yscale("log")
+    # yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"pareto.pdf"))
+    savefig(string(folder,"pareto_rs",sub,".pdf"))
 end
 
-# function plot_scale_result()
-#     Numb_kaps = size(kaps)[1]
-#     Sims = size(Numb_devs)[1]
-#     Thetas = zeros(Sims, Numb_kaps)
-#     Objs   = zeros(Sims, Numb_kaps)
-#     Objs_E = zeros(Sims, Numb_kaps)
-#     Objs_T = zeros(Sims, Numb_kaps)
-#
-#     for i = 1:Sims
-#         Thetas[i,:], Objs[i,:], Objs_E[i,:], Objs_T[i,:], T_cmp1, E_cmp1, T_com1, E_com1,
-#         N1, N2, N3, f1, tau1, p1,
-#         d_eta = read_result(string("result",Numb_devs[i],".h5"))
-#     end
-#
-#     # clf()
-#     # figure(8,figsize=fig_size)
-#     # plot(Numb_devs, Objs[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[11]))
-#     # plot(Numb_devs, Objs[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[15]))
-#     # plot(Numb_devs, Objs[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[19]))
-#     # plot(Numb_devs, Objs[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[23]))
-#     #
-#     # legend(loc="best",fontsize=legend_fontsize-2)
-#     # xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     # # ylabel("Objective",fontsize=label_fontsize1+1)
-#     # # yscale("log")
-#     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     # savefig(string(folder,"Scale_obj.pdf"))
-#     #
-#     # clf()
-#     # figure(9,figsize=fig_size)
-#     # plot(Numb_devs, Thetas[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\Theta\$: \$\\kappa\$ =", kaps[11]))
-#     # plot(Numb_devs, Thetas[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\Theta\$: \$\\kappa\$ =", kaps[15]))
-#     # plot(Numb_devs, Thetas[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\Theta\$: \$\\kappa\$ =", kaps[19]))
-#     # plot(Numb_devs, Thetas[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\Theta\$: \$\\kappa\$ =", kaps[23]))
-#     # # plot(Numb_devs, Thetas[:,id],linestyle="-",color="k", label="\$\\Theta\$")
-#     #
-#     # legend(loc="best",fontsize=legend_fontsize-2)
-#     # xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     # # ylabel("Objective",fontsize=label_fontsize1+1)
-#     # # yscale("log")
-#     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     # savefig(string(folder,"Scale_theta.pdf"))
-#
-#     clf()
-#     figure(10,figsize=fig_size)
-#     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-#     plot(Numb_devs, Objs_E[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[15]))
-#     plot(Numb_devs, Objs_E[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[19]))
-#     plot(Numb_devs, Objs_E[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[23]))
-#
-#     legend(loc="best",fontsize=legend_fontsize-2)
-#     xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     ylabel("Energy cost",fontsize=label_fontsize1+1)
-#     # yscale("log")
-#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     savefig(string(folder,"Scale_obj_E.pdf"))
-#
-#     clf()
-#     figure(11,figsize=fig_size)
-#     # plot(Numb_devs, Objs_T[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-#     plot(Numb_devs, Objs_T[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[15]))
-#     plot(Numb_devs, Objs_T[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[19]))
-#     plot(Numb_devs, Objs_T[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[23]))
-#
-#     legend(loc="best",fontsize=legend_fontsize-2)
-#     xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     ylabel("Time cost",fontsize=label_fontsize1+1)
-#     # yscale("log")
-#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     savefig(string(folder,"Scale_obj_T.pdf"))
-#
-# end
+function plot_total_cost(Obj, levels, sub)
+    Numb_Levels = size(levels)[1]
+    clf()
+    figure(9,figsize=fig_size)
+    plot(kaps, Obj[1,:],linestyle="-",label=string("level",sub,"=",round(levels[1],2)))
+    plot(kaps, Obj[4,:],linestyle="-",label=string("level",sub,"=",round(levels[4],2)))
+    plot(kaps, Obj[end,:],linestyle="-",label=string("level",sub,"=",round(levels[end],2)))
 
-function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
-    h5open(string("result",NumbDevs,".h5"), "w") do file
+    legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
+    ylabel("Total Cost",fontsize=label_fontsize1+1)
+    xscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"total1_rs",sub,".pdf"))
+
+    clf()
+    figure(10,figsize=fig_size)
+    plot(levels, Obj[:,1],linestyle="-",label=string("\$\\kappa\$=",kaps[1]))
+    plot(levels, Obj[:,10],linestyle="-",label=string("\$\\kappa\$=",kaps[10]))
+    plot(levels, Obj[:,end],linestyle="-",label=string("\$\\kappa\$=",kaps[end]))
+
+    legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel(string("level",sub),fontsize=label_fontsize1+1)
+    ylabel("Total Cost",fontsize=label_fontsize1+1)
+    # yscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"total2_rs",sub,".pdf"))
+end
+
+function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels)
+    h5open(filename, "w") do file
         # write(file,"kaps", kaps)
         write(file,"Theta1", Theta1)
         write(file,"Obj1", Obj1)
@@ -312,6 +283,7 @@ function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_
         write(file,"tau1", tau1)
         write(file,"p1", p1)
         write(file,"d_eta", d_eta)
+        write(file,"levels", levels)
     end
 end
 
@@ -336,6 +308,7 @@ function read_result(filename)
         tau1 = read(file,"tau1")
         p1 = read(file,"p1")
         d_eta = read(file,"d_eta")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta
+        levels = read(file,"levels")
+        return Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels
     end
 end
