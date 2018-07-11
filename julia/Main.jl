@@ -142,7 +142,6 @@ function main_sub1()
     plot_total_cost(Obj1, t_ratios, 1)
 end
 
-
 function main_sub2()
     #Generate data
     dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
@@ -155,8 +154,8 @@ function main_sub2()
 
     T_com1   = zeros(Numb_Dis,Numb_kaps)
     E_com1   = zeros(Numb_Dis,Numb_kaps)
-    p1       = zeros(Numb_Dis,NumbDevs,Numb_kaps)
-    tau1     = zeros(Numb_Dis,NumbDevs,Numb_kaps)
+    p1       = zeros(Numb_Dis,Numb_kaps,NumbDevs)
+    tau1     = zeros(Numb_Dis,Numb_kaps,NumbDevs)
 
     Theta1   = zeros(Numb_Dis,Numb_kaps)
     Obj1       = zeros(Numb_Dis,Numb_kaps)
@@ -185,6 +184,7 @@ function main_sub2()
 
            ### Sub2 ###
            # T_com[s,k], p[s,k,:], tau[s,k,:], E_com[s,k]     = Solving_sub_prob2(ratios[s,:])
+           # println(size(ratios[t,:])[1])
            T_com1[s,k], p1[s,k,:], tau1[s,k,:], E_com1[s,k] = Solving_sub2(ratios[t,:])
            # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
@@ -252,17 +252,17 @@ if(NUMERICAL_RS)
         plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 1)
         plot_total_cost(Obj1, levels, 1)
 
-        ### RATIO 2
-        dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
-
-        Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
-        E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
-        d_eta, levels = read_result(string("result",NumbDevs,"_sub2.h5"))
-        plot_sub2_p(p1[:,10,:], levels)
-        plot_sub2_tau(tau1[:,10,:], levels)
-        plot_sub3_kappa_theta(Theta1, d_eta, levels, 2)
-        plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 2)
-        plot_total_cost(Obj1, levels, 2)
+        # ### RATIO 2
+        # dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
+        #
+        # Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+        # E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
+        # d_eta, levels = read_result(string("result",NumbDevs,"_sub2.h5"))
+        # plot_sub2_p(p1[:,10,:], levels)
+        # plot_sub2_tau(tau1[:,10,:], levels)
+        # plot_sub3_kappa_theta(Theta1, d_eta, levels, 2)
+        # plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 2)
+        # plot_total_cost(Obj1, levels, 2)
     else
         # main_sub1()
         main_sub2()

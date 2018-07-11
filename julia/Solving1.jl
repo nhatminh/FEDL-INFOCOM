@@ -419,9 +419,9 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
     println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
-    rs_Theta = find_zero(fx,1e-6)
-    Thetas = find_zeros(fx, 0+0.00001, 1-0.00001)
-    println("Roots: ", Thetas)
+    rs_Theta = find_zero(fx,1e-8)
+    # Thetas = find_zeros(fx, 0+0.00001, 1-0.00001)
+    # println("Roots: ", Thetas)
 
     Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
     Obj_E = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp)

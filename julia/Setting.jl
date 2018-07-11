@@ -1,14 +1,14 @@
 using Distributions
 using HDF5
 
-NumbDevs = 20 #1, 5, 10, 15, 20
+NumbDevs = 50 #1, 5, 10, 15, 20
 # Numb_devs =  [1, 5, 10, 15, 20]
 # Numb_devs =  collect(1:15)
 
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations
 REUSED_TRAFFIC = false
-READ_RESULT = true
+READ_RESULT = false
 
 DEBUG = 1 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
@@ -16,9 +16,12 @@ HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
 NUMERICAL_RS = true
 if(NUMERICAL_RS)
     HETEROGENEOUS = 0
-    D_ratios = collect(0.1:0.1:0.9)
+    # D_ratios = collect(0.1:0.1:0.9)
+    D_ratios = [0.0005, 0.5, 0.999]
     Numb_D = size(D_ratios)[1]
-    Dis_ratios = collect(0.1:0.1:0.8) # => h_ratios
+    # Dis_ratios = collect(0.1:0.1:0.8) # => h_ratios
+    # Dis_ratios = [0.05, 0.1, 0.9]
+    Dis_ratios = [0.5,0.5, 0.5]
     Numb_Dis = size(Dis_ratios)[1]
 end
 

@@ -12,6 +12,7 @@ patterns = ["","."]
 label_fontsize1 = label_fontsize
 marker_size=6
 l_width=1.2
+l_width1=0.5
 # stride = convert(Int, max_iters/10) +1
 stride = 6
 
@@ -75,7 +76,7 @@ function plot_sub1_f(f1,levels)
     # end
 
     for n = 1:NumbDevs
-        plot(levels,f1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,f1[:,n],linestyle="-",linewidth=l_width1)
     end
 
 
@@ -96,7 +97,7 @@ function plot_sub2_tau(tau1,levels)
     #     plot(tau_ratios,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
     # end
     for n = 1:NumbDevs
-        plot(levels,tau1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,tau1[:,n],linestyle="-",linewidth=l_width1)
     end
 
     max_tau = maximum(tau1[1,:])
@@ -119,7 +120,7 @@ function plot_sub2_p(p1,levels)
     #     plot(tau_ratios,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
     # end
     for n = 1:NumbDevs
-        plot(levels,p1[:,n],linestyle="-",linewidth=l_width)
+        plot(levels,p1[:,n],linestyle="-",linewidth=l_width1)
     end
 
     # legend(loc="best",fontsize=legend_fontsize-2)
@@ -169,8 +170,8 @@ function plot_sub3_kappa_theta(Theta, d_eta,levels, sub)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
     plot(kaps, 1./d_eta[1,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[1],2)))
     plot(kaps, Theta[1,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[1],2)))
-    plot(kaps, 1./d_eta[4,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[4],2)))
-    plot(kaps, Theta[4,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[4],2)))
+    plot(kaps, 1./d_eta[2,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[2],2)))
+    plot(kaps, Theta[2,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[2],2)))
     plot(kaps, 1./d_eta[end,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[end],2)))
     plot(kaps, Theta[end,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[end],2)))
 
@@ -205,13 +206,14 @@ end
 
 function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, sub)
     Numb_Levels = size(levels)[1]
-    if sub == 1
-        # idx_levels = [1, 9]
-        idx_levels = 1:9
-    else
-        # idx_levels = [1, 9]
-        idx_levels = 1:8
-    end
+    # if sub == 1
+    #     # idx_levels = [1, 9]
+    #     idx_levels = 1:3
+    # else
+    #     # idx_levels = [1, 9]
+    #     idx_levels = 1:3
+    # end
+    idx_levels = 1:3
     clf()
     figure(9,figsize=fig_size)
     for idx in idx_levels
@@ -222,7 +224,8 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
             E_obj[i] = 1/(1 - Theta1[idx,i])* (E_com1[idx,i] - log(Theta1[idx,i])*E_cmp1[idx,i])
             T_obj[i] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
         end
-        scatter(E_obj, T_obj,label=string("level",sub,"=",round(levels[idx],2)))
+
+        plot(E_obj, T_obj,label=string("level",sub,"=",round(levels[idx],2)))
     end
 
     legend(loc="best",fontsize=legend_fontsize-2)
@@ -238,7 +241,7 @@ function plot_total_cost(Obj, levels, sub)
     clf()
     figure(9,figsize=fig_size)
     plot(kaps, Obj[1,:],linestyle="-",label=string("level",sub,"=",round(levels[1],2)))
-    plot(kaps, Obj[4,:],linestyle="-",label=string("level",sub,"=",round(levels[4],2)))
+    plot(kaps, Obj[2,:],linestyle="-",label=string("level",sub,"=",round(levels[2],2)))
     plot(kaps, Obj[end,:],linestyle="-",label=string("level",sub,"=",round(levels[end],2)))
 
     legend(loc="best",fontsize=legend_fontsize-2)
@@ -248,18 +251,18 @@ function plot_total_cost(Obj, levels, sub)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"total1_rs",sub,".pdf"))
 
-    clf()
-    figure(10,figsize=fig_size)
-    plot(levels, Obj[:,1],linestyle="-",label=string("\$\\kappa\$=",kaps[1]))
-    plot(levels, Obj[:,10],linestyle="-",label=string("\$\\kappa\$=",kaps[10]))
-    plot(levels, Obj[:,end],linestyle="-",label=string("\$\\kappa\$=",kaps[end]))
-
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel(string("level",sub),fontsize=label_fontsize1+1)
-    ylabel("Total Cost",fontsize=label_fontsize1+1)
-    # yscale("log")
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"total2_rs",sub,".pdf"))
+    # clf()
+    # figure(10,figsize=fig_size)
+    # plot(levels, Obj[:,1],linestyle="-",label=string("\$\\kappa\$=",kaps[1]))
+    # plot(levels, Obj[:,10],linestyle="-",label=string("\$\\kappa\$=",kaps[10]))
+    # plot(levels, Obj[:,end],linestyle="-",label=string("\$\\kappa\$=",kaps[end]))
+    #
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    # xlabel(string("level",sub),fontsize=label_fontsize1+1)
+    # ylabel("Total Cost",fontsize=label_fontsize1+1)
+    # # yscale("log")
+    # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    # savefig(string(folder,"total2_rs",sub,".pdf"))
 end
 
 function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels)
