@@ -234,21 +234,20 @@ function T_N2(D_n,list)
     for n in list
         tmp1 = min(tmp, C_n[n]*D_n[n]/f_min[n])
     end
-    println("min Tcmp_N2: ",tmp1)
     return tmp
 end
 
 function Solving_sub1(D_n)
     println("\n===== Solving Sub1: Closed Form =====\n")
-    println("D_n: ",D_n)
+    # println("D_n: ",D_n)
 
     rs_T_cmp = 0
     rs_f = zeros(NumbDevs)
 
-    println(sum(alpha * f_max.^3)) ### 16
-    # println(sum(alpha * f_min.^3)) ### 0.002
-    println(minimum(alpha * f_min.^3)) ### 0.0002
-    println(maximum(alpha * f_max.^3)) ### 16
+    # println(sum(alpha * f_max.^3)) ### 16
+    # # println(sum(alpha * f_min.^3)) ### 0.002
+    # println(minimum(alpha * f_min.^3)) ### 0.0002
+    # println(maximum(alpha * f_max.^3)) ### 16
 
 
     #### ------------
@@ -271,10 +270,9 @@ function Solving_sub1(D_n)
         k,v = sorted_UEs_min_arr[n]
         sorted_UEs_min[k] = v
     end
-    println("N_min: ",sorted_UEs_min)
+
     i = NumbDevs
     N2C = collect(keys(sorted_UEs_min))
-    println("Order2: ", N2C)
 
     N2= Int32[]
     N2C_rs = copy(N2C)
@@ -308,12 +306,16 @@ function Solving_sub1(D_n)
     Tcmp_N3 = T_N3(D_n, N3)
     rs_T_cmp = max(Tcmp_N1, Tcmp_N2, Tcmp_N3)
 
-    println("N1: ", N1)
-    println("-> Tcmp1: ", Tcmp_N1)
-    println("N2: ", N2)
-    println("-> Tcmp2: ", Tcmp_N2)
-    println("N3: ", N3)
-    println("-> Tcmp3: ", Tcmp_N3)
+    if (DEBUG > 0) & (NumbDevs <10)
+        println("N_min: ",sorted_UEs_min)
+        println("Order2: ", N2C)
+        println("N1: ", N1)
+        println("-> Tcmp1: ", Tcmp_N1)
+        println("N2: ", N2)
+        println("-> Tcmp2: ", Tcmp_N2)
+        println("N3: ", N3)
+        println("-> Tcmp3: ", Tcmp_N3)
+    end
 
     for k in N3
         rs_f[k] = C_n[k]*D_n[k]/rs_T_cmp
@@ -343,7 +345,7 @@ function Solving_sub1(D_n)
     rs_E_cmp = alpha / 2 * sum(C_n.* D_n.*(rs_f.^2)) * 1e18
     # println("here: " ,sum(D_n.*(rs_f.^2)))
 
-    if (DEBUG > 0)
+    if (DEBUG > 0) & (NumbDevs <10)
         println("Sub1 constraint: ", maximum(C_n.*(D_n*1e-9./rs_f)))
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
@@ -370,7 +372,7 @@ end
 
 function Solving_sub2(ratios)
     println("\n===== Solving Sub2: Closed Form =====\n")
-    println("ratios: ", ratios)
+    # println("ratios: ", ratios)
 
     rs_T_com = 0
     rs_tau = zeros(NumbDevs)
@@ -402,7 +404,7 @@ function Solving_sub2(ratios)
     rs_p = ratios.*(e.^(S_n./(rs_tau*BW)) - 1)
     rs_E_com = rs_tau'rs_p
 
-    if (DEBUG > 0)
+    if (DEBUG > 0) & (NumbDevs <10)
         println("T_com: ", rs_T_com)
         println("p: ",rs_p)
         println("tau: ", rs_tau)
@@ -419,14 +421,15 @@ function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
     println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
-    rs_Theta = find_zero(fx,1e-8)
+    rs_Theta = find_zero(fx,1e-6)
     # Thetas = find_zeros(fx, 0+0.00001, 1-0.00001)
     # println("Roots: ", Thetas)
 
     Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
     Obj_E = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp)
     Obj_T = 1/(1 - rs_Theta) *(T_com - log(rs_Theta)*T_cmp)
-    if (DEBUG > 0)
+
+    if (DEBUG > 0) & (NumbDevs <10)
         println("fx: ", fx(rs_Theta))
         println("Theta: ", rs_Theta)
         println("Obj: ", Obj)

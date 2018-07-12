@@ -74,4 +74,4 @@ annotate("Look, data!",
 	xycoords="data",
 	arrowprops=Dict("facecolor"=>"black"))
 
-println(collect(1:0.3:10))
+println(collect(1:0.7:10))

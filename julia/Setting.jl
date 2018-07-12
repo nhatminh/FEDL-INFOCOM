@@ -1,27 +1,32 @@
 using Distributions
 using HDF5
 
-NumbDevs = 50 #1, 5, 10, 15, 20
-# Numb_devs =  [1, 5, 10, 15, 20]
-# Numb_devs =  collect(1:15)
+NumbDevs = 5 #1, 5, 10, 15, 20
 
 ### PROGRAM SETTING ###
 Numb_SIMs = 1  #Number of simulations
 REUSED_TRAFFIC = false
-READ_RESULT = false
+READ_RESULT = true
 
-DEBUG = 1 #LEVEL 0, 1, 2, 3
+DEBUG = 0 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
-# SCALE = false
-NUMERICAL_RS = true
+SCALE = false
+NUMERICAL_RS = false
+
+kaps = [5e-5, 8e-5, 9e-5, 1e-4, 1.3e-4, 1.7e-4, 2e-4, 2.3e-4, 2.7e-4, 3e-4, 3.5e-4, 4e-4, 4.5e-4,
+5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4,
+1e-3, 1.5e-3, 2e-3, 2.5e-3, 3e-3, 4e-3, 6e-3, 8e-3, 1e-2, 3e-2, 5e-2, 7e-2,
+1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 5e1, 7e1, 1e2]
+
 if(NUMERICAL_RS)
+    kaps = [5e-5, 1e-4, 5e-4, 1e-3, 3e-3, 5e-3, 7e-3, 1e-2, 3e-2, 5e-2, 7e-2, 1e-1, 0.5, 1., 2., 3., 4., 5., 6., 7., 8., 9., 1e1, 2e1, 3e1, 5e1, 7e1, 1e2]
+    NumbDevs = 50 #1, 5, 10, 15, 20
     HETEROGENEOUS = 0
     # D_ratios = collect(0.1:0.1:0.9)
-    D_ratios = [0.0005, 0.5, 0.999]
+    D_ratios =[1.,0.5, 0.2, 0.01, 0.001]  #D_min/D_max
     Numb_D = size(D_ratios)[1]
     # Dis_ratios = collect(0.1:0.1:0.8) # => h_ratios
-    # Dis_ratios = [0.05, 0.1, 0.9]
-    Dis_ratios = [0.5,0.5, 0.5]
+    Dis_ratios = [1., 0.5, 0.1, 0.01, 0.001]
     Numb_Dis = size(Dis_ratios)[1]
 end
 
@@ -31,10 +36,13 @@ if(READ_RESULT)
 end
 
 ### LEARNING PARAMS ###
-D_min   = 8* 1e6  #1 MB, datasize range (-> bits)
-D_max   = 8* 2e6  #2 MB (-> bits)
+D_min   = 8* 10e6  #10 MB, datasize range (-> bits)
+D_max   = 8* 20e6  #20 MB (-> bits)
+D_avg   = (D_max + D_min)/2.
+println("D_avg:",D_avg)  # 15 MB
+
 D_Total = 8* 20e6 #20 MB (-> bits)
-S_n     = 10e3 *8 #10KB, weight params size (-> bits), and gradient => 10K nats (1bits/ln2)
+S_n     = 55e3 #weight params size (-> bits), and gradient => 55K nats (1bits/ln2) -> 10KB
 # kappa   = 0.001   #coeff of T_iter
 
 ### COMMUNICATIONS PARAMS ###
@@ -45,7 +53,8 @@ BW  = 1e6     #Mhz -> Increase BW -> Increase Theta
 
 Dist_min = 2  #2m
 Dist_max = 50 #50m
-
+Dist_avg   = (Dist_max + Dist_min)/2.
+println("Dist_avg:",Dist_avg)  # 26m
 ### COMPUTING PARAMS ###
 function save_setting(f_max, C_n)
     h5open("setting.h5", "w") do file
@@ -91,10 +100,5 @@ println(f_min)
 println(f_max)
 
 alpha    = 2e-28
-# kaps = [5e-5, 8e-5, 9e-5, 1e-4, 1.3e-4, 1.7e-4, 2e-4, 2.3e-4, 2.7e-4, 3e-4, 3.5e-4, 4e-4, 4.5e-4,
-# 5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4,
-# 1e-3, 1.5e-3, 2e-3, 2.5e-3, 3e-3, 4e-3, 6e-3, 8e-3, 1e-2, 3e-2, 5e-2, 7e-2,
-# 1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 5e1, 7e1, 1e2]
 
-kaps = [5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 0.5, 1., 2., 3., 5., 7., 9., 1e1, 3e1, 5e1, 7e1, 1e2]
 Numb_kaps = size(kaps)[1]

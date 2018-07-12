@@ -5,8 +5,9 @@ using PyCall
 
 # fig_size = (7.,5.1)
 fig_size = (6.,4.3)
+fig_size1 = (5.5,4.)
 label_fontsize = 18-1.5
-legend_fontsize = label_fontsize - 4
+legend_fontsize = label_fontsize - 3
 patterns = ["","."]
 
 label_fontsize1 = label_fontsize
@@ -82,15 +83,15 @@ function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     cfig = figure(1,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(kaps,T_cmp1+0.5,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
+    plot(kaps,T_cmp1 + 0.02*maximum(T_cmp1),color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
     plot(kaps,Tcmp_N1,color=colors[2],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_1}\$")
     plot(kaps,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_2}\$")
     plot(kaps,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
 
-    r1 = patch.Rectangle([0,0],kaps_draw[1],T_cmp1[1]+1., alpha=0.07,fc="k",ec="blue",linewidth=.7)
-    r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],T_cmp1[kaps_draw_idx[1]]+0.5, alpha=0.12,fc="k",ec="blue",linewidth=.7)
-    r3 = patch.Rectangle([kaps_draw[2],0],kaps_draw[3] - kaps_draw[2],T_cmp1[kaps_draw_idx[2]]+0.5, alpha=0.16,fc="k",ec="blue",linewidth=.7)
-    r4 = patch.Rectangle([kaps_draw[3],0],maximum(kaps)- kaps_draw[3],T_cmp1[kaps_draw_idx[3]]+0.5, alpha=0.2,fc="k",ec="blue",linewidth=.7)
+    r1 = patch.Rectangle([0,0],kaps_draw[1],1.05*maximum(T_cmp1), alpha=0.07,fc="k",ec="blue",linewidth=.7)
+    r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],T_cmp1[kaps_draw_idx[1]]+ 0.02*maximum(T_cmp1), alpha=0.12,fc="k",ec="blue",linewidth=.7)
+    r3 = patch.Rectangle([kaps_draw[2],0],kaps_draw[3] - kaps_draw[2],T_cmp1[kaps_draw_idx[2]]+ 0.02*maximum(T_cmp1), alpha=0.16,fc="k",ec="blue",linewidth=.7)
+    r4 = patch.Rectangle([kaps_draw[3],0],maximum(kaps)- kaps_draw[3],T_cmp1[kaps_draw_idx[3]]+ 0.02*maximum(T_cmp1), alpha=0.2,fc="k",ec="blue",linewidth=.7)
     ax[:add_patch](r1)
     ax[:add_patch](r2)
     ax[:add_patch](r3)
@@ -101,11 +102,11 @@ function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     annotate("C", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;(T_cmp1[kaps_draw_idx[2]]+0.5)/2], xycoords="data",size=19)
     annotate("D", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/10;(T_cmp1[kaps_draw_idx[3]]+0.5)/3.5], xycoords="data",size=19)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc="best",fontsize=legend_fontsize+1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
     xscale("log")
     ylabel("\$T_{cmp}\$ (sec)",fontsize=label_fontsize1+1)
-    ylim(0, T_cmp1[1]+1.2)
+    ylim(0, 1.065*T_cmp1[1])
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_T.pdf"))
 end
@@ -133,7 +134,7 @@ function plot_sub1_N(N1, N2, N3)
     annotate("C", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;NumbDevs/2.], xycoords="data",size=19)
     annotate("D", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/14;NumbDevs/2.], xycoords="data",size=19)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc=1,fontsize=legend_fontsize)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
     xscale("log")
     ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+1)
@@ -213,6 +214,7 @@ function plot_sub2_tau(tau1)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
+    # yscale("log")
     xscale("log")
     ylim(0, 1.15*max_tau)
     ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+1)
@@ -244,7 +246,7 @@ function plot_sub2_p(p1)
     annotate("B", xy=[kaps_draw2[1] + (kaps_draw2[2] - kaps_draw2[1])/50;maximum(p1)/2], xycoords="data",size=19)
     annotate("C", xy=[kaps_draw2[2] + (maximum(kaps)- kaps_draw2[2])/10;(maximum(p1) + 0.1)/2], xycoords="data",size=19)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc=2,fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
     xscale("log")
     ylim(0,maximum(p1) + 0.15)
@@ -255,12 +257,15 @@ end
 
 function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     clf()
-    figure(6,figsize=fig_size)
+    cfg = figure(6,figsize=fig_size1)
+    ax = cfg[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
+
     x = collect(1.e-5:0.001:0.99)
     obj   = zeros(size(x)[1])
     glob_cost_iter = zeros(size(x)[1])
     glob_numb_iter = zeros(size(x)[1])
-    id = 40
+    id = 34
     println("Convex for kappa: ",  kaps[id])
     for i=1:size(x)[1]
         obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
@@ -274,8 +279,8 @@ function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     # println(x)
     plot(Theta1[id], Obj1[id],color="r", marker=markers[2], markersize=marker_size)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
+    legend(loc="best",fontsize=legend_fontsize+1)
+    xlabel("\$\\Theta\$",fontsize=label_fontsize1+2)
     # ylabel("Objective",fontsize=label_fontsize1+1)
     yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
@@ -285,37 +290,51 @@ end
 
 function plot_sub3_kappa_theta(Theta, d_eta)
     clf()
-    figure(10,figsize=fig_size)
+    cfg = figure(10,figsize=fig_size1)
+    ax = cfg[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="Heterogeneous: \$\\kappa\$")
+    # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
+    plot(kaps, Theta,linestyle="-",color=colors[2])
     # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
     # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
 
-
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    # ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("\$\\kappa\$",fontsize=label_fontsize1+3)
+    ylabel("\$\\Theta^*\$",fontsize=label_fontsize1+2)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta.pdf"))
 end
 
-function plot_sub3_equation(d_eta)
+function plot_sub3_equation(Theta, d_eta)
     clf()
     x = collect(1.e-6:0.001:0.999)
 
-    figure(7,figsize=fig_size)
-    plot(x, 1./x + log.(x),linestyle="-",color=colors[6])
-    for k = 1:Numb_kaps
-        plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
-    end
+    cfg = figure(7,figsize=fig_size1)
+    ax = cfg[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlim(0, 0.5)
+    plot(x,d_eta[20]*ones(size(x)),linestyle="-",color="b",label=string("\$\\kappa\$ = ",kaps[20]))
+    plot(x,d_eta[30]*ones(size(x)),linestyle="-",color="g",label=string("\$\\kappa\$ = ",kaps[30]))
+    # hlines(y=d_eta[20],xmin=0, xmax=Theta[20], linestyle=":",color="k", zorder=1)
+    # hlines(y=d_eta[30],xmin=0, xmax=Theta[30], linestyle=":",color="k", zorder=1)
+    vlines(x=Theta[20],ymin=0, ymax=d_eta[20], linestyle=":",color="k", zorder=2)
+    vlines(x=Theta[30],ymin=0, ymax=d_eta[30], linestyle=":",color="k", zorder=2)
+
+    plot(x, 1./x + log.(x),linestyle="-",color=colors[6], label="\$\\log(e^{1/\\Theta} \\Theta)\$")
+    # for k = 1:Numb_kaps
+    #     plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
+    # end
+
+    annotate(string("(",round(Theta[20],2),", 1/",round(1/d_eta[20],2),")"), xy=[Theta[20];1.05*d_eta[20]], xycoords="data",size=15)
+    annotate(string("(",round(Theta[30],2),", 1/",round(1/d_eta[30],2),")"), xy=[Theta[30];1.1*d_eta[30]], xycoords="data",size=15)
+
+    legend(loc="best",fontsize=legend_fontsize+1)
+    xlim(0, 0.3)
     ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
     xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
-    ylabel("\$\\log(e^{1/\\Theta} \\Theta)\$",fontsize=label_fontsize1+1)
+    ylabel("\$1/\\eta\$",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub3_eq.pdf"))
 end
@@ -334,9 +353,9 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
     scatter(E_obj, T_obj)
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("E_obj",fontsize=label_fontsize1+1)
-    ylabel("T_obj",fontsize=label_fontsize1+1)
-    yscale("log")
+    xlabel("Energy Cost",fontsize=label_fontsize1+1)
+    ylabel("Time Cost",fontsize=label_fontsize1+1)
+    # yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"pareto.pdf"))
 end

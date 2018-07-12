@@ -78,7 +78,7 @@ function main()
    plot_sub2_p(p1)
    plot_sub2_tau(tau1)
 
-   plot_sub3_equation(d_eta)
+   plot_sub3_equation(Theta1, d_eta)
    plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
    plot_sub3_kappa_theta(Theta1, d_eta)
    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
@@ -108,7 +108,7 @@ function main_sub1()
     Obj_E, Obj_T    = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
     d_eta  = zeros(Numb_D,Numb_kaps)
 
-    t_ratios = D_ratios*f_max[1]/f_min[1]
+    t_ratios = 1./D_ratios*(f_min[1]/f_max[1])
 
     for s =1:Numb_D
         for k=1:Numb_kaps
@@ -168,7 +168,7 @@ function main_sub2()
     for s =1:Numb_Dis
         tau_max = minimum(S_n/BW./log.(Ptx_Min./ratios[s,:] .+1))
         tau_min = maximum(S_n/BW./log.(Ptx_Max./ratios[s,:] .+1))
-        tau_ratios[s] = tau_max/tau_min
+        tau_ratios[s] = tau_min/tau_max
    end
 
    println("here1: ",tau_ratios)
@@ -252,19 +252,19 @@ if(NUMERICAL_RS)
         plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 1)
         plot_total_cost(Obj1, levels, 1)
 
-        # ### RATIO 2
-        # dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
-        #
-        # Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
-        # E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
-        # d_eta, levels = read_result(string("result",NumbDevs,"_sub2.h5"))
-        # plot_sub2_p(p1[:,10,:], levels)
-        # plot_sub2_tau(tau1[:,10,:], levels)
-        # plot_sub3_kappa_theta(Theta1, d_eta, levels, 2)
-        # plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 2)
-        # plot_total_cost(Obj1, levels, 2)
+        ### RATIO 2
+        dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
+
+        Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+        E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
+        d_eta, levels = read_result(string("result",NumbDevs,"_sub2.h5"))
+        plot_sub2_p(p1[:,10,:], levels)
+        plot_sub2_tau(tau1[:,10,:], levels)
+        plot_sub3_kappa_theta(Theta1, d_eta, levels, 2)
+        plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 2)
+        plot_total_cost(Obj1, levels, 2)
     else
-        # main_sub1()
+        main_sub1()
         main_sub2()
     end
 elseif READ_RESULT
@@ -274,9 +274,9 @@ elseif READ_RESULT
     E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
     d_eta = read_result(string("result",NumbDevs,".h5"))
 
-    Theta1, Obj1, Obj_E1, Obj_T1, T_cmp11, E_cmp11, T_com11, E_com11,
-    N11, N21, N31, f11, tau11, p11,
-    d_eta1 = read_result(string("result5_homo.h5"))
+    # Theta1, Obj1, Obj_E1, Obj_T1, T_cmp11, E_cmp11, T_com11, E_com11,
+    # N11, N21, N31, f11, tau11, p11,
+    # d_eta1 = read_result(string("result5_homo.h5"))
 
     plot_sub1_f(f1)
     plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
@@ -285,7 +285,7 @@ elseif READ_RESULT
     plot_sub2_p(p1)
     plot_sub2_tau(tau1)
 
-    plot_sub3_equation(d_eta)
+    plot_sub3_equation(Theta1, d_eta)
     plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     plot_sub3_kappa_theta(Theta1, d_eta)
     plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)

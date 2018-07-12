@@ -6,7 +6,7 @@ using PyCall
 # fig_size = (7.,5.1)
 fig_size = (6.,4.3)
 label_fontsize = 18-1.5
-legend_fontsize = label_fontsize - 4
+legend_fontsize = label_fontsize - 2
 patterns = ["","."]
 
 label_fontsize1 = label_fontsize
@@ -33,9 +33,10 @@ function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
     plot(levels,Tcmp_N3,color=colors[5],linestyle="-.",linewidth=l_width,label="\$T_{\\mathcal{N}_3}\$")
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
+    xscale("log")
     ylabel("\$T_{cmp}\$ (sec)",fontsize=label_fontsize1+1)
-    ylim(0, T_cmp1[1]+1.2)
+    ylim(-1, 1.06*maximum(T_cmp1))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_T_rs.pdf"))
 end
@@ -50,7 +51,8 @@ function plot_sub1_N(N1, N2, N3, levels)
     step(levels,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
+    xscale("log")
     ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_N_rs.pdf"))
@@ -62,28 +64,16 @@ function plot_sub1_f(f1,levels)
     ax = cfig[:add_subplot](1,1,1)
     plot(levels,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
 
-    if (HETEROGENEOUS != 1 ) # Homogeneous
-        plot(levels,f_max[1]*ones(Numb_D)*1e-9,linestyle="--",color=colors[6])
-    end
-
-    # for n = 1:5
-    #     if (HETEROGENEOUS > 0)  & (abs(f_max[n]*1e-9 - maximum(f1[:,n])) < 1e-3)
-    #         plot(D_ratios1,f_max[n]*ones(Numb_D)*1e-9,linestyle="--",color=colors[n])
-    #         # plot(kaps,f_min[n]*ones(size(kaps))*1e-9,linestyle=":",color=colors[n])
-    #     end
-    #
-    #     plot(D_ratios1,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
-    # end
-
     for n = 1:NumbDevs
         plot(levels,f1[:,n],linestyle="-",linewidth=l_width1)
     end
 
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("Homogeneous_Sub1_ratio",fontsize=label_fontsize1+1)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
     # ylim(0,maximum(f1) + 0.2 )
     ylabel("f (GHz)",fontsize=label_fontsize1+1)
+    xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_f_rs.pdf"))
 end
@@ -103,8 +93,9 @@ function plot_sub2_tau(tau1,levels)
     max_tau = maximum(tau1[1,:])
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("Homogeneous_Sub2_ratio",fontsize=label_fontsize1+1)
+    xlabel("\$L_{com}\$",fontsize=label_fontsize1+1)
     ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+1)
+    xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub2_Tau_rs.pdf"))
 end
@@ -124,8 +115,9 @@ function plot_sub2_p(p1,levels)
     end
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("Homogeneous_Sub2_ratio",fontsize=label_fontsize1+1)
+    xlabel("\$L_{com}\$",fontsize=label_fontsize1+1)
     ylabel("p (Watt)",fontsize=label_fontsize1+1)
+    xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub2_p_rs.pdf"))
 end
@@ -163,21 +155,29 @@ function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1,levels)
 end
 
 function plot_sub3_kappa_theta(Theta, d_eta,levels, sub)
+    if(sub==1)
+        round_numb = 2
+        lbl_lv = "\$L_{cmp}\$"
+    else
+        round_numb = 2
+        lbl_lv = "\$L_{com}\$"
+    end
+
     Numb_Levels = size(levels)[1]
 
     clf()
     figure(10,figsize=fig_size)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1./d_eta[1,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[1],2)))
-    plot(kaps, Theta[1,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[1],2)))
-    plot(kaps, 1./d_eta[2,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[2],2)))
-    plot(kaps, Theta[2,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[2],2)))
-    plot(kaps, 1./d_eta[end,:],linestyle="-",label=string("\$\\eta\$, level",sub,"=",round(levels[end],2)))
-    plot(kaps, Theta[end,:],linestyle="-",label=string("\$\\Theta\$, level",sub,"=",round(levels[end],2)))
+    plot(kaps, 1./d_eta[1,:],linestyle="-",label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[1],round_numb)))
+    plot(kaps, Theta[1,:],linestyle="-",label=string("\$\\Theta\$, ",lbl_lv,"=",round(levels[1],round_numb)))
+    # plot(kaps, 1./d_eta[3,:],linestyle="-",label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[3],round_numb)))
+    # plot(kaps, Theta[3,:],linestyle="-",label=string("\$\\Theta\$, ",lbl_lv,"=",round(levels[3],round_numb)))
+    plot(kaps, 1./d_eta[end,:],linestyle="-",label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[end],round_numb)))
+    plot(kaps, Theta[end,:],linestyle="-",label=string("\$\\Theta\$, ",lbl_lv,"=",round(levels[end],round_numb)))
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc="best",fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
-    # ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
+    ylabel("\$\\Theta\$",fontsize=label_fontsize1+1)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta_rs",sub,".pdf"))
@@ -195,7 +195,7 @@ function plot_sub3_equation(d_eta,levels)
         plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
     end
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc="best",fontsize=legend_fontsize-1)
     xlim(0, 0.5)
     ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
     xlabel("\$\\Theta\$",fontsize=label_fontsize1+1)
@@ -205,6 +205,14 @@ function plot_sub3_equation(d_eta,levels)
 end
 
 function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, sub)
+    if(sub==1)
+        round_numb = 2
+        lbl_lv = "\$L_{cmp}\$"
+    else
+        round_numb = 2
+        lbl_lv = "\$L_{com}\$"
+    end
+
     Numb_Levels = size(levels)[1]
     # if sub == 1
     #     # idx_levels = [1, 9]
@@ -213,7 +221,7 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     #     # idx_levels = [1, 9]
     #     idx_levels = 1:3
     # end
-    idx_levels = 1:3
+    idx_levels = [1,3,5]
     clf()
     figure(9,figsize=fig_size)
     for idx in idx_levels
@@ -225,24 +233,32 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
             T_obj[i] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
         end
 
-        plot(E_obj, T_obj,label=string("level",sub,"=",round(levels[idx],2)))
+        plot(E_obj, T_obj,label=string(lbl_lv,"=",round(levels[idx],round_numb)))
     end
 
     legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("E_obj",fontsize=label_fontsize1+1)
-    ylabel("T_obj",fontsize=label_fontsize1+1)
+    xlabel("Energy Cost",fontsize=label_fontsize1+1)
+    ylabel("Time Cost",fontsize=label_fontsize1+1)
     # yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"pareto_rs",sub,".pdf"))
 end
 
 function plot_total_cost(Obj, levels, sub)
+    if(sub==1)
+        round_numb = 2
+        lbl_lv = "\$L_{cmp}\$"
+    else
+        round_numb = 2
+        lbl_lv = "\$L_{com}\$"
+    end
+
     Numb_Levels = size(levels)[1]
     clf()
     figure(9,figsize=fig_size)
-    plot(kaps, Obj[1,:],linestyle="-",label=string("level",sub,"=",round(levels[1],2)))
-    plot(kaps, Obj[2,:],linestyle="-",label=string("level",sub,"=",round(levels[2],2)))
-    plot(kaps, Obj[end,:],linestyle="-",label=string("level",sub,"=",round(levels[end],2)))
+    plot(kaps, Obj[1,:],linestyle="-",label=string(lbl_lv,"=",round(levels[1],round_numb)))
+    plot(kaps, Obj[3,:],linestyle="-",label=string(lbl_lv,"=",round(levels[3],round_numb)))
+    plot(kaps, Obj[end,:],linestyle="-",label=string(lbl_lv,"=",round(levels[end],round_numb)))
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)

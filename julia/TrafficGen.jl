@@ -20,6 +20,7 @@ function exp_gain(dist, mode = 0)
     if (mode == 0)
         gain_h = rand(Exponential(mean))
     else
+        # gain_h = rand(Exponential(mean))
         gain_h = mean
     end
     # println("here1: ", dist, " : ", mean, " : ",gain_h)
@@ -70,17 +71,28 @@ function mobile_gen_sub1()
         D_n       = zeros(Numb_D,NumbDevs)
         for d=1:Numb_D
             dist_list[:] = rand(Uniform(Dist_min,Dist_max),NumbDevs)
-
-            global D_min = D_max * D_ratios[d]
-            D_n[d,:]   = collect(D_min:((D_max-D_min)/(NumbDevs-1)):D_max)
+            step_size = (1-D_ratios[d])/(1+D_ratios[d]) * D_avg/(NumbDevs/2.)   #(D_ratios[d]-1)/(1+D_ratios[d]) * D_avg/(NumbDevs/2.)
+            # D_min = D_avg - step_size * (NumbDevs/2.)
+            # D_max = D_avg + step_size * (NumbDevs/2.)
+            # D_n[d,:]   = collect(D_min:((D_max-D_min)/(NumbDevs-1)):D_max)
 
             for n=1:NumbDevs
+                if(n <= NumbDevs/2.)
+                    D_n[d,n] = D_avg - (NumbDevs/2. - n + 1 )*step_size
+                else
+                    D_n[d,n] = D_avg + ( n - NumbDevs/2. )*step_size
+                end
+
                 gain_list[n] = exp_gain(dist_list[n])
                 ratios[n]    = noise_per_gain(gain_list[n])
             end
 
         end
-        D_n[:,NumbDevs] = D_max
+        # println("D_max:",D_n[:,NumbDevs])
+        # println("D_min:",D_n[:,1])
+        # println("D_avg1:",mean(D_n[1,:]))
+        # println("D_avg2:",mean(D_n[2,:]))
+        # println("D_avg3:",mean(D_n[3,:]))
 
         simple_save_data(dist_list, gain_list, ratios, D_n, "data_sub1.h5")
         return dist_list, gain_list, ratios, D_n
@@ -95,19 +107,32 @@ function mobile_gen_sub2()
         gain_list = zeros(Numb_Dis,NumbDevs)
         ratios    = zeros(Numb_Dis,NumbDevs)
         D_n       = zeros(NumbDevs)
-        for d=1:Numb_Dis
-            global Dist_max = Dist_min / D_ratios[d]
-            dist_list[d,:] = collect(Dist_min:((Dist_max-Dist_min)/(NumbDevs-1)):Dist_max)
 
-            # D_min = D_max * D_ratios[d]
+        for d=1:Numb_Dis
+            step_size = (1-Dis_ratios[d])/(1+Dis_ratios[d]) * Dist_avg/(NumbDevs/2.)   #(D_ratios[d]-1)/(1+D_ratios[d]) * D_avg/(NumbDevs/2.)
+            # D_min = D_avg - step_size * (NumbDevs/2.)
+            # D_max = D_avg + step_size * (NumbDevs/2.)
+            # dist_list[d,:] = collect(Dist_min:((Dist_max-Dist_min)/(NumbDevs-1)):Dist_max)
+
             D_n[:]   = collect(D_min:((D_max-D_min)/(NumbDevs-1)):D_max)
 
             for n=1:NumbDevs
+                if(n <= NumbDevs/2.)
+                    dist_list[d,n] = Dist_avg - (NumbDevs/2. - n + 1 )*step_size
+                else
+                    dist_list[d,n] = Dist_avg + ( n - NumbDevs/2. )*step_size
+                end
+
                 gain_list[d,n] = exp_gain(dist_list[d,n], 2)
                 ratios[d,n]    = noise_per_gain(gain_list[d,n])
             end
-
         end
+
+        # println("Dist_max:",dist_list[:,NumbDevs])
+        # println("Dist_min:",dist_list[:,1])
+        # println("Dist_avg1:",mean(dist_list[1,:]))
+        # println("Dist_avg2:",mean(dist_list[2,:]))
+        # println("Dist_avg3:",mean(dist_list[3,:]))
 
         simple_save_data(dist_list, gain_list, ratios, D_n, "data_sub2.h5")
         return dist_list, gain_list, ratios, D_n
