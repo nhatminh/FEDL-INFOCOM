@@ -237,18 +237,147 @@ function T_N2(D_n,list)
     return tmp
 end
 
+# function Solving_sub1(D_n)
+#     println("\n===== Solving Sub1: Closed Form =====\n")
+#     # println("D_n: ",D_n)
+#
+#     rs_T_cmp = 0
+#     rs_f = zeros(NumbDevs)
+#
+#     #### ------------
+#     UEs_min = Dict{Int32,Float64}()
+#     UEs_max = zeros(NumbDevs)
+#     sorted_UEs_min = OrderedDict{Int32,Float64}()
+#
+#     for n = 1:NumbDevs
+#         UEs_min[n] = C_n[n]*D_n[n]/f_min[n]
+#         UEs_max[n] = C_n[n]*D_n[n]/f_max[n]
+#     end
+#
+#     N1=Int32[]
+#     N3 = collect(1:NumbDevs)
+#
+#     sorted_UEs_min_arr = sort(collect(UEs_min), by=x->x[2])
+#     # println(sorted_UEs_min_arr)
+#
+#     for n=1:NumbDevs
+#         k,v = sorted_UEs_min_arr[n]
+#         sorted_UEs_min[k] = v
+#     end
+#
+#     i = NumbDevs
+#     N2C = collect(keys(sorted_UEs_min))
+#
+#     N2= Int32[]
+#     N2C_rs = copy(N2C)
+#
+#     for j in N2C
+#         T_j, N2C_j = T_N3k(D_n, N3, j)
+#         if (C_n[j] * D_n[j]/f_min[j] <= T_j)
+#             # println("delete j:", j)
+#             N3 = copy(N2C_j)
+#             push!(N2,j)
+#              rs_f[j] = f_min[j]
+#         end
+#     end
+#
+#     T_N3_init = T_N3(D_n, N3)
+#     N1_max = maximum(UEs_max)
+#     # println("HERE: ", N3)
+#     if (N1_max >= T_N3_init) & (T_N3_init > 0)
+#         N1 = find(a->a==N1_max, UEs_max)
+#     end
+#
+#     for n in N1
+#         rs_f[n] = f_max[n]
+#     end
+#
+#     N3 = setdiff(N3,N1)
+#
+#     #### ------------
+#     Tcmp_N1 = T_N1(D_n, N1)
+#     Tcmp_N2 = T_N2(D_n, N2)
+#     Tcmp_N3 = T_N3(D_n, N3)
+#     rs_T_cmp = max(Tcmp_N1, Tcmp_N2, Tcmp_N3)
+#
+#     if (DEBUG > 0) & (NumbDevs <10)
+#         println("N_min: ",sorted_UEs_min)
+#         println("Order2: ", N2C)
+#         println("N1: ", N1)
+#         println("-> Tcmp1: ", Tcmp_N1)
+#         println("N2: ", N2)
+#         println("-> Tcmp2: ", Tcmp_N2)
+#         println("N3: ", N3)
+#         println("-> Tcmp3: ", Tcmp_N3)
+#     end
+#
+#     for k in N3
+#         rs_f[k] = C_n[k]*D_n[k]/rs_T_cmp
+#     end
+#
+#     if (abs(Tcmp_N1-rs_T_cmp)<1e-6)
+#         time = C_n.*D_n./f_max
+#
+#         for n =1:NumbDevs
+#             if(abs(time[n]-rs_T_cmp)<1e-6)
+#                 rs_f[n]=f_max[n]
+#             else
+#                 rs_f[n]= C_n[n]*D_n[n]/rs_T_cmp
+#             end
+#         end
+#     elseif ((abs(Tcmp_N2-rs_T_cmp)<1e-6))
+#         for n in N2
+#             rs_f[n] = f_min[n]
+#         end
+#         for k in N3
+#             rs_f[k] = max(C_n[k]*D_n[k]/rs_T_cmp, f_min[k])
+#         end
+#     end
+#
+#
+#     rs_f = rs_f * 1e-9
+#     rs_E_cmp = alpha / 2 * sum(C_n.* D_n.*(rs_f.^2)) * 1e18
+#     # println("here: " ,sum(D_n.*(rs_f.^2)))
+#
+#     if (DEBUG > 0) & (NumbDevs <10)
+#         println("Sub1 constraint: ", maximum(C_n.*(D_n*1e-9./rs_f)))
+#         println("T_cmp: ", rs_T_cmp)
+#         println("f: ",rs_f)
+#         println("E_cmp: ", rs_E_cmp)
+#         println("Objective: ", rs_E_cmp + kappa*rs_T_cmp )
+#     end
+#     min_N2, max_N2 = 100, 0
+#     for n in N2
+#         min_N2 = min(min_N2, (C_n[i]*D_n[i]/f_min[i])^3 )
+#         max_N2 = max(max_N2, (C_n[i]*D_n[i]/f_min[i])^3 )
+#     end
+#     K3 = 0
+#     for n in N3
+#         K3  += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/maximum(C_n.*D_n./f_max)^3
+#     end
+#
+#     if(kappa< minimum(alpha*(f_min.^3)))
+#         push!(ZoneA,kappa)
+#     # elseif(kappa < min_N2)
+#     #     println("min K2 (Zone B): ", kappa)
+#     #     push!(ZoneB1,kappa)
+#     elseif(kappa < max_N2)
+#         push!(ZoneB2,kappa)
+#     elseif(kappa < K3)
+#         push!(ZoneC,kappa)
+#     else
+#         push!(ZoneD,kappa)
+#     end
+#
+#     return rs_T_cmp, rs_f, rs_E_cmp, Tcmp_N1, Tcmp_N2, Tcmp_N3, size(N1)[1], size(N2)[1], size(N3)[1]
+# end
+
 function Solving_sub1(D_n)
     println("\n===== Solving Sub1: Closed Form =====\n")
     # println("D_n: ",D_n)
 
     rs_T_cmp = 0
     rs_f = zeros(NumbDevs)
-
-    # println(sum(alpha * f_max.^3)) ### 16
-    # # println(sum(alpha * f_min.^3)) ### 0.002
-    # println(minimum(alpha * f_min.^3)) ### 0.0002
-    # println(maximum(alpha * f_max.^3)) ### 16
-
 
     #### ------------
     UEs_min = Dict{Int32,Float64}()
@@ -278,6 +407,14 @@ function Solving_sub1(D_n)
     N2C_rs = copy(N2C)
 
     for j in N2C
+        T_N3_init = T_N3(D_n, N3)
+        N1_max = maximum(UEs_max)
+
+        if (N1_max >= T_N3_init) & (T_N3_init > 0)
+            N1 = vcat(N1, find(a->a==N1_max, UEs_max))
+            N3 = setdiff(N3,N1)
+        end
+
         T_j, N2C_j = T_N3k(D_n, N3, j)
         if (C_n[j] * D_n[j]/f_min[j] <= T_j)
             # println("delete j:", j)
@@ -287,18 +424,10 @@ function Solving_sub1(D_n)
         end
     end
 
-    T_N3_init = T_N3(D_n, N3)
-    N1_max = maximum(UEs_max)
-    # println("HERE: ", N3)
-    if (N1_max >= T_N3_init) & (T_N3_init > 0)
-        N1 = find(a->a==N1_max, UEs_max)
-    end
-
     for n in N1
         rs_f[n] = f_max[n]
     end
 
-    N3 = setdiff(N3,N1)
 
     #### ------------
     Tcmp_N1 = T_N1(D_n, N1)
@@ -362,22 +491,16 @@ function Solving_sub1(D_n)
         K3  += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/maximum(C_n.*D_n./f_max)^3
     end
 
-    # min_K2 = sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/min_N2
-    # max_K2 = sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/max_N2
     if(kappa< minimum(alpha*(f_min.^3)))
-        # println("K1 (Zone A): ", kappa)
         push!(ZoneA,kappa)
     # elseif(kappa < min_N2)
     #     println("min K2 (Zone B): ", kappa)
     #     push!(ZoneB1,kappa)
     elseif(kappa < max_N2)
-        # println("max K2 (Zone B): ",kappa)
         push!(ZoneB2,kappa)
     elseif(kappa < K3)
-        # println("K3 (Zone C): ",kappa)
         push!(ZoneC,kappa)
     else
-        # println("K3 (Zone D): ",kappa)
         push!(ZoneD,kappa)
     end
 

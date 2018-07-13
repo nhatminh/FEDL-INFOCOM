@@ -23,13 +23,15 @@ markers = ["x","o",">","^", ".","s"]
 
 folder = string("figs//")
 
-function plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
+function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
     clf()
     cfig = figure(1,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
     ax[:tick_params]("both",labelsize=legend_fontsize-1)
-    # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
+
+    plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width+0.3,label="\$T_{cmp}^*\$")
+    plot(levels,T_cmp+0.8,color="gold",linestyle=":",linewidth=l_width+0.3,label="Solver")
+    # plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
     plot(levels,Tcmp_N1,color=colors[2],linestyle="--",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_1}\$")
     plot(levels,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_2}\$")
     plot(levels,Tcmp_N3,color=colors[5],linestyle="-",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_3}\$")
@@ -287,7 +289,7 @@ function plot_total_cost(Obj, levels, sub)
 
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
-    ylabel("Total Cost",fontsize=label_fontsize1+1)
+    ylabel("OPT's obj",fontsize=label_fontsize1+1)
     xscale("log")
     ylim(0,1000)
     xlim(1e-1,5e1)
@@ -308,13 +310,14 @@ function plot_total_cost(Obj, levels, sub)
     # savefig(string(folder,"total2_rs",sub,".pdf"))
 end
 
-function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels)
+function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels)
     h5open(filename, "w") do file
         # write(file,"kaps", kaps)
         write(file,"Theta1", Theta1)
         write(file,"Obj1", Obj1)
         write(file,"Obj_E", Obj_E)
         write(file,"Obj_T", Obj_T)
+        write(file,"T_cmp", T_cmp)
         write(file,"T_cmp1", T_cmp1)
         write(file,"Tcmp_N1", Tcmp_N1)
         write(file,"Tcmp_N2", Tcmp_N2)
@@ -340,6 +343,7 @@ function read_result(filename)
         Obj1  = read(file,"Obj1")
         Obj_E = read(file,"Obj_E")
         Obj_T = read(file,"Obj_T")
+        T_cmp = read(file,"T_cmp")
         T_cmp1 = read(file,"T_cmp1")
         Tcmp_N1 = read(file,"Tcmp_N1")
         Tcmp_N2 = read(file,"Tcmp_N2")
@@ -355,6 +359,6 @@ function read_result(filename)
         p1 = read(file,"p1")
         d_eta = read(file,"d_eta")
         levels = read(file,"levels")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels
+        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels
     end
 end

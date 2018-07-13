@@ -73,10 +73,10 @@ function main()
         end
    end
 
-   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
+   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
 
    plot_sub1_f(f1)
-   plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+   plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
    plot_sub1_N(N1, N2, N3)
 
    plot_sub2_p(p1)
@@ -97,7 +97,7 @@ end
 function main_sub1()
     #Generate data
     dist_list, gain_list, ratios, D_n = mobile_gen_sub1()
-    T_cmp1   = zeros(Numb_D,Numb_kaps)
+    T_cmp1, T_cmp   = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
     E_cmp1   = zeros(Numb_D,Numb_kaps)
     f1           = zeros(Numb_D,Numb_kaps,NumbDevs)
     N1, N2, N3      = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
@@ -119,7 +119,7 @@ function main_sub1()
         for k=1:Numb_kaps
             global kappa = kaps[k]
             ### Sub1 ###
-            # T_cmp[s,k], f[s,k,:], E_cmp[s,k]     = Solving_sub_prob1(D_n[s,:])
+            T_cmp[s,k], _, _    = Solving_sub_prob1(D_n[s,:])
             T_cmp1[s,k], f1[s,k,:], E_cmp1[s,k], Tcmp_N1[s,k], Tcmp_N2[s,k], Tcmp_N3[s,k],N1[s,k], N2[s,k], N3[s,k]   = Solving_sub1(D_n[s,:])
 
             ### Sub2 ###
@@ -134,10 +134,10 @@ function main_sub1()
         end
    end
    filename = string("result",NumbDevs,"_sub1.h5")
-   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios)
+   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios)
 
    plot_sub1_f(f1[:,10,:], t_ratios)
-   plot_sub1_T(T_cmp1[:,10], Tcmp_N1[:,10], Tcmp_N2[:,10], Tcmp_N3[:,10], t_ratios)
+   plot_sub1_T(T_cmp[:,10], T_cmp1[:,10], Tcmp_N1[:,10], Tcmp_N2[:,10], Tcmp_N3[:,10], t_ratios)
    plot_sub1_N(N1[:,10], N2[:,10], N3[:,10], t_ratios)
 
     # plot_sub3_equation(d_eta, t_ratios)
@@ -151,7 +151,7 @@ function main_sub2()
     #Generate data
     dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
 
-    T_cmp1   = zeros(Numb_Dis,Numb_kaps)
+    T_cmp1, T_cmp   = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
     E_cmp1   = zeros(Numb_Dis,Numb_kaps)
     f1           = zeros(Numb_Dis,Numb_kaps,NumbDevs)
     N1, N2, N3      = zeros(Numb_Dis,Numb_kaps), zeros(Numb_Dis,Numb_kaps), zeros(Numb_Dis,Numb_kaps)
@@ -184,7 +184,7 @@ function main_sub2()
        for k=1:Numb_kaps
            global kappa = kaps[k]
            ### Sub1 ###
-           # T_cmp[s,k], f[s,k,:], E_cmp[s,k]     = Solving_sub_prob1(D_n[s,:])
+           # T_cmp[s,k], _, _ = Solving_sub_prob1(D_n[s,:])
            T_cmp1[s,k], f1[s,k,:], E_cmp1[s,k], Tcmp_N1[s,k], Tcmp_N2[s,k], Tcmp_N3[s,k],N1[s,k], N2[s,k], N3[s,k]   = Solving_sub1(D_n[:])
 
            ### Sub2 ###
@@ -203,7 +203,7 @@ function main_sub2()
    tau_ratios_sorted = sort(tau_ratios)
    println("here3: ",tau_ratios_sorted)
    filename = string("result",NumbDevs,"_sub2.h5")
-   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,tau_ratios_sorted)
+   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,tau_ratios_sorted)
 
    plot_sub2_p(p1[:,10,:], tau_ratios_sorted)
    plot_sub2_tau(tau1[:,10,:], tau_ratios_sorted)
@@ -247,11 +247,15 @@ if(NUMERICAL_RS)
         ### RATIO 1
         dist_list, gain_list, ratios, D_n = mobile_gen_sub1()
 
-        Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+        # Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+        # E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
+        # d_eta, levels = read_result(string("result",NumbDevs,"_sub1.h5"))
+        Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
         E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
         d_eta, levels = read_result(string("result",NumbDevs,"_sub1.h5"))
+
         plot_sub1_f(f1[:,10,:], levels)
-        plot_sub1_T(T_cmp1[:,10], Tcmp_N1[:,10], Tcmp_N2[:,10], Tcmp_N3[:,10], levels)
+        plot_sub1_T(T_cmp[:,10],T_cmp1[:,10], Tcmp_N1[:,10], Tcmp_N2[:,10], Tcmp_N3[:,10], levels)
         plot_sub1_N(N1[:,10], N2[:,10], N3[:,10], levels)
         plot_sub3_kappa_theta(Theta1, d_eta, levels, 1)
         plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 1)
@@ -260,7 +264,7 @@ if(NUMERICAL_RS)
         ### RATIO 2
         dist_list, gain_list, ratios, D_n = mobile_gen_sub2()
 
-        Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+        Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
         E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
         d_eta, levels = read_result(string("result",NumbDevs,"_sub2.h5"))
         plot_sub2_p(p1[:,10,:], levels)
@@ -275,7 +279,7 @@ if(NUMERICAL_RS)
 elseif READ_RESULT
     dist_list, gain_list, ratios, D_n = mobile_gen()
 
-    Theta1, Obj1, Obj_E, Obj_T, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+    Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
     E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
     d_eta = read_result(string("result",NumbDevs,".h5"))
 
@@ -284,7 +288,7 @@ elseif READ_RESULT
     # d_eta1 = read_result(string("result5_homo.h5"))
 
     plot_sub1_f(f1)
-    plot_sub1_T(T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
+    plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     plot_sub1_N(N1, N2, N3)
 
     plot_sub2_p(p1)
