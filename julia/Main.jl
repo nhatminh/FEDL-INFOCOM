@@ -41,7 +41,11 @@ function main()
     Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps)
     Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
     d_eta  = zeros(Numb_kaps)
-
+    global ZoneA = []
+    global ZoneB1 = []
+    global ZoneB2 = []
+    global ZoneC = []
+    global ZoneD = []
     # println("Numb_kaps: ", Numb_kaps)
     for s =1:Numb_SIMs
         # for k=1:1
@@ -83,10 +87,11 @@ function main()
    plot_sub3_kappa_theta(Theta1, d_eta)
    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
    println("K1: ",minimum(alpha*(f_min.^3)) )
-   println("K2: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_min)^3 )
-   println("old K2: ",sum(alpha*1e27*((f_min*1e-9).^3)) )
-   println("K3: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_max)^3 )
-   println("old K3: ",sum(alpha*1e27*((f_max*1e-9).^3)) )
+   println("ZoneA: ", ZoneA)
+   # println("ZoneB1: ", ZoneB1)
+   println("ZoneB2: ", ZoneB2)
+   println("ZoneC: ", ZoneC)
+   println("ZoneD: ", ZoneD)
 end
 
 function main_sub1()
@@ -290,11 +295,11 @@ elseif READ_RESULT
     plot_sub3_kappa_theta(Theta1, d_eta)
     plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 
-    println("K1: ",minimum(alpha*(f_min.^3)) )
-    println("K2: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_min)^3 )
-    println("old K2: ",sum(alpha*1e27*((f_min*1e-9).^3)) )
-    println("K3: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_max)^3 )
-    println("old K3: ",sum(alpha*1e27*((f_max*1e-9).^3)) )
+    # println("K1: ",minimum(alpha*(f_min.^3)) )
+    # println("K2: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_min)^3 )
+    # println("old K2: ",sum(alpha*1e27*((f_min*1e-9).^3)) )
+    # println("K3: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_max)^3 )
+    # println("old K3: ",sum(alpha*1e27*((f_max*1e-9).^3)) )
 
 else
     main()

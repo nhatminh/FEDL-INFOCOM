@@ -75,3 +75,5 @@ annotate("Look, data!",
 	arrowprops=Dict("facecolor"=>"black"))
 
 println(collect(1:0.7:10))
+
+# println(int(0.5))

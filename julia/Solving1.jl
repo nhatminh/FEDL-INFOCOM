@@ -352,6 +352,34 @@ function Solving_sub1(D_n)
         println("E_cmp: ", rs_E_cmp)
         println("Objective: ", rs_E_cmp + kappa*rs_T_cmp )
     end
+    min_N2, max_N2 = 100, 0
+    for n in N2
+        min_N2 = min(min_N2, (C_n[i]*D_n[i]/f_min[i])^3 )
+        max_N2 = max(max_N2, (C_n[i]*D_n[i]/f_min[i])^3 )
+    end
+    K3 = 0
+    for n in N3
+        K3  += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/maximum(C_n.*D_n./f_max)^3
+    end
+
+    # min_K2 = sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/min_N2
+    # max_K2 = sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/max_N2
+    if(kappa< minimum(alpha*(f_min.^3)))
+        # println("K1 (Zone A): ", kappa)
+        push!(ZoneA,kappa)
+    # elseif(kappa < min_N2)
+    #     println("min K2 (Zone B): ", kappa)
+    #     push!(ZoneB1,kappa)
+    elseif(kappa < max_N2)
+        # println("max K2 (Zone B): ",kappa)
+        push!(ZoneB2,kappa)
+    elseif(kappa < K3)
+        # println("K3 (Zone C): ",kappa)
+        push!(ZoneC,kappa)
+    else
+        # println("K3 (Zone D): ",kappa)
+        push!(ZoneD,kappa)
+    end
 
     return rs_T_cmp, rs_f, rs_E_cmp, Tcmp_N1, Tcmp_N2, Tcmp_N3, size(N1)[1], size(N2)[1], size(N3)[1]
 end

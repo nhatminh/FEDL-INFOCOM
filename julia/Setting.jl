@@ -11,7 +11,7 @@ READ_RESULT = true
 DEBUG = 0 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 1  # 0: homogeneous, 1: heterogeneous, 2: reused
 SCALE = false
-NUMERICAL_RS = false
+NUMERICAL_RS = true
 
 kaps = [5e-5, 8e-5, 9e-5, 1e-4, 1.3e-4, 1.7e-4, 2e-4, 2.3e-4, 2.7e-4, 3e-4, 3.5e-4, 4e-4, 4.5e-4,
 5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4,
