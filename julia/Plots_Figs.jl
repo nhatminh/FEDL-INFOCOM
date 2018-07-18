@@ -31,8 +31,8 @@ function kappa_finding_sub1(f1)
     max_UEs  = Numb_kaps
 
     for n =1:NumbDevs
-        UEs_min  = find(a->abs(a-f_min[n]*1e-9)<5e-4, f1[:,n])
-        UEs_max  = find(a->abs(a-f_max[n]*1e-9)<5e-4, f1[:,n])
+        UEs_min  = find(a->abs(a-f_min[n]*1e-9)<1e-3, f1[:,n])
+        UEs_max  = find(a->abs(a-f_max[n]*1e-9)<1e-3, f1[:,n])
 
         if size(UEs_min)[1] > 0
             min_UEs1 = min(min_UEs1, maximum(UEs_min))
@@ -44,10 +44,10 @@ function kappa_finding_sub1(f1)
     end
 
     kaps_draw[1] = kaps[min_UEs1]
-    kaps_draw[2] = kaps[min_UEs2+1]
+    kaps_draw[2] = kaps[min_UEs2]
     kaps_draw[3] = kaps[max_UEs]
     kaps_draw_idx[1] = min_UEs1
-    kaps_draw_idx[2] = min_UEs2+1
+    kaps_draw_idx[2] = min_UEs2
     kaps_draw_idx[3] = max_UEs
     println("kaps_thresh1: ", kaps_draw)
 end
@@ -119,8 +119,8 @@ function plot_sub1_N(N1, N2, N3)
     ax[:tick_params]("both",labelsize=legend_fontsize-1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
     step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
-    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
-    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
+    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="pre", marker=markers[3], markersize=marker_size, markevery=11)
+    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="pre", marker=markers[6], markersize=marker_size, markevery=11)
 
     r1 = patch.Rectangle([0,0],kaps_draw[1],NumbDevs, alpha=0.07,fc="k",ec="blue",linewidth=.7)
     r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],NumbDevs, alpha=0.12,fc="k",ec="blue",linewidth=.7)
@@ -187,7 +187,7 @@ function plot_sub1_f(f1)
     legend(loc="best",fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     xscale("log")
-    ylim(0,maximum(f1) + 0.35 )
+    ylim(0.2,maximum(f1) + 0.35 )
     ylabel("f (GHz)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_f.pdf"))
@@ -254,7 +254,7 @@ function plot_sub2_p(p1)
     legend(loc=2,fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+1)
     xscale("log")
-    ylim(0,maximum(p1) + 0.15)
+    ylim(0.1,maximum(p1) + 0.15)
     ylabel("p (Watt)",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub2_p.pdf"))
@@ -270,7 +270,7 @@ function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
     obj   = zeros(size(x)[1])
     glob_cost_iter = zeros(size(x)[1])
     glob_numb_iter = zeros(size(x)[1])
-    id = 34
+    id = 36
     println("Convex for kappa: ",  kaps[id])
     for i=1:size(x)[1]
         obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
@@ -299,14 +299,14 @@ function plot_sub3_kappa_theta(Theta, d_eta)
     ax = cfig[:add_subplot](1,1,1)
     ax[:tick_params]("both",labelsize=legend_fontsize+3.5)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Heterogeneous: \$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2])
+    plot(kaps, 1./d_eta,linestyle="--",color=colors[3],label="\$\\eta\$")
+    plot(kaps, Theta,linestyle="-",color=colors[2],label="\$\\theta^*\$")
     # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
     # plot(kaps, 1./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
 
-    # legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc="best",fontsize=legend_fontsize+2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+7)
-    ylabel("\$\\theta^*\$",fontsize=label_fontsize1+4)
+    ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+4)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta.pdf"))
@@ -319,8 +319,8 @@ function plot_sub3_equation(Theta, d_eta)
     cfig = figure(7,figsize=fig_size1)
     ax = cfig[:add_subplot](1,1,1)
     ax[:tick_params]("both",labelsize=legend_fontsize+2)
-    id1 = 18
-    id2 = 28
+    id1 = 24
+    id2 = 32
     plot(x,d_eta[id1]*ones(size(x)),linestyle="-",color="b",label=string("\$\\kappa\$ = ",kaps[id1]))
     plot(x,d_eta[id2]*ones(size(x)),linestyle="-",color="g",label=string("\$\\kappa\$ = ",kaps[id2]))
     # hlines(y=d_eta[20],xmin=0, xmax=Theta[20], linestyle=":",color="k", zorder=1)
@@ -334,7 +334,7 @@ function plot_sub3_equation(Theta, d_eta)
     # end
 
     annotate(string("(",round(Theta[id1],3),", 1/",round(1/d_eta[id1],3),")"), xy=[Theta[id1];1.05*d_eta[id1]], xycoords="data",size=18)
-    annotate(string("(",round(Theta[id2],3),", 1/",round(1/d_eta[id2],3),")"), xy=[Theta[id2];1.2*d_eta[id2]], xycoords="data",size=18)
+    annotate(string("(",round(Theta[id2],3),", 1/",round(1/d_eta[id2],3),")"), xy=[Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
     scatter(Theta[id1], d_eta[id1],color="k")
     scatter(Theta[id2], d_eta[id2],color="k")
 

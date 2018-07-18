@@ -36,18 +36,18 @@ if(READ_RESULT)
 end
 
 ### LEARNING PARAMS ###
-D_min   = 8* 10e6  #10 MB, datasize range (-> bits)
-D_max   = 8* 20e6  #20 MB (-> bits)
+D_min   = 8* 5e6   #5 MB, datasize range (-> bits)
+D_max   = 8* 10e6  #10 MB (-> bits)
 D_avg   = (D_max + D_min)/2.
 println("D_avg:",D_avg)  # 15 MB
 
 D_Total = 8* 20e6 #20 MB (-> bits)
-S_n     = 55e3 #weight params size (-> bits), and gradient => 55K nats (1bits/ln2) -> 10KB
+S_n     = 25e3 #weight params size (-> bits), and gradient => 25K nats (1bits/ln2) -> 4.5KB
 # kappa   = 0.001   #coeff of T_iter
 
 ### COMMUNICATIONS PARAMS ###
 Ptx_Max = 1.
-Ptx_Min = 0.1
+Ptx_Min = 0.2
 N0  = 1e-10    #    -> Decrease BW -> Increase Theta
 BW  = 1e6     #Mhz -> Increase BW -> Increase Theta
 
@@ -77,7 +77,7 @@ if (HETEROGENEOUS == 0) # Homogeneous
     cpu_max  = 2.  #GHz, cyles/1sec
     # f_min = cpu_min*ones(NumbDevs)*1e9  #Hz
     f_max = cpu_max*ones(NumbDevs)*1e9  #Hz
-    C_n      = 100*ones(NumbDevs)   #cycles/bits
+    C_n      = 20*ones(NumbDevs)   #cycles/bits
     save_setting(f_max,C_n)
 
 elseif (HETEROGENEOUS == 1) # Heterogeneous
@@ -87,13 +87,13 @@ elseif (HETEROGENEOUS == 1) # Heterogeneous
     cpu_max2  = 2.  #GHz, cyles/1sec
     # f_min = rand(Uniform(cpu_min1,cpu_min2),NumbDevs)*1e9  #Hz
     f_max = rand(Uniform(cpu_max1,cpu_max2),NumbDevs)*1e9  #Hz
-    C_n   = rand(80:120,NumbDevs)   #cycles/bits
+    C_n   = rand(10:30,NumbDevs)   #cycles/bits
     save_setting(f_max,C_n)
 
 elseif (HETEROGENEOUS == 2) # Reused params
     f_max, C_n = read_setting()
 end
-cpu_min  = .1 #GHz, cyles/1sec
+cpu_min  = .3 #GHz, cyles/1sec
 f_min = cpu_min*ones(NumbDevs)*1e9  #Hz
 println(C_n)
 println(f_min)

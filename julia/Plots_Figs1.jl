@@ -27,20 +27,20 @@ function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
     clf()
     cfig = figure(1,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize-1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
 
-    plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width+0.3,label="\$T_{cmp}^*\$")
-    plot(levels,T_cmp+0.8,color="gold",linestyle=":",linewidth=l_width+0.3,label="Solver")
-    # plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
-    plot(levels,Tcmp_N1,color=colors[2],linestyle="--",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_1}\$")
-    plot(levels,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_2}\$")
-    plot(levels,Tcmp_N3,color=colors[5],linestyle="-",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_3}\$")
+    plot(levels,T_cmp1,color=colors[6],linestyle="-",linewidth=l_width+0.3)
+    # plot(levels,T_cmp+ 0.02*maximum(T_cmp1),color="gold",linestyle=":",linewidth=l_width+0.3,label="Solver")
+    # # plot(levels,T_cmp1+0.8,color=colors[6],linestyle="-",linewidth=l_width,label="\$T_{cmp}^*\$")
+    # plot(levels,Tcmp_N1,color=colors[2],linestyle="--",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_1}\$")
+    # plot(levels,Tcmp_N2,color=colors[4],linestyle="-.",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_2}\$")
+    # plot(levels,Tcmp_N3,color=colors[5],linestyle="-",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_3}\$")
 
-    legend(loc="best",fontsize=legend_fontsize+1)
-    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
+    # legend(loc="best",fontsize=legend_fontsize+2)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+2)
     xscale("log")
-    ylabel("\$T_{cmp}\$ (sec)",fontsize=label_fontsize1+1)
-    ylim(-1, 1.06*maximum(T_cmp1))
+    ylabel("\$T^*_{cmp}\$ (sec)",fontsize=label_fontsize1+2)
+    # ylim(-0.3, 1.06*maximum(T_cmp1))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_T_rs.pdf"))
 end
@@ -49,16 +49,16 @@ function plot_sub1_N(N1, N2, N3, levels)
     clf()
     cfig = figure(2,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize-1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
     step(levels,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
     step(levels,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
     step(levels,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="post", marker=markers[6], markersize=marker_size, markevery=11)
 
-    legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
+    legend(loc="best",fontsize=legend_fontsize)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+2)
     xscale("log")
-    ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+1)
+    ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+2)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_N_rs.pdf"))
 end
@@ -67,7 +67,7 @@ function plot_sub1_f(f1,levels)
     clf()
     cfig = figure(3,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize-1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
     plot(levels,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
 
     for n = 1:NumbDevs
@@ -76,9 +76,9 @@ function plot_sub1_f(f1,levels)
 
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+1)
+    xlabel("\$L_{cmp}\$",fontsize=label_fontsize1+2)
     # ylim(0,maximum(f1) + 0.2 )
-    ylabel("f (GHz)",fontsize=label_fontsize1+1)
+    ylabel("f (GHz)",fontsize=label_fontsize1+2)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_f_rs.pdf"))
@@ -88,7 +88,7 @@ function plot_sub2_tau(tau1,levels)
     clf()
     cfig = figure(4,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize-1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
 
     # for n = 1:5
     #     plot(tau_ratios,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
@@ -100,8 +100,8 @@ function plot_sub2_tau(tau1,levels)
     max_tau = maximum(tau1[1,:])
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$L_{com}\$",fontsize=label_fontsize1+1)
-    ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+1)
+    xlabel("\$L_{com}\$",fontsize=label_fontsize1+2)
+    ylabel("\$\\tau_n\$ (sec)",fontsize=label_fontsize1+2)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub2_Tau_rs.pdf"))
@@ -111,7 +111,7 @@ function plot_sub2_p(p1,levels)
     clf()
     cfig = figure(5,figsize=fig_size)
     ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize-1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
 
     plot(levels,Ptx_Max*ones(Numb_Dis),linestyle=":",color=colors[6])
     plot(levels,Ptx_Min*ones(Numb_Dis),linestyle=":",color=colors[6])
@@ -123,11 +123,33 @@ function plot_sub2_p(p1,levels)
     end
 
     # legend(loc="best",fontsize=legend_fontsize-2)
-    xlabel("\$L_{com}\$",fontsize=label_fontsize1+1)
-    ylabel("p (Watt)",fontsize=label_fontsize1+1)
+    xlabel("\$L_{com}\$",fontsize=label_fontsize1+2)
+    ylabel("p (Watt)",fontsize=label_fontsize1+2)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub2_p_rs.pdf"))
+end
+
+function plot_sub2_Tcom(T_com1,levels)
+    clf()
+    cfig = figure(5,figsize=fig_size)
+    ax = cfig[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
+
+    plot(levels,T_com1,linestyle="-",color=colors[6])
+    # for n = 1:5
+    #     plot(tau_ratios,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+    # end
+    # for n = 1:NumbDevs
+    #     plot(levels,p1[:,n],linestyle="-",linewidth=l_width1)
+    # end
+
+    # legend(loc="best",fontsize=legend_fontsize-2)
+    xlabel("\$L_{com}\$",fontsize=label_fontsize1+2)
+    ylabel("\$T^*_{com}\$ (sec)",fontsize=label_fontsize1+2)
+    xscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Sub2_Tcom_rs.pdf"))
 end
 
 function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1,levels)
@@ -162,7 +184,47 @@ function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1,levels)
     println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
 end
 
-function plot_sub3_kappa_theta(Theta, d_eta,levels, sub)
+function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, E_com12, levels, levels2)
+    clf()
+    cfig = figure(11,figsize=fig_size1)
+    ax = cfig[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
+
+    plot(kaps,T_cmp1[1,:]./(T_cmp1[1,:]+T_com1[1,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[1],2)))
+    plot(kaps,T_cmp1[end,:]./(T_cmp1[end,:]+T_com1[end,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[end],2)))
+
+    plot(kaps,T_cmp12[1,:]./(T_cmp12[1,:]+T_com12[1,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[1],2)))
+    plot(kaps,T_cmp12[end,:]./(T_cmp12[end,:]+T_com12[end,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[end],2)))
+
+    legend(loc=2,fontsize=legend_fontsize-1)
+    xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
+    ylabel("\$T^*_{cmp}/(T^*_{cmp}+ T^*_{com})\$",fontsize=label_fontsize1+1)
+    ylim(0.05,1.05)
+    xscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"sub3_T_ratio_rs.pdf"))
+
+    clf()
+    cfig = figure(11,figsize=fig_size1)
+    ax = cfig[:add_subplot](1,1,1)
+    ax[:tick_params]("both",labelsize=legend_fontsize)
+
+    plot(kaps,E_cmp1[1,:]./(E_cmp1[1,:]+E_com1[1,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[1],2)))
+    plot(kaps,E_cmp1[end,:]./(E_cmp1[end,:]+E_com1[end,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[end],2)))
+
+    plot(kaps,E_cmp12[1,:]./(E_cmp12[1,:]+E_com12[1,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[1],2)))
+    plot(kaps,E_cmp12[end,:]./(E_cmp12[end,:]+E_com12[end,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[end],2)))
+
+    legend(loc="best",fontsize=legend_fontsize-1)
+    xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
+    ylabel("\$E^*_{cmp}/(E^*_{cmp}+ E^*_{com})\$",fontsize=label_fontsize1+1)
+    ylim(0.05,1.05)
+    xscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"sub3_E_ratio_rs.pdf"))
+end
+
+function plot_sub3_kappa_theta(Theta, d_eta, levels, sub)
     if(sub==1)
         round_numb = 2
         lbl_lv = "\$L_{cmp}\$"
@@ -181,14 +243,12 @@ function plot_sub3_kappa_theta(Theta, d_eta,levels, sub)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
     plot(kaps, 1./d_eta[1,:],linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[1],round_numb)))
     plot(kaps, Theta[1,:],linestyle=line_style[1],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[1],round_numb)))
-    # plot(kaps, 1./d_eta[3,:],linestyle="-",label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[3],round_numb)))
-    # plot(kaps, Theta[3,:],linestyle="-",label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[3],round_numb)))
     plot(kaps, 1./d_eta[end,:],linestyle=line_style[2],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[end],round_numb)))
     plot(kaps, Theta[end,:],linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[end],round_numb)))
 
     legend(loc="best",fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
-    ylabel("\$\\theta\$",fontsize=label_fontsize1+1)
+    ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+1)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta_rs",sub,".pdf"))
@@ -239,29 +299,40 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     ax[:tick_params]("both",labelsize=legend_fontsize)
 
     x = 1
-    for idx in idx_levels
-        E_obj   = zeros(Numb_kaps)
-        T_obj   = zeros(Numb_kaps)
 
+    E_obj   = zeros(Numb_kaps,3)
+    T_obj   = zeros(Numb_kaps,3)
+
+    for idx in idx_levels
         for i=1:Numb_kaps
-            E_obj[i] = 1/(1 - Theta1[idx,i])* (E_com1[idx,i] - log(Theta1[idx,i])*E_cmp1[idx,i])
-            T_obj[i] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
+            E_obj[i,x] = 1/(1 - Theta1[idx,i])* (E_com1[idx,i] - log(Theta1[idx,i])*E_cmp1[idx,i])
+            T_obj[i,x] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
         end
 
-        plot(E_obj, T_obj,linestyle=line_style[x],label=string(lbl_lv,"=",round(levels[idx],round_numb)))
         x+=1
     end
+    plot(E_obj[:,1], T_obj[:,1],linestyle=line_style[1],label=string(lbl_lv,"=",round(levels[1],round_numb)))
+    plot(E_obj[:,2], T_obj[:,2],linestyle="-.",label=string(lbl_lv,"=",round(levels[3],round_numb)))
+    plot(E_obj[:,3], T_obj[:,3],linestyle=line_style[3],label=string(lbl_lv,"=",round(levels[5],round_numb)))
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    plot(E_obj[12,:], T_obj[12,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    plot(E_obj[14,:], T_obj[14,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    plot(E_obj[23,:], T_obj[23,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+
+    legend(loc="best",fontsize=legend_fontsize)
     xlabel("Energy Cost",fontsize=label_fontsize1+1)
     ylabel("Time Cost",fontsize=label_fontsize1+1)
-    # yscale("log")
+
+    annotate(string("\$\\kappa\$=",kaps[12]), xy=[E_obj[12,3]+0.5;T_obj[12,3]], xycoords="data",size=19)
+    annotate(string("\$\\kappa\$=",kaps[14]), xy=[E_obj[14,3]+0.5;T_obj[14,3]], xycoords="data",size=19)
+    annotate(string("\$\\kappa\$=",kaps[23]), xy=[E_obj[23,3]-1.;T_obj[23,3]+0.5], xycoords="data",size=19)
+
     if(sub==1)
-        xlim(0,100)
-        ylim(0,100)
+        xlim(5,25)
+        ylim(5,25)
     else
-        xlim(0,100)
-        ylim(0,100)
+        xlim(0,20)
+        ylim(0,15)
     end
 
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
@@ -287,14 +358,19 @@ function plot_total_cost(Obj, levels, sub)
     plot(kaps, Obj[3,:],linestyle=line_style[2],label=string(lbl_lv,"=",round(levels[3],round_numb)))
     plot(kaps, Obj[end,:],linestyle=line_style[3],label=string(lbl_lv,"=",round(levels[end],round_numb)))
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc="best",fontsize=legend_fontsize)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     ylabel("OPT's obj",fontsize=label_fontsize1+1)
     xscale("log")
-    ylim(0,1000)
+    ylim(0,250)
     xlim(1e-1,5e1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"total1_rs",sub,".pdf"))
+
+    println("kappa:", [kaps[12], kaps[14], kaps[23]])
+    println("Cost scale up:", [round(Obj[3,12]/Obj[1,12],3), round(Obj[end,12]/Obj[1,12],3)])
+    println("Cost scale up:", [round(Obj[3,14]/Obj[1,14],3), round(Obj[end,14]/Obj[1,14],3)])
+    println("Cost scale up:", [round(Obj[3,23]/Obj[1,23],3), round(Obj[end,23]/Obj[1,23],3)])
 
     # clf()
     # figure(10,figsize=fig_size)
