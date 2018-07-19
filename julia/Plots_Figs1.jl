@@ -196,10 +196,10 @@ function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, 
     plot(kaps,T_cmp12[1,:]./(T_cmp12[1,:]+T_com12[1,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[1],2)))
     plot(kaps,T_cmp12[end,:]./(T_cmp12[end,:]+T_com12[end,:]),linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5, label=string("\$L_{com}\$=",round(levels2[end],2)))
 
-    legend(loc=2,fontsize=legend_fontsize-1)
+    legend(loc=1,fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     ylabel("\$T^*_{cmp}/(T^*_{cmp}+ T^*_{com})\$",fontsize=label_fontsize1+1)
-    ylim(0.05,1.05)
+    ylim(0, 1.05)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_T_ratio_rs.pdf"))
@@ -218,7 +218,7 @@ function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, 
     legend(loc="best",fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     ylabel("\$E^*_{cmp}/(E^*_{cmp}+ E^*_{com})\$",fontsize=label_fontsize1+1)
-    ylim(0.05,1.05)
+    ylim(0,1.05)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_E_ratio_rs.pdf"))
@@ -315,23 +315,23 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     plot(E_obj[:,2], T_obj[:,2],linestyle="-.",label=string(lbl_lv,"=",round(levels[3],round_numb)))
     plot(E_obj[:,3], T_obj[:,3],linestyle=line_style[3],label=string(lbl_lv,"=",round(levels[5],round_numb)))
 
-    plot(E_obj[12,:], T_obj[12,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
-    plot(E_obj[14,:], T_obj[14,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
-    plot(E_obj[23,:], T_obj[23,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    plot(E_obj[11,:], T_obj[11,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    plot(E_obj[13,:], T_obj[13,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    plot(E_obj[22,:], T_obj[22,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
 
     legend(loc="best",fontsize=legend_fontsize)
     xlabel("Energy Cost",fontsize=label_fontsize1+1)
     ylabel("Time Cost",fontsize=label_fontsize1+1)
 
-    annotate(string("\$\\kappa\$=",kaps[12]), xy=[E_obj[12,3]+0.5;T_obj[12,3]], xycoords="data",size=19)
-    annotate(string("\$\\kappa\$=",kaps[14]), xy=[E_obj[14,3]+0.5;T_obj[14,3]], xycoords="data",size=19)
-    annotate(string("\$\\kappa\$=",kaps[23]), xy=[E_obj[23,3]-1.;T_obj[23,3]+0.5], xycoords="data",size=19)
+    annotate(string("\$\\kappa\$=",kaps[11]), xy=[E_obj[11,3]+0.5;T_obj[11,3]], xycoords="data",size=19)
+    annotate(string("\$\\kappa\$=",kaps[13]), xy=[E_obj[13,3]+0.5;T_obj[13,3]], xycoords="data",size=19)
+    annotate(string("\$\\kappa\$=",kaps[22]), xy=[E_obj[22,3]-2.5;T_obj[22,3]+0.5], xycoords="data",size=19)
 
     if(sub==1)
-        xlim(5,25)
-        ylim(5,25)
-    else
         xlim(0,20)
+        ylim(0,15)
+    else
+        xlim(0,25)
         ylim(0,15)
     end
 
@@ -362,7 +362,7 @@ function plot_total_cost(Obj, levels, sub)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     ylabel("OPT's obj",fontsize=label_fontsize1+1)
     xscale("log")
-    ylim(0,250)
+    ylim(0,200)
     xlim(1e-1,5e1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"total1_rs",sub,".pdf"))
@@ -386,7 +386,7 @@ function plot_total_cost(Obj, levels, sub)
     # savefig(string(folder,"total2_rs",sub,".pdf"))
 end
 
-function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels)
+function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2)
     h5open(filename, "w") do file
         # write(file,"kaps", kaps)
         write(file,"Theta1", Theta1)
@@ -408,7 +408,8 @@ function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1
         write(file,"tau1", tau1)
         write(file,"p1", p1)
         write(file,"d_eta", d_eta)
-        write(file,"levels", levels)
+        write(file,"levels1", levels1)
+        write(file,"levels2", levels2)
     end
 end
 
@@ -434,7 +435,8 @@ function read_result(filename)
         tau1 = read(file,"tau1")
         p1 = read(file,"p1")
         d_eta = read(file,"d_eta")
-        levels = read(file,"levels")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels
+        levels1 = read(file,"levels1")
+        levels2 = read(file,"levels2")
+        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2
     end
 end

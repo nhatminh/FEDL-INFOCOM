@@ -100,8 +100,8 @@ function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
 
     annotate("a", xy=[kaps_draw[1]/3;(T_cmp1[1]+0.07*maximum(T_cmp1))], xycoords="data",size=19)
     annotate("b", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/7; (T_cmp1[kaps_draw_idx[1]]+0.04*maximum(T_cmp1))], xycoords="data",size=19)
-    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;(T_cmp1[kaps_draw_idx[2]]+0.04*maximum(T_cmp1))], xycoords="data",size=19)
-    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/10;(T_cmp1[kaps_draw_idx[3]]+0.04*maximum(T_cmp1))], xycoords="data",size=19)
+    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/6;(T_cmp1[kaps_draw_idx[2]]+0.04*maximum(T_cmp1))], xycoords="data",size=19)
+    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/30;(T_cmp1[kaps_draw_idx[3]]+0.04*maximum(T_cmp1))], xycoords="data",size=19)
 
     legend(loc="best",fontsize=legend_fontsize+2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
@@ -133,8 +133,8 @@ function plot_sub1_N(N1, N2, N3)
 
     annotate("a", xy=[kaps_draw[1]/3; NumbDevs/2.], xycoords="data",size=19)
     annotate("b", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/13;NumbDevs/2.], xycoords="data",size=19)
-    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;NumbDevs/2.], xycoords="data",size=19)
-    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/14;NumbDevs/2.], xycoords="data",size=19)
+    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/6;NumbDevs/2.], xycoords="data",size=19)
+    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/30;NumbDevs/2.], xycoords="data",size=19)
 
     legend(loc=1,fontsize=legend_fontsize)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
@@ -177,14 +177,14 @@ function plot_sub1_f(f1)
 
     annotate("a", xy=[kaps_draw[1]/3;(minimum(f1)+0.15)], xycoords="data",size=19)
     annotate("b", xy=[kaps_draw[1] + (kaps_draw[2] - kaps_draw[1])/7;(minimum(f1)+ 0.35)], xycoords="data",size=19)
-    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/30;maximum(f1)+ 0.05], xycoords="data",size=19)
-    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/14;(maximum(f1) + 0.2)], xycoords="data",size=19)
+    annotate("c", xy=[kaps_draw[2] + (kaps_draw[3] - kaps_draw[2])/6;maximum(f1)+ 0.05], xycoords="data",size=19)
+    annotate("d", xy=[kaps_draw[3] + (maximum(kaps)- kaps_draw[3])/30;(maximum(f1) + 0.2)], xycoords="data",size=19)
 
     # axvline(x=kaps_draw[1])
     # axvline(x=kaps_draw[2])
     # axvline(x=kaps_draw[3])
 
-    legend(loc="best",fontsize=legend_fontsize-2)
+    legend(loc=2,fontsize=legend_fontsize-2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     xscale("log")
     ylim(0.2,maximum(f1) + 0.35 )
@@ -310,6 +310,9 @@ function plot_sub3_kappa_theta(Theta, d_eta)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"sub3_kappa_theta.pdf"))
+
+    println("kaps: ", kaps[24], ", theta:", round(Theta[24],3), ", eta: ", round(1/d_eta[24],3) )
+    println("kaps: ", kaps[end], ", theta:", round(Theta[end],3), ", eta: ", round(1/d_eta[end],3) )
 end
 
 function plot_sub3_equation(Theta, d_eta)
@@ -334,7 +337,7 @@ function plot_sub3_equation(Theta, d_eta)
     # end
 
     annotate(string("(",round(Theta[id1],3),", 1/",round(1/d_eta[id1],3),")"), xy=[Theta[id1];1.05*d_eta[id1]], xycoords="data",size=18)
-    annotate(string("(",round(Theta[id2],3),", 1/",round(1/d_eta[id2],3),")"), xy=[Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
+    annotate(string("(",round(Theta[id2],3),", 1/",round(1/d_eta[id2],3),")"), xy=[0.9*Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
     scatter(Theta[id1], d_eta[id1],color="k")
     scatter(Theta[id2], d_eta[id2],color="k")
 

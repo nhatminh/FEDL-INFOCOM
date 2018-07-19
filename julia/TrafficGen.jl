@@ -70,7 +70,7 @@ function mobile_gen_sub1()
         ratios    = zeros(NumbDevs)
         D_n       = zeros(Numb_D,NumbDevs)
         for d=1:Numb_D
-            dist_list[:] = rand(Uniform(Dist_min,Dist_max),NumbDevs)
+            dist_list[:] = rand(Uniform(Dist_avg-2,Dist_avg+2),NumbDevs)
             step_size = (1-D_ratios[d])/(1+D_ratios[d]) * D_avg/(NumbDevs/2.)   #(D_ratios[d]-1)/(1+D_ratios[d]) * D_avg/(NumbDevs/2.)
             # D_min = D_avg - step_size * (NumbDevs/2.)
             # D_max = D_avg + step_size * (NumbDevs/2.)
@@ -83,7 +83,7 @@ function mobile_gen_sub1()
                     D_n[d,n] = D_avg + ( n - NumbDevs/2. )*step_size
                 end
 
-                gain_list[n] = exp_gain(dist_list[n])
+                gain_list[n] = exp_gain(dist_list[n], 2)
                 ratios[n]    = noise_per_gain(gain_list[n])
             end
 
