@@ -487,8 +487,10 @@ function Solving_sub1(D_n)
         max_N2 = max(max_N2, (C_n[i]*D_n[i]/f_min[i])^3 )
     end
     K3 = 0
+    K2 = 0
     for n in N3
-        K3  += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/maximum(C_n.*D_n./f_max)^3
+        K2 += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/min_N2
+        K3 += alpha*1e27*((C_n[n]*D_n[n]*1e-9)^3)/maximum(C_n.*D_n./f_max)^3
     end
 
     if(kappa< minimum(alpha*(f_min.^3)))
@@ -496,6 +498,8 @@ function Solving_sub1(D_n)
     # elseif(kappa < min_N2)
     #     println("min K2 (Zone B): ", kappa)
     #     push!(ZoneB1,kappa)
+    # elseif(kappa < max_N2)
+    #     push!(ZoneB2,kappa)
     elseif(kappa < max_N2)
         push!(ZoneB2,kappa)
     elseif(kappa < K3)

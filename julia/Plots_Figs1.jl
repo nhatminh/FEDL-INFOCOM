@@ -360,7 +360,7 @@ function plot_total_cost(Obj, levels, sub)
 
     legend(loc="best",fontsize=legend_fontsize)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
-    ylabel("OPT's obj",fontsize=label_fontsize1+1)
+    ylabel("FEDL's obj",fontsize=label_fontsize1+1)
     xscale("log")
     ylim(0,200)
     xlim(1e-1,5e1)
