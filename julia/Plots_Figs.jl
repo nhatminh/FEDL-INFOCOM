@@ -18,7 +18,7 @@ stride = 6
 
 colors=["m","b","coral","g","k","r"]
 algs = ["PBCD", "Consensus_BCD2", "JP-ADMM", "JP-ADMM_BCD4","IpOpt Solver","Exhaustive Search"]
-markers = ["x","o",">","^", ".","s"]
+markers = ["x","o",">","^", "s","."]
 
 folder = string("figs//")
 
@@ -119,9 +119,9 @@ function plot_sub1_N(N1, N2, N3)
     ax = cfig[:add_subplot](1,1,1)
     ax[:tick_params]("both",labelsize=legend_fontsize-1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
-    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
-    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="pre", marker=markers[3], markersize=marker_size, markevery=11)
-    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="pre", marker=markers[6], markersize=marker_size, markevery=11)
+    step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=5)
+    step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="pre", marker=markers[3], markersize=marker_size, markevery=5)
+    step(kaps,N3,color=colors[2],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_3\$", where="pre", marker=markers[5], markersize=marker_size, markevery=5)
 
     r1 = patch.Rectangle([0,0],kaps_draw[1],NumbDevs, alpha=0.07,fc="k",ec="blue",linewidth=.7)
     r2 = patch.Rectangle([kaps_draw[1],0],kaps_draw[2] - kaps_draw[1],NumbDevs, alpha=0.12,fc="k",ec="blue",linewidth=.7)
@@ -141,7 +141,7 @@ function plot_sub1_N(N1, N2, N3)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     xscale("log")
     xlim(1e-3, 1e1)
-    ylabel("Three subsets by Alg.1",fontsize=label_fontsize1+1)
+    ylabel("Number of elements",fontsize=label_fontsize1+1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Sub1_N.pdf"))
 end
@@ -165,7 +165,7 @@ function plot_sub1_f(f1)
             # plot(kaps,f_min[n]*ones(Numb_kaps)*1e-9,linestyle=":",color=colors[n])
         end
 
-        plot(kaps,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+        plot(kaps,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,marker=markers[n], markersize=marker_size-1, markevery=3, label=string("UE ",n))
     end
 
     r1 = patch.Rectangle([0,0],kaps_draw[1],minimum(f1)+0.1, alpha=0.07,fc="k",ec="blue",linewidth=.7)
@@ -203,7 +203,7 @@ function plot_sub2_tau(tau1)
     ax[:tick_params]("both",labelsize=legend_fontsize+1)
 
     for n = 1:5
-        plot(kaps,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
+        plot(kaps,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width, marker=markers[n], markersize=marker_size-1, markevery=3, label=string("UE ",n))
     end
 
     max_tau = maximum(tau1[1,:])
@@ -241,7 +241,7 @@ function plot_sub2_p(p1)
     plot(kaps,Ptx_Max*ones(Numb_kaps),linestyle=":",color=colors[6])
     plot(kaps,Ptx_Min*ones(Numb_kaps),linestyle=":",color=colors[6])
     for n = 1:5
-        plot(kaps,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width,label=string("UE ",n))
+        plot(kaps,p1[:,n],color=colors[n],linestyle="-",linewidth=l_width, marker=markers[n], markersize=marker_size-1, markevery=3, label=string("UE ",n))
     end
 
     # r1 = patch.Rectangle([0,0],kaps_draw2[1],minimum(p1)+0.1, alpha=0.09,fc="k",ec="blue",linewidth=.7)

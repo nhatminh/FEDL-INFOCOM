@@ -1,25 +1,14 @@
 include("Setting.jl")
 include("TrafficGen.jl")
 include("Solving1.jl")
+include("Utils.jl")
+
 if(NUMERICAL_RS)
+    # Result for Section V: NUMERICAL RESULTS
     include("Plots_Figs1.jl")
 else
+    # Result for Section IV: Closed-Form solution
     include("Plots_Figs.jl")
-end
-
-ck_e = 1e-2
-function check(list, list1)
-    rs = true
-    for i =1:size(list)[1]
-        rs = rs & (norm(list[i] - list1[i]) < ck_e)
-        # println(i,":",rs)
-    end
-
-    if(rs)
-        return "MATCH"
-    else
-        return "NOT MATCH"
-    end
 end
 
 function main()
@@ -217,38 +206,40 @@ function main_sub2()
    plot_sub3_kappa_theta(Theta1, d_eta, tau_ratios_sorted, 2)
    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, tau_ratios_sorted, 2)
    plot_total_cost(Obj1, tau_ratios_sorted, 2)
-   println("here1: ",tau_ratios)
-   println("here2: ",tau_ratios_idx)
-   println("here3: ",tau_ratios_sorted)
+   println("tau_ratios: ",tau_ratios)
+   println("tau_ratios_idx: ",tau_ratios_idx)
+   println("tau_ratios_sorted: ",tau_ratios_sorted)
 end
 
-function main1()
-    #Generate data
-    dist_list, gain_list, ratios, D_n = mobile_gen()
-    for s =1:Numb_SIMs
-        ### Sub1 ###
-        T_cmp, f, E_cmp     = Solving_sub_prob1(D_n[s,:])
-        T_cmp1, f1, E_cmp1  = Solving_sub1(D_n[s,:])
-        println("\n---->> Check Sub1 Solution: ", check([T_cmp, f, E_cmp], [T_cmp1, f1, E_cmp1]))
+# function main1()
+#     #Generate data
+#     dist_list, gain_list, ratios, D_n = mobile_gen()
+#     for s =1:Numb_SIMs
+#         ### Sub1 ###
+#         T_cmp, f, E_cmp     = Solving_sub_prob1(D_n[s,:])
+#         T_cmp1, f1, E_cmp1  = Solving_sub1(D_n[s,:])
+#         println("\n---->> Check Sub1 Solution: ", check([T_cmp, f, E_cmp], [T_cmp1, f1, E_cmp1]))
+#
+#
+#         # ### Sub2 ###
+#         # T_com, p, tau, E_com    = Solving_sub_prob2(ratios[s,:])
+#         # T_com1, p1, tau1, E_com1= Solving_sub2(ratios[s,:])
+#         # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
+#         #
+#         # ### Sub3 ###
+#         # Theta  = Solving_sub_prob3(T_cmp,E_cmp,T_com,E_com)
+#         # Theta1 = Solving_sub3(T_cmp,E_cmp,T_com,E_com)
+#         # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
+#         #
+#         # ### Global ###
+#         # rs2 = Solving_global_prob(D_n[s,:],ratios[s,:])
+#         # rs  = [T_cmp, E_cmp, T_com, E_com, Theta]
+#         # println("\n---->> Check Global Solution: ", check(rs, rs2))
+#     end
+# end
 
 
-        # ### Sub2 ###
-        # T_com, p, tau, E_com    = Solving_sub_prob2(ratios[s,:])
-        # T_com1, p1, tau1, E_com1= Solving_sub2(ratios[s,:])
-        # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
-        #
-        # ### Sub3 ###
-        # Theta  = Solving_sub_prob3(T_cmp,E_cmp,T_com,E_com)
-        # Theta1 = Solving_sub3(T_cmp,E_cmp,T_com,E_com)
-        # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
-        #
-        # ### Global ###
-        # rs2 = Solving_global_prob(D_n[s,:],ratios[s,:])
-        # rs  = [T_cmp, E_cmp, T_com, E_com, Theta]
-        # println("\n---->> Check Global Solution: ", check(rs, rs2))
-    end
-end
-
+# Result for Section V: NUMERICAL RESULTS in the paper (50 devs)
 if(NUMERICAL_RS)
     if READ_RESULT
         ### RATIO 1
@@ -290,6 +281,8 @@ if(NUMERICAL_RS)
         main_sub1()
         main_sub2()
     end
+
+ # Result for Section IV: Closed-Form solution in the paper (5 devs)
 elseif READ_RESULT
     dist_list, gain_list, ratios, D_n = mobile_gen()
 

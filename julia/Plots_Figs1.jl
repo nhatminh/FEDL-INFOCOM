@@ -18,7 +18,7 @@ l_width1=0.5
 stride = 6
 
 colors=["m","b","coral","g","k","r"]
-algs = ["PBCD", "Consensus_BCD2", "JP-ADMM", "JP-ADMM_BCD4","IpOpt Solver","Exhaustive Search"]
+# algs = ["PBCD", "Consensus_BCD2", "JP-ADMM", "JP-ADMM_BCD4","IpOpt Solver","Exhaustive Search"]
 markers = ["x","o",">","^", ".","s"]
 
 folder = string("figs//")
@@ -311,6 +311,15 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
 
         x+=1
     end
+    # plot(E_obj[:,1], T_obj[:,1],linestyle=line_style[1])
+    # plot(E_obj[11,1], T_obj[11,1],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    # plot(E_obj[13,1], T_obj[13,1],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    # plot(E_obj[22,1], T_obj[22,1],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
+    #
+    # annotate(string("\$\\kappa\$=",kaps[11]), xy=[E_obj[11,1]+0.5;T_obj[11,1]], xycoords="data",size=19)
+    # annotate(string("\$\\kappa\$=",kaps[13]), xy=[E_obj[13,1]+0.5;T_obj[13,1]], xycoords="data",size=19)
+    # annotate(string("\$\\kappa\$=",kaps[22]), xy=[E_obj[22,1]-2.5;T_obj[22,1]+0.5], xycoords="data",size=19)
+
     plot(E_obj[:,1], T_obj[:,1],linestyle=line_style[1],label=string(lbl_lv,"=",round(levels[1],round_numb)))
     plot(E_obj[:,2], T_obj[:,2],linestyle="-.",label=string(lbl_lv,"=",round(levels[3],round_numb)))
     plot(E_obj[:,3], T_obj[:,3],linestyle=line_style[3],label=string(lbl_lv,"=",round(levels[5],round_numb)))
@@ -319,17 +328,17 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     plot(E_obj[13,:], T_obj[13,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
     plot(E_obj[22,:], T_obj[22,:],linestyle="--",color="k", marker=markers[2], markersize=marker_size)
 
-    legend(loc="best",fontsize=legend_fontsize)
-    xlabel("Energy Cost",fontsize=label_fontsize1+1)
-    ylabel("Time Cost",fontsize=label_fontsize1+1)
-
     annotate(string("\$\\kappa\$=",kaps[11]), xy=[E_obj[11,3]+0.5;T_obj[11,3]], xycoords="data",size=19)
     annotate(string("\$\\kappa\$=",kaps[13]), xy=[E_obj[13,3]+0.5;T_obj[13,3]], xycoords="data",size=19)
     annotate(string("\$\\kappa\$=",kaps[22]), xy=[E_obj[22,3]-2.5;T_obj[22,3]+0.5], xycoords="data",size=19)
 
+    legend(loc="best",fontsize=legend_fontsize)
+    xlabel("Energy Cost",fontsize=label_fontsize1+1)
+    ylabel("Time Cost",fontsize=label_fontsize1+1)
+
     if(sub==1)
         xlim(0,20)
-        ylim(0,15)
+        ylim(0,13)
     else
         xlim(0,25)
         ylim(0,15)
@@ -367,10 +376,10 @@ function plot_total_cost(Obj, levels, sub)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"total1_rs",sub,".pdf"))
 
-    println("kappa:", [kaps[12], kaps[14], kaps[23]])
-    println("Cost scale up:", [round(Obj[3,12]/Obj[1,12],3), round(Obj[end,12]/Obj[1,12],3)])
-    println("Cost scale up:", [round(Obj[3,14]/Obj[1,14],3), round(Obj[end,14]/Obj[1,14],3)])
-    println("Cost scale up:", [round(Obj[3,23]/Obj[1,23],3), round(Obj[end,23]/Obj[1,23],3)])
+    println("kappa:", [kaps[11], kaps[13], kaps[22]])
+    println("Cost scale up:", [round(Obj[3,11]/Obj[1,11],3), round(Obj[end,11]/Obj[1,11],3)])
+    println("Cost scale up:", [round(Obj[3,13]/Obj[1,13],3), round(Obj[end,13]/Obj[1,13],3)])
+    println("Cost scale up:", [round(Obj[3,22]/Obj[1,22],3), round(Obj[end,22]/Obj[1,22],3)])
 
     # clf()
     # figure(10,figsize=fig_size)
