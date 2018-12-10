@@ -4,7 +4,7 @@ This repository is a simulation code for the paper
 "Federated Learning over Wireless Networks: Optimization Model Design and Analysis", IEEE INFOCOM 2019 (Accepted).
 
 We use Julia version 0.6.
-
+All of Figures will be generated in `figs` folder
 Main.jl will includes 5 files
 - "Setting.jl"
 - "TrafficGen.jl"
