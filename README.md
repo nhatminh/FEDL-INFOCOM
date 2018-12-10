@@ -1,6 +1,7 @@
 # OnDevAI
 
-This repository is a simulation code for the paper:
+This repository is a simulation code for the paper
+
 Nguyen H. Tran, Wei Bao, Albert Zomaya, Minh N. H. Nguyen, Choong Seon Hong 
 "Federated Learning over Wireless Networks: Optimization Model Design and Analysis", IEEE INFOCOM 2019 (Accepted).
 
