@@ -31,3 +31,6 @@ READ_RESULT = true		# Read results from result files
 NUMERICAL_RS = true     # Result for Section V: NUMERICAL RESULTS in the paper (50 devs)
 # NUMERICAL_RS = false  # Result for Section IV: Closed-Form solution in the paper (5 devs)
 ```
+
+We apply the Federated Learning code from
+https://github.com/shaoxiongji/federated-learning
