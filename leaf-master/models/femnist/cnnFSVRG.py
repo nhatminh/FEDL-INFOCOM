@@ -39,8 +39,29 @@ class ClientModelFSVRG(ModelFSVRG):
           "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
         }
         loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+        self.network_params = tf.get_collection(tf.GraphKeys.MODEL_VARIABLES)
+
+        # Compute gradient a Loss function
+        self.grad = tf.gradients(loss, self.network_params)
+        # # Pairing grad, vars
+        # grads_vars = [(g, v) for g, v in zip(self.grad, self.network_params)]
+        # # Use the computed gradients
+        # train_op = tf.apply_gradients(grads_vars)
+
         train_op = self.optimizer.minimize(
             loss=loss,
             global_step=tf.train.get_global_step())
+
         eval_metric_ops = tf.count_nonzero(tf.equal(labels, predictions["classes"]))
         return features, labels, train_op, eval_metric_ops
+
+
+    def fetch_grad(self, w, X, y):
+        """
+        given weight w_i and data {X_i, y_i}, compute gradient.
+        """
+        self.network_params.load(w, self.sess)
+        return self.sess.run(self.grad, feed_dict={self.features:X, self.labels:y})[0]
+
+    # def fetch_weights(self):
+    #     return self.sess.run(self.network_params)

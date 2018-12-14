@@ -56,7 +56,11 @@ class ModelFSVRG(ABC):
         """
         return None, None, None, None
 
-    def train(self, data, num_epochs=1, batch_size=10):
+    @abstractmethod
+    def fetch_grad(self, w, X, y):
+        return None
+
+    def train(self, data, server_w, server_grad, num_epochs=1, batch_size=10):
         """
         Trains the client model.
 
@@ -73,21 +77,45 @@ class ModelFSVRG(ABC):
             init_values = [self.sess.run(v) for v in tf.trainable_variables()]
 
         batched_x, batched_y = batch_data(data, batch_size)
+        # calculate term b gradient using (1) server weights and (2) client data
+        X = self.process_x(batched_x[0])
+        y = self.process_y(batched_y[0])
+        term_b = self.fetch_grad(server_w, X, y)
+
+        # compute term c gradient using (1) server weights and (2) server data
+        term_c = server_grad
+        client_w = server_w
+
+        # for _ in range(num_epochs):
+        #     for i, raw_x_batch in enumerate(batched_x):
+        #         input_data = self.process_x(raw_x_batch)
+        #         raw_y_batch = batched_y[i]
+        #         target_data = self.process_y(raw_y_batch)
+        #         with self.graph.as_default():
+        #             self.sess.run(
+        #                 self.train_op,
+        #                 feed_dict={self.features: input_data, self.labels: target_data}
+        #             )
+        #     compute term a gradient using (1) client weights and (2) client data
+        # with self.graph.as_default():
+        #     update = [self.sess.run(v) for v in tf.trainable_variables()]
+        #     update = [np.subtract(update[i], init_values[i]) for i in range(len(update))]
+        # comp = num_epochs * len(batched_y) * batch_size * self.flops
+        # return comp, update
+
         for _ in range(num_epochs):
-            for i, raw_x_batch in enumerate(batched_x):
-                input_data = self.process_x(raw_x_batch)
-                raw_y_batch = batched_y[i]
-                target_data = self.process_y(raw_y_batch)
-                with self.graph.as_default():
-                    self.sess.run(
-                        self.train_op,
-                        feed_dict={self.features: input_data, self.labels: target_data}
-                    )
-        with self.graph.as_default():
-            update = [self.sess.run(v) for v in tf.trainable_variables()]
-            update = [np.subtract(update[i], init_values[i]) for i in range(len(update))]
-        comp = num_epochs * len(batched_y) * batch_size * self.flops
-        return comp, update
+            term_a = self.fetch_grad(client_w, X, y)
+
+            # update client weights
+            client_w = client_w - self.lr * (term_a - term_b + term_c)
+
+        ##TODO send client_w to the server to get get new avg weight
+        ## Get back w_t+1 from server (after average)
+        ## Recompute new local gradient
+        ## Send gradient to the sever to get average gradient
+
+        comp = 0
+        return comp, client_w
 
     def test(self, data):
         """

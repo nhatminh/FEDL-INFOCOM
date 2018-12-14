@@ -11,7 +11,7 @@ class Client:
         self.train_data = train_data
         self.eval_data = eval_data
 
-    def train(self, num_epochs=1, batch_size=10, minibatch=None):
+    def train(self, server_w=None, num_epochs=1, batch_size=10, minibatch=None):
         """Trains on self.model using the client's train_data.
 
         Args:
@@ -27,13 +27,17 @@ class Client:
         """
         if minibatch is None:
             data = self.train_data
-            comp, update = self.model.train(data, num_epochs, batch_size)
+            comp, update = self.model.train(data, server_w, num_epochs, batch_size)
+        elif minibatch == 1.: # Use all of local dataset
+            data = self.train_data
+            num_data = max(1, int(len(self.train_data["x"])))
+            comp, update = self.model.train(data, server_w, num_epochs, num_data)
         else:
             frac = min(1.0, minibatch)
             num_data = max(1, int(frac*len(self.train_data["x"])))
             xs, ys = zip(*random.sample(list(zip(self.train_data["x"], self.train_data["y"])), num_data))
             data = {"x": xs, "y": ys}
-            comp, update = self.model.train(data, num_epochs, num_data)
+            comp, update = self.model.train(data, server_w, num_epochs, num_data)
         num_train_samples = len(data)
         return comp, num_train_samples, update
 
