@@ -39,7 +39,8 @@ def main():
     
     print('############################## %s ##############################' % model_path)
     mod = importlib.import_module(model_path)
-    ClientModel = getattr(mod, 'ClientModel')
+    # ClientModel = getattr(mod, 'ClientModel')
+    ClientModel = getattr(mod, 'ClientModelFSVRG')
 
     tup = MAIN_PARAMS[args.dataset][args.t]
     num_rounds = args.num_rounds if args.num_rounds != -1 else tup[0]
