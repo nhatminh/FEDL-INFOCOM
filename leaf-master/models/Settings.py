@@ -1,7 +1,12 @@
+import numpy as np
 
 NumbOfUsers = 5
 GLOB_ACC = 0.7  #70% accuracy on Test
-NUMB_LOCAL_ITERS = 10
+LOCAL_THETA = 0.5
+UNIT_LOCAL_ITERS = 10
+NUMB_LOCAL_ITERS = int(np.log(1/LOCAL_THETA) * UNIT_LOCAL_ITERS)
+# NUMB_LOCAL_ITERS = 10
+
 NUMB_GLOBAL_ITERS = 50
 
 EVAL_EVERY = 3

@@ -64,6 +64,7 @@ def main():
 
     # Create clients
     clients = setup_clients(args.dataset, client_model)
+    print("NUMB_LOCAL_ITERS: ", NUMB_LOCAL_ITERS)
     print('%d Clients in Total' % len(clients))
 
     # Test untrained model on all clients
