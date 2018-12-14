@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from modelFSVRG import ModeFSVRG
+from modelFSVRG import ModelFSVRG
 
 
 IMAGE_SIZE = 28
