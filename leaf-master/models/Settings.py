@@ -1,0 +1,7 @@
+
+NumbOfUsers = 5
+GLOB_ACC = 0.7  #70% accuracy on Test
+NUMB_LOCAL_ITERS = 10
+NUMB_GLOBAL_ITERS = 50
+
+EVAL_EVERY = 3
