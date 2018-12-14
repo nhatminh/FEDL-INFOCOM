@@ -12,7 +12,7 @@ from utils.model_utils import batch_data
 from utils.tf_utils import graph_size
 
 
-class ModelDANE(ABC):
+class ModelFSVRG(ABC):
 
     def __init__(self, lr):
         self.lr = lr

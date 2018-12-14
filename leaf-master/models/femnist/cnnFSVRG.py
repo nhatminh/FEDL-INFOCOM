@@ -1,12 +1,12 @@
 import tensorflow as tf
 
-from modelFSVRG import ModelDANE
+from modelFSVRG import ModeFSVRG
 
 
 IMAGE_SIZE = 28
 
 
-class ClientModelFSVRG(ModelDANE):
+class ClientModelFSVRG(ModelFSVRG):
     def __init__(self, lr, num_classes):
         self.num_classes = num_classes
         super(ClientModelFSVRG, self).__init__(lr)
