@@ -80,7 +80,9 @@ class LocalUpdate(object):
         #         loss = self.loss_func(log_probs, labels)
         #         loss.backward()
         #         optimizer.step()
-
+        loss = 0
+        log_probs = []
+        labels = []
         for batch_idx, (images, labels) in enumerate(self.ldr_test):
             if self.args.gpu != -1:
                 images, labels = images.cuda(), labels.cuda()
@@ -94,3 +96,76 @@ class LocalUpdate(object):
         y_pred = np.argmax(log_probs.data, axis=1)
         acc = metrics.accuracy_score(y_true=labels.data, y_pred=y_pred)
         return  acc, loss.data.item()
+
+
+class LocalFSVGRUpdate(LocalUpdate):
+    def __init__(self, args, dataset, idx, tb):
+        super(LocalFSVGRUpdate, self).__init__()
+        self.lg_scalar = args.lg_scalar
+        self.lr = args.lr
+
+    def calculate_global_grad(self, net):
+        global_grad = [np.zeros(v.shape) for v in net.parameters()]
+        total_size = 0
+        for batch_idx, (images, labels) in enumerate(self.ldr_train):
+            if self.args.gpu != -1:
+                images, labels = images.cuda(), labels.cuda()
+            total_size += len(images)
+            images, labels = autograd.Variable(images), autograd.Variable(labels)
+            net.zero_grad()
+            log_probs = net(images)
+            loss = self.loss_func(log_probs, labels)
+            loss.backward()
+            for i, param in enumerate(net.parameters()):
+                global_grad[i] += param.grad.data
+            if self.args.gpu != -1:
+                loss = loss.cpu()
+        global_grad /= total_size
+        return total_size, global_grad
+
+    def fetch_grad(self, net, images, labels):
+        grad = [np.zeros(v.shape) for v in net.parameters()]
+        if self.args.gpu != -1:
+            images, labels = images.cuda(), labels.cuda()
+        images, labels = autograd.Variable(images), autograd.Variable(labels)
+        net.zero_grad()
+        log_probs = net(images)
+        loss = self.loss_func(log_probs, labels)
+        loss.backward()
+        for i, param in enumerate(net.parameters()):
+            grad[i] = param.grad.data
+        return grad
+
+    def update_FSVGR_weights(self, server_avg_grad, net):
+        net.train()
+        # train and update
+        epoch_loss = []
+        server_net = copy.deepcopy(net)
+        total_size = 0
+        for iter in range(self.args.local_ep):
+            batch_loss = []
+            for batch_idx, (images, labels) in enumerate(self.ldr_train):
+                if self.args.gpu != -1:
+                    images, labels = images.cuda(), labels.cuda()
+                if iter == 0:
+                    total_size += len(images)
+                images, labels = autograd.Variable(images), autograd.Variable(labels)
+                net.zero_grad()
+                log_probs = net(images)
+                loss = self.loss_func(log_probs, labels)
+                loss.backward()
+                client_w_grad = self.fetch_grad(net, images, labels)
+                server_w_grad = self.fetch_grad(server_net, images, labels)
+                for i, param in enumerate(net.parameters()):
+                    param.data -= self.lr * (self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])) + server_avg_grad[i])
+                if self.args.gpu != -1:
+                    loss = loss.cpu()
+                if self.args.verbose and batch_idx % 10 == 0:
+                    print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                        iter, batch_idx * len(images), len(self.ldr_train.dataset),
+                              100. * batch_idx / len(self.ldr_train), loss.data.item()))
+                self.tb.add_scalar('loss', loss.data.item())
+                batch_loss.append(loss.data.item())
+            epoch_loss.append(sum(batch_loss) / len(batch_loss))
+        return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss)
+

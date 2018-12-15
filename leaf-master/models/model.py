@@ -44,7 +44,6 @@ class Model(ABC):
     @abstractmethod
     def create_model(self):
         """Creates the model for the task.
-
         Returns:
             A 4-tuple consisting of:
                 features: A placeholder for the samples' features.
@@ -59,7 +58,6 @@ class Model(ABC):
     def train(self, data, num_epochs=1, batch_size=10):
         """
         Trains the client model.
-
         Args:
             data: Dict of the form {'x': [list], 'y': [list]}.
             num_epochs: Number of epochs to train.
@@ -92,7 +90,6 @@ class Model(ABC):
     def test(self, data):
         """
         Tests the current model on the given data.
-
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
         Return:
@@ -134,7 +131,6 @@ class ServerModel:
 
     def send_to(self, clients):
         """Copies server model variables to each of the given clients
-
         Args:
             clients: list of Client objects
         """
@@ -152,7 +148,6 @@ class ServerModel:
 
     def update(self, updates):
         """Updates server model using given client updates.
-
         Args:
             updates: list of (num_samples, update), where num_samples is the
                 number of training samples corresponding to the update, and update

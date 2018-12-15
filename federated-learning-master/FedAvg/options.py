@@ -4,6 +4,7 @@
 
 import argparse
 
+
 def args_parser():
     parser = argparse.ArgumentParser()
     # federated arguments
@@ -35,5 +36,7 @@ def args_parser():
     parser.add_argument('--stopping_rounds', type=int, default=10, help='rounds of early stopping')
     parser.add_argument('--verbose', type=int, default=1, help='verbose print, 1 for True, 0 for False')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
+    parser.add_argument('--ag_scalar', type=float, default=1.0, help="global aggregation updating scalar, simplicity for A Matrix")
+    parser.add_argument('--lg_scalar', type=float, default=1.0, help="client local updating scalar, simplicity for S Matrix")
     args = parser.parse_args()
     return args

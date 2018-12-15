@@ -3,17 +3,16 @@ import warnings
 
 
 class Client:
-    
-    def __init__(self, client_id, group=None, train_data={'x' : [],'y' : []}, eval_data={'x' : [],'y' : []}, model=None):
+
+    def __init__(self, client_id, group=None, train_data={'x': [], 'y': []}, eval_data={'x': [], 'y': []}, model=None):
         self._model = model
-        self.id = client_id # integer
+        self.id = client_id  # integer
         self.group = group
         self.train_data = train_data
         self.eval_data = eval_data
 
     def train(self, server_w=None, num_epochs=1, batch_size=10, minibatch=None):
         """Trains on self.model using the client's train_data.
-
         Args:
             num_epochs: Number of epochs to train.
             batch_size: Size of training batches.
@@ -28,13 +27,13 @@ class Client:
         if minibatch is None:
             data = self.train_data
             comp, update = self.model.train(data, server_w, num_epochs, batch_size)
-        elif minibatch == 1.: # Use all of local dataset
+        elif minibatch == 1.:  # Use all of local dataset
             data = self.train_data
             num_data = max(1, int(len(self.train_data["x"])))
             comp, update = self.model.train(data, server_w, num_epochs, num_data)
         else:
             frac = min(1.0, minibatch)
-            num_data = max(1, int(frac*len(self.train_data["x"])))
+            num_data = max(1, int(frac * len(self.train_data["x"])))
             xs, ys = zip(*random.sample(list(zip(self.train_data["x"], self.train_data["y"])), num_data))
             data = {"x": xs, "y": ys}
             comp, update = self.model.train(data, server_w, num_epochs, num_data)
@@ -43,7 +42,6 @@ class Client:
 
     def test(self, model):
         """Tests self.model on self.eval_data.
-
         Return:
             dict of metrics returned by the model.
         """

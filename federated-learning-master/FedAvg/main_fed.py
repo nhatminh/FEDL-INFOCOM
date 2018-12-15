@@ -17,9 +17,9 @@ from tensorboardX import SummaryWriter
 
 from sampling import mnist_iid, mnist_noniid, cifar_iid
 from options import args_parser
-from Update import LocalUpdate
+from Update import LocalFSVGRUpdate
 from FedNets import MLP, CNNMnist, CNNCifar
-from averaging import average_weights
+from averaging import average_FSVRG_weights
 
 
 def test(net_g, data_loader, args):
@@ -43,6 +43,15 @@ def test(net_g, data_loader, args):
     return correct, test_loss
 
 
+def calculate_avg_grad(users_g):
+    avg_grad = np.zeros(users_g[0][1].shape)
+    total_size = np.sum([u[0] for u in users_g])
+    for i in range(len(users_g)):
+        avg_grad += users_g[i][0] * users_g[i][1]
+    avg_grad /= total_size
+    return avg_grad
+
+
 if __name__ == '__main__':
     # parse args
     args = args_parser()
@@ -52,15 +61,18 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     #Defaults: 100, 10, 10
+    args.ag_scalar = 3
     args.dataset = 'mnist' #  'cifar' or 'mnist'
     args.num_users = 5
     args.frac = 1.          # fraction number of users will be selected to update
     args.epochs = 10        # numb of global iters
     args.local_ep = 10       # numb of local iters
     args.local_bs = 100      # Local Batch size
-    print("dataset:",args.dataset," num_users:",args.num_users," epochs:",args.epochs,"local_ep:",args.local_ep)
+    print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
+    dict_users = {}
+    dataset_train = []
     if args.dataset == 'mnist':
         dataset_train = datasets.MNIST('../data/mnist/', train=True, download=True,
                    transform=transforms.Compose([
@@ -86,6 +98,7 @@ if __name__ == '__main__':
     img_size = dataset_train[0][0].shape
 
     # build model
+    net_glob = None
     if args.model == 'cnn' and args.dataset == 'cifar':
         if args.gpu != -1:
             torch.cuda.set_device(args.gpu)
@@ -116,6 +129,8 @@ if __name__ == '__main__':
     w_glob = net_glob.state_dict()
 
     # training
+    global_grad = []
+    user_grads = []
     loss_train = []
     cv_loss, cv_acc = [], []
     val_loss_pre, counter = 0, 0
@@ -125,20 +140,32 @@ if __name__ == '__main__':
         w_locals, loss_locals = [], []
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+        """
+        First communication round: server send w_t to client --> client calculate gradient and send
+        to sever --> server calculate average global gradient and send to client
+        """
         for idx in idxs_users:
-            local = LocalUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-            w, loss = local.update_weights(net=copy.deepcopy(net_glob))
-            w_locals.append(copy.deepcopy(w))
+            local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+            num_sample, grad_k = local.calculate_global_grad(net=copy.deepcopy(net_glob))
+            user_grads.append((num_sample, grad_k))
+        global_grad = calculate_avg_grad(user_grads)
+
+        """
+        Second communication round: client update w_k_t+1 and send to server --> server update global w_t+1
+        """
+        for idx in idxs_users:
+            local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+            num_samples, w_k, loss = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
+            w_locals.append(copy.deepcopy((num_samples, w_k)))
             loss_locals.append(copy.deepcopy(loss))
-        # update global weights
-        w_glob = average_weights(w_locals)
+        w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob))
 
         # copy weight to net_glob
         net_glob.load_state_dict(w_glob)
 
         # print loss
         loss_avg = sum(loss_locals) / len(loss_locals)
-        if args.epochs % 10 == 0:
+        if iter % 10 == 0:
             print('\nTrain loss:', loss_avg)
         loss_train.append(loss_avg)
 

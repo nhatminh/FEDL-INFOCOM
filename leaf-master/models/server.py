@@ -1,11 +1,10 @@
 import random
 
-
 from baseline_constants import BYTES_WRITTEN_KEY, BYTES_READ_KEY, LOCAL_COMPUTATIONS_KEY
 
 
 class Server:
-    
+
     def __init__(self, model):
         self.model = model  # global model of the server.
         self.selected_clients = []
@@ -13,10 +12,9 @@ class Server:
 
     def select_clients(self, possible_clients, num_clients=20):
         """Selects num_clients clients randomly from possible_clients.
-        
+
         Note that within function, num_clients is set to
             min(num_clients, len(possible_clients)).
-
         Args:
             possible_clients: Clients from which the server can select.
             num_clients: Number of clients to select; default 20
@@ -35,11 +33,10 @@ class Server:
 
     def train_model(self, num_epochs=1, batch_size=10, minibatch=None, clients=None):
         """Trains self.model on given clients.
-        
+
         Trains model on self.selected_clients if clients=None;
         each client's data is trained with the given number of epochs
         and batches.
-
         Args:
             clients: list of Client objects.
             num_epochs: Number of epochs to train.
@@ -47,7 +44,7 @@ class Server:
             minibatch: fraction of client's data to apply minibatch sgd,
                 None to use FedAvg
         Return:
-            bytes_written: number of bytes written by each client to server 
+            bytes_written: number of bytes written by each client to server
                 dictionary with client ids as keys and integer values.
             client computations: number of FLOPs computed by each client
                 dictionary with client ids as keys and integer values.
@@ -77,9 +74,7 @@ class Server:
 
     def test_model(self, clients_to_test=None):
         """Tests self.model on given clients.
-
         Tests model on self.selected_clients if clients_to_test=None.
-
         Args:
             clients_to_test: list of Client objects.
         """
@@ -88,7 +83,7 @@ class Server:
         metrics = {}
 
         self.model.send_to(clients_to_test)
-        
+
         for client in clients_to_test:
             c_metrics = client.test(self.model.cur_model)
             metrics[client.id] = c_metrics
@@ -97,9 +92,7 @@ class Server:
 
     def get_clients_test_info(self, clients=None):
         """Returns the ids, hierarchies and num_test_samples for the given clients.
-
         Returns info about self.selected_clients if clients=None;
-
         Args:
             clients: list of Client objects.
         """

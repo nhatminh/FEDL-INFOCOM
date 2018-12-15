@@ -164,7 +164,6 @@ def parse_args():
 
 def setup_clients(dataset, model=None):
     """Instantiates clients based on given train and test data directories.
-
     Return:
         all_clients: list of Client objects.
     """
@@ -200,7 +199,6 @@ def save_model(server_model, dataset, model):
 
 def print_metrics(metrics, weights):
     """Prints weighted averages of the given metrics.
-
     Args:
         metrics: dict with client ids as keys. Each entry is a dict
             with the metrics of that client.
