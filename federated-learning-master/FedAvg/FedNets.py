@@ -10,6 +10,7 @@ import torch.nn.functional as F
 class MLP(nn.Module):
     def __init__(self, dim_in, dim_hidden, dim_out):
         super(MLP, self).__init__()
+        print("NN: MLP is created")
         self.layer_input = nn.Linear(dim_in, dim_hidden)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout()
@@ -28,6 +29,7 @@ class MLP(nn.Module):
 class CNNMnist(nn.Module):
     def __init__(self, args):
         super(CNNMnist, self).__init__()
+        print("NN: CNNMnist is created")
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
         self.bn1 = nn.BatchNorm2d(10)
         self.conv2 = nn.Conv2d(10, 20, kernel_size=5)

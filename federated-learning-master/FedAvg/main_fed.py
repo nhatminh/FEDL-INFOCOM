@@ -45,10 +45,11 @@ def test(net_g, data_loader, args):
 
 def calculate_avg_grad(users_g):
     avg_grad = np.zeros(users_g[0][1].shape)
-    total_size = np.sum([u[0] for u in users_g])
+    total_size = np.sum([u[0] for u in users_g]) #Total number of samples of all users
     for i in range(len(users_g)):
-        avg_grad = np.add(avg_grad, users_g[i][0] * users_g[i][1])#+= users_g[i][0] * users_g[i][1]
+        avg_grad = np.add(avg_grad, users_g[i][0] * users_g[i][1])#+= users_g[i][0] * users_g[i][1]   <=> n_k * grad_k
     avg_grad = np.divide(avg_grad, total_size)#/= total_size
+    # print(avg_grad)
     return avg_grad
 
 
@@ -61,14 +62,15 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     #Defaults: 100, 10, 10
+    args.lr = 0.001
     args.ag_scalar = 1
-    args.model = 'mlp'
+    args.model = 'mlp'      # 'mlp' or 'cnn'
     args.dataset = 'mnist'  #  'cifar' or 'mnist'
     args.num_users = 5
     args.frac = 1.          # fraction number of users will be selected to update
     args.epochs = 10        # numb of global iters
-    args.local_ep = 100       # numb of local iters
-    args.local_bs = 10      # Local Batch size
+    args.local_ep = 10       # numb of local iters
+    args.local_bs = 420      # Local Batch size (420 = full dataset size of a user)
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -162,6 +164,7 @@ if __name__ == '__main__':
             local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
             num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
             w_locals.append(copy.deepcopy((num_samples, w_k)))
+            print("User ",idx, " Acc:",acc," Loss:",loss)
             loss_locals.append(copy.deepcopy(loss))
             acc_locals.append(copy.deepcopy(acc))
         w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob))

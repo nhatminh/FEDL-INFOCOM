@@ -36,6 +36,8 @@ class LocalUpdate(object):
         idxs_train = idxs[:420]
         idxs_val = idxs[420:480]
         idxs_test = idxs[480:]
+
+        #If batch_size = 420 -> random permutation of all items
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
         val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
         test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)/10), shuffle=True)
@@ -118,11 +120,14 @@ class LocalFSVGRUpdate(LocalUpdate):
             log_probs = net(images)
             loss = self.loss_func(log_probs, labels)
             loss.backward()
+
             for i, param in enumerate(net.parameters()):
-                global_grad[i] += param.grad.data
+                # print("Parameter:",i, " size: ", len(param.grad.data.numpy()))
+                global_grad[i] += param.grad.data.numpy()[0]
             if self.args.gpu != -1:
                 loss = loss.cpu()
-        global_grad = np.divide(global_grad, total_size)#global_grad /= total_size
+        # global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
+        global_grad = np.divide(global_grad, 1)
         return total_size, global_grad
 
     def fetch_grad(self, net, images, labels):
