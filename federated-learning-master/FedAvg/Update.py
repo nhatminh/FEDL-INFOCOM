@@ -7,6 +7,7 @@ from torch import nn, autograd
 from torch.utils.data import DataLoader, Dataset
 import numpy as np
 from sklearn import metrics
+import copy
 
 
 class DatasetSplit(Dataset):
@@ -26,7 +27,7 @@ class DatasetSplit(Dataset):
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, tb):
         self.args = args
-        self.loss_func = nn.NLLLoss()
+        self.loss_func = nn.CrossEntropyLoss() #nn.NLLLoss()
         self.ldr_train, self.ldr_val, self.ldr_test = self.train_val_test(dataset, list(idxs))
         self.tb = tb
 
@@ -87,6 +88,7 @@ class LocalUpdate(object):
             if self.args.gpu != -1:
                 images, labels = images.cuda(), labels.cuda()
             images, labels = autograd.Variable(images), autograd.Variable(labels)
+            net = net.float()
             log_probs = net(images)
             loss = self.loss_func(log_probs, labels)
         if self.args.gpu != -1:
@@ -95,12 +97,12 @@ class LocalUpdate(object):
             labels = labels.cpu()
         y_pred = np.argmax(log_probs.data, axis=1)
         acc = metrics.accuracy_score(y_true=labels.data, y_pred=y_pred)
-        return  acc, loss.data.item()
+        return acc, loss.data.item()
 
 
 class LocalFSVGRUpdate(LocalUpdate):
-    def __init__(self, args, dataset, idx, tb):
-        super(LocalFSVGRUpdate, self).__init__()
+    def __init__(self, args, dataset, idxs, tb):
+        super(LocalFSVGRUpdate, self).__init__(args, dataset, idxs, tb)
         self.lg_scalar = args.lg_scalar
         self.lr = args.lr
 
@@ -120,7 +122,7 @@ class LocalFSVGRUpdate(LocalUpdate):
                 global_grad[i] += param.grad.data
             if self.args.gpu != -1:
                 loss = loss.cpu()
-        global_grad /= total_size
+        global_grad = np.divide(global_grad, total_size)#global_grad /= total_size
         return total_size, global_grad
 
     def fetch_grad(self, net, images, labels):
@@ -140,6 +142,7 @@ class LocalFSVGRUpdate(LocalUpdate):
         net.train()
         # train and update
         epoch_loss = []
+        epoch_acc = []
         server_net = copy.deepcopy(net)
         total_size = 0
         for iter in range(self.args.local_ep):
@@ -150,14 +153,18 @@ class LocalFSVGRUpdate(LocalUpdate):
                 if iter == 0:
                     total_size += len(images)
                 images, labels = autograd.Variable(images), autograd.Variable(labels)
+                net = net.float()
                 net.zero_grad()
                 log_probs = net(images)
                 loss = self.loss_func(log_probs, labels)
                 loss.backward()
                 client_w_grad = self.fetch_grad(net, images, labels)
                 server_w_grad = self.fetch_grad(server_net, images, labels)
+                # if iter == 50:
+                #     print(client_w_grad)
                 for i, param in enumerate(net.parameters()):
-                    param.data -= self.lr * (self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])) + server_avg_grad[i])
+                    param.data = np.subtract(param.data, self.lr * (np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])), server_avg_grad[i])))
+                    #param.data -= self.lr * (self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])) + server_avg_grad[i])
                 if self.args.gpu != -1:
                     loss = loss.cpu()
                 if self.args.verbose and batch_idx % 10 == 0:
@@ -167,5 +174,8 @@ class LocalFSVGRUpdate(LocalUpdate):
                 self.tb.add_scalar('loss', loss.data.item())
                 batch_loss.append(loss.data.item())
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
-        return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss)
+            acc, _ = self.test(net)
+            epoch_acc.append(acc)
+            #print('Local Epoch: {}, accuracy: {:.6f}'.format(iter, acc))
+        return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 

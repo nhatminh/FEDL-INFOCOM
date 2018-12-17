@@ -47,8 +47,8 @@ def calculate_avg_grad(users_g):
     avg_grad = np.zeros(users_g[0][1].shape)
     total_size = np.sum([u[0] for u in users_g])
     for i in range(len(users_g)):
-        avg_grad += users_g[i][0] * users_g[i][1]
-    avg_grad /= total_size
+        avg_grad = np.add(avg_grad, users_g[i][0] * users_g[i][1])#+= users_g[i][0] * users_g[i][1]
+    avg_grad = np.divide(avg_grad, total_size)#/= total_size
     return avg_grad
 
 
@@ -61,13 +61,14 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     #Defaults: 100, 10, 10
-    args.ag_scalar = 3
-    args.dataset = 'mnist' #  'cifar' or 'mnist'
+    args.ag_scalar = 1
+    args.model = 'mlp'
+    args.dataset = 'mnist'  #  'cifar' or 'mnist'
     args.num_users = 5
     args.frac = 1.          # fraction number of users will be selected to update
     args.epochs = 10        # numb of global iters
-    args.local_ep = 10       # numb of local iters
-    args.local_bs = 100      # Local Batch size
+    args.local_ep = 100       # numb of local iters
+    args.local_bs = 10      # Local Batch size
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -136,8 +137,10 @@ if __name__ == '__main__':
     val_loss_pre, counter = 0, 0
     net_best = None
     val_acc_list, net_list = [], []
+    #print(dict_users.keys())
     for iter in tqdm(range(args.epochs)):
-        w_locals, loss_locals = [], []
+        print("=========Global epoch {}=========".format(iter))
+        w_locals, loss_locals, acc_locals = [], [], []
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
         """
@@ -145,6 +148,7 @@ if __name__ == '__main__':
         to sever --> server calculate average global gradient and send to client
         """
         for idx in idxs_users:
+            #print(idx)
             local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
             num_sample, grad_k = local.calculate_global_grad(net=copy.deepcopy(net_glob))
             user_grads.append((num_sample, grad_k))
@@ -154,10 +158,12 @@ if __name__ == '__main__':
         Second communication round: client update w_k_t+1 and send to server --> server update global w_t+1
         """
         for idx in idxs_users:
+            print("Training user {}".format(idx))
             local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-            num_samples, w_k, loss = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
+            num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
             w_locals.append(copy.deepcopy((num_samples, w_k)))
             loss_locals.append(copy.deepcopy(loss))
+            acc_locals.append(copy.deepcopy(acc))
         w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob))
 
         # copy weight to net_glob
@@ -165,9 +171,12 @@ if __name__ == '__main__':
 
         # print loss
         loss_avg = sum(loss_locals) / len(loss_locals)
-        if iter % 10 == 0:
+        acc_avg = sum(acc_locals) / len(acc_locals)
+        if iter % 1 == 0:
             print('\nTrain loss:', loss_avg)
+            print('\nTrain accuracy', acc_avg)
         loss_train.append(loss_avg)
+        #acc, _ = test(net_glob)
 
     # plot loss curve
     plt.figure()
@@ -179,7 +188,7 @@ if __name__ == '__main__':
     list_acc, list_loss = [], []
     net_glob.eval()
     for c in tqdm(range(args.num_users)):
-        net_local = LocalUpdate(args=args, dataset=dataset_train, idxs=dict_users[c], tb=summary)
+        net_local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[c], tb=summary)
         acc, loss = net_local.test(net=net_glob)
         list_acc.append(acc)
         list_loss.append(loss)

@@ -32,7 +32,7 @@ def average_FSVRG_weights(w, ag_scalar, net):
         sg[key] = np.zeros(w_t[key].shape)
     for l in range(len(w)):
         for k in sg.keys():
-            sg[k] += ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
+            sg[k] = np.add(sg[k], np.divide(ag_scalar * w[l][0] * (np.subtract(w[l][1][k], w_t[k])), total_size))#+= ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
     for key in w_t.keys():
-        w_t[key] += sg[key]
+        w_t[key] = np.add(w_t[key], sg[key])#+= sg[key]
     return w_t
