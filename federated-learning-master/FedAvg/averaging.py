@@ -17,7 +17,7 @@ def average_weights(w):
     return w_avg
 
 
-def average_FSVRG_weights(w, ag_scalar, net):
+def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
     """
     This method is for using FSVRG algo to update global parameters
     :param w: list of client's state_dict
@@ -32,7 +32,14 @@ def average_FSVRG_weights(w, ag_scalar, net):
         sg[key] = np.zeros(w_t[key].shape)
     for l in range(len(w)):
         for k in sg.keys():
-            sg[k] = np.add(sg[k], np.divide(ag_scalar * w[l][0] * (np.subtract(w[l][1][k], w_t[k])), total_size))#+= ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
+            # += ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
+            if gpu != -1:
+                sg[k] = np.add(sg[k], torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])),total_size).cpu())
+            else:
+                sg[k] = np.add(sg[k], torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])), total_size))
     for key in w_t.keys():
-        w_t[key] = np.add(w_t[key], sg[key])#+= sg[key]
+        if gpu != -1:
+            w_t[key] = np.add(w_t[key].cpu(), sg[key]).cuda()  # += sg[key]
+        else:
+            w_t[key] = np.add(w_t[key], sg[key])#+= sg[key]
     return w_t

@@ -123,7 +123,10 @@ class LocalFSVGRUpdate(LocalUpdate):
 
             for i, param in enumerate(net.parameters()):
                 # print("Parameter:",i, " size: ", len(param.grad.data.numpy()))
-                global_grad[i] += param.grad.data.numpy()[0]
+                grad_data = param.grad.data
+                if self.args.gpu != -1:
+                    grad_data = grad_data.cpu()
+                global_grad[i] += grad_data.numpy()[0]
             if self.args.gpu != -1:
                 loss = loss.cpu()
         # global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
@@ -140,7 +143,9 @@ class LocalFSVGRUpdate(LocalUpdate):
         loss = self.loss_func(log_probs, labels)
         loss.backward()
         for i, param in enumerate(net.parameters()):
-            grad[i] = param.grad.data
+            if self.args.gpu != -1:
+                grad[i] = param.grad.data.cpu()
+            else: grad[i] = param.grad.data
         return grad
 
     def update_FSVGR_weights(self, server_avg_grad, net):
@@ -168,7 +173,17 @@ class LocalFSVGRUpdate(LocalUpdate):
                 # if iter == 50:
                 #     print(client_w_grad)
                 for i, param in enumerate(net.parameters()):
-                    param.data = np.subtract(param.data, self.lr * (np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])), server_avg_grad[i])))
+                    weights = param.data
+                    if self.args.gpu != -1:
+                        weights = weights.cpu()
+                        param.data = np.subtract(weights, self.lr * (
+                            np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])),
+                                   server_avg_grad[i]))).cuda()
+                    else:
+                        param.data = np.subtract(weights, self.lr * (
+                            np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])),
+                                   server_avg_grad[i])))
+
                     #param.data -= self.lr * (self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])) + server_avg_grad[i])
                 if self.args.gpu != -1:
                     loss = loss.cpu()

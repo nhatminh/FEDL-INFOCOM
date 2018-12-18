@@ -62,6 +62,7 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     #Defaults: 100, 10, 10
+    args.gpu = -1            # -1 (CPU only) or GPU = 0
     args.lr = 0.001
     args.ag_scalar = 1
     args.model = 'mlp'      # 'mlp' or 'cnn'
@@ -167,7 +168,9 @@ if __name__ == '__main__':
             print("User ",idx, " Acc:",acc," Loss:",loss)
             loss_locals.append(copy.deepcopy(loss))
             acc_locals.append(copy.deepcopy(acc))
-        w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob))
+
+        # w_t = net_glob.state_dict()
+        w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob), args.gpu)
 
         # copy weight to net_glob
         net_glob.load_state_dict(w_glob)
