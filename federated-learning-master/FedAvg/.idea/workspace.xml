@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e1877d7-28fe-43bf-aebb-14d255bc9405" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/FedAvg.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/FedAvg.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Update.py" beforeDir="false" afterPath="$PROJECT_DIR$/Update.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/averaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/averaging.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_fed.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_fed.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,25 +17,25 @@
         <entry file="file://$PROJECT_DIR$/options.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="72">
-              <caret line="4" column="15" lean-forward="true" selection-start-line="4" selection-start-column="15" selection-end-line="4" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/main_fed.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="71" column="48" selection-start-line="71" selection-start-column="48" selection-end-line="71" selection-end-column="48" />
+              <caret line="4" column="15" selection-start-line="4" selection-start-column="15" selection-end-line="4" selection-end-column="15" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main_fed.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="65" column="23" selection-start-line="65" selection-start-column="23" selection-end-line="65" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Update.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2718">
-              <caret line="160" column="32" selection-start-line="160" selection-start-column="29" selection-end-line="160" selection-end-column="32" />
+            <state relative-caret-position="373">
+              <caret line="198" column="23" selection-start-line="198" selection-start-column="23" selection-end-line="198" selection-end-column="23" />
               <folding>
                 <element signature="e#69#81#0" expanded="true" />
               </folding>
@@ -85,8 +81,8 @@
         <option value="$PROJECT_DIR$/options.py" />
         <option value="D:/Programs/Anaconda3/Lib/site-packages/torchvision/datasets/mnist.py" />
         <option value="$PROJECT_DIR$/averaging.py" />
-        <option value="$PROJECT_DIR$/Update.py" />
         <option value="$PROJECT_DIR$/main_fed.py" />
+        <option value="$PROJECT_DIR$/Update.py" />
       </list>
     </option>
   </component>
@@ -216,7 +212,7 @@
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17704917" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22459017" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -255,7 +251,7 @@
     <entry file="file://$PROJECT_DIR$/options.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
-          <caret line="4" column="15" lean-forward="true" selection-start-line="4" selection-start-column="15" selection-end-line="4" selection-end-column="15" />
+          <caret line="4" column="15" selection-start-line="4" selection-start-column="15" selection-end-line="4" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -276,20 +272,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Update.py">
+    <entry file="file://$PROJECT_DIR$/main_fed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2718">
-          <caret line="160" column="32" selection-start-line="160" selection-start-column="29" selection-end-line="160" selection-end-column="32" />
-          <folding>
-            <element signature="e#69#81#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="216">
+          <caret line="65" column="23" selection-start-line="65" selection-start-column="23" selection-end-line="65" selection-end-column="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_fed.py">
+    <entry file="file://$PROJECT_DIR$/Update.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="71" column="48" selection-start-line="71" selection-start-column="48" selection-end-line="71" selection-end-column="48" />
+        <state relative-caret-position="373">
+          <caret line="198" column="23" selection-start-line="198" selection-start-column="23" selection-end-line="198" selection-end-column="23" />
+          <folding>
+            <element signature="e#69#81#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -9,7 +9,7 @@ import numpy as np
 from sklearn import metrics
 import copy
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -191,12 +191,12 @@ class LocalFSVGRUpdate(LocalUpdate):
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
             acc, _ = self.test(net)
             epoch_acc.append(acc)
-        plt.figure(1)
-        plt.subplot(121)
+        plt.figure()
+        plt.subplot(211)
         plt.plot(range(len(epoch_loss)), epoch_loss)
         plt.ylabel('train_loss')
         plt.xlabel('num_local_epoches')
-        plt.subplot(122)
+        plt.subplot(212)
         plt.plot(range(len(epoch_acc)), epoch_acc)
         plt.ylabel('train_accuracy')
         plt.xlabel('num_local_epoches')
