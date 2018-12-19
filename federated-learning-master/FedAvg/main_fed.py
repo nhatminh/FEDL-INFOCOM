@@ -69,10 +69,10 @@ if __name__ == '__main__':
     args.dataset = 'mnist'  #  'cifar' or 'mnist'
     args.num_users = 5
     args.frac = 1.          # fraction number of users will be selected to update
-    args.epochs = 10        # numb of global iters
-    args.local_ep = 10       # numb of local iters
+    args.epochs = 1        # numb of global iters
+    args.local_ep = 100       # numb of local iters
     args.local_bs = 420      # Local Batch size (420 = full dataset size of a user)
-    args.algorithm = 'fedavg'
+    args.algorithm = 'fsvgr'
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -193,7 +193,7 @@ if __name__ == '__main__':
             for idx in idxs_users:
                 print("Training user {}".format(idx))
                 local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-                num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
+                num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, idx, net=copy.deepcopy(net_glob))
                 w_locals.append(copy.deepcopy((num_samples, w_k)))
                 print("User ", idx, " Acc:", acc, " Loss:",loss)
                 loss_locals.append(copy.deepcopy(loss))

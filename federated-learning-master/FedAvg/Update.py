@@ -8,6 +8,9 @@ from torch.utils.data import DataLoader, Dataset
 import numpy as np
 from sklearn import metrics
 import copy
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class DatasetSplit(Dataset):
@@ -140,7 +143,7 @@ class LocalFSVGRUpdate(LocalUpdate):
             else: grad[i] = param.grad.data
         return grad
 
-    def update_FSVGR_weights(self, server_avg_grad, net):
+    def update_FSVGR_weights(self, server_avg_grad, uid, net):
         net.train()
         # train and update
         epoch_loss = []
@@ -188,6 +191,17 @@ class LocalFSVGRUpdate(LocalUpdate):
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
             acc, _ = self.test(net)
             epoch_acc.append(acc)
+        plt.figure(1)
+        plt.subplot(121)
+        plt.plot(range(len(epoch_loss)), epoch_loss)
+        plt.ylabel('train_loss')
+        plt.xlabel('num_local_epoches')
+        plt.subplot(122)
+        plt.plot(range(len(epoch_acc)), epoch_acc)
+        plt.ylabel('train_accuracy')
+        plt.xlabel('num_local_epoches')
+        plt.savefig('../save/{}.png'.format(uid))
+
             #print('Local Epoch: {}, accuracy: {:.6f}'.format(iter, acc))
         return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 
