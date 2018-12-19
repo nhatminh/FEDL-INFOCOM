@@ -38,5 +38,6 @@ def args_parser():
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
     parser.add_argument('--ag_scalar', type=float, default=1.0, help="global aggregation updating scalar, simplicity for A Matrix")
     parser.add_argument('--lg_scalar', type=float, default=1.0, help="client local updating scalar, simplicity for S Matrix")
+    parser.add_argument('--algorithm', type=str, default='fedavg', help='algorithm for optimization')
     args = parser.parse_args()
     return args

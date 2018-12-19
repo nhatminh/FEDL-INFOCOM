@@ -49,6 +49,7 @@ class LocalUpdate(object):
         optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=0.5)
 
         epoch_loss = []
+        epoch_acc = []
         for iter in range(self.args.local_ep):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
@@ -69,20 +70,11 @@ class LocalUpdate(object):
                 self.tb.add_scalar('loss', loss.data.item())
                 batch_loss.append(loss.data.item())
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
-        return net.state_dict(), sum(epoch_loss) / len(epoch_loss)
+            acc, _ = self.test(net)
+            epoch_acc.append(acc)
+        return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 
     def test(self, net):
-        # optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, weight_decay=2)
-        # for iter in range(self.args.local_ep):
-        #     for batch_idx, (images, labels) in enumerate(self.ldr_train):
-        #         if self.args.gpu != -1:
-        #             images, labels = images.cuda(), labels.cuda()
-        #         images, labels = autograd.Variable(images), autograd.Variable(labels)
-        #         net.zero_grad()
-        #         log_probs = net(images)
-        #         loss = self.loss_func(log_probs, labels)
-        #         loss.backward()
-        #         optimizer.step()
         loss = 0
         log_probs = []
         labels = []
@@ -129,7 +121,7 @@ class LocalFSVGRUpdate(LocalUpdate):
                 global_grad[i] += grad_data.numpy()[0]
             if self.args.gpu != -1:
                 loss = loss.cpu()
-        # global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
+        #global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
         global_grad = np.divide(global_grad, 1)
         return total_size, global_grad
 

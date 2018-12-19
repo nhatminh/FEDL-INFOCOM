@@ -17,9 +17,9 @@ from tensorboardX import SummaryWriter
 
 from sampling import mnist_iid, mnist_noniid, cifar_iid
 from options import args_parser
-from Update import LocalFSVGRUpdate
+from Update import LocalFSVGRUpdate, LocalUpdate
 from FedNets import MLP, CNNMnist, CNNCifar
-from averaging import average_FSVRG_weights
+from averaging import average_FSVRG_weights, average_weights
 
 
 def test(net_g, data_loader, args):
@@ -72,6 +72,7 @@ if __name__ == '__main__':
     args.epochs = 10        # numb of global iters
     args.local_ep = 10       # numb of local iters
     args.local_bs = 420      # Local Batch size (420 = full dataset size of a user)
+    args.algorithm = 'fedavg'
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -136,58 +137,94 @@ if __name__ == '__main__':
     global_grad = []
     user_grads = []
     loss_train = []
+    acc_train = []
     cv_loss, cv_acc = [], []
     val_loss_pre, counter = 0, 0
     net_best = None
     val_acc_list, net_list = [], []
     #print(dict_users.keys())
-    for iter in tqdm(range(args.epochs)):
-        print("=========Global epoch {}=========".format(iter))
-        w_locals, loss_locals, acc_locals = [], [], []
-        m = max(int(args.frac * args.num_users), 1)
-        idxs_users = np.random.choice(range(args.num_users), m, replace=False)
-        """
-        First communication round: server send w_t to client --> client calculate gradient and send
-        to sever --> server calculate average global gradient and send to client
-        """
-        for idx in idxs_users:
-            #print(idx)
-            local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-            num_sample, grad_k = local.calculate_global_grad(net=copy.deepcopy(net_glob))
-            user_grads.append((num_sample, grad_k))
-        global_grad = calculate_avg_grad(user_grads)
+    if args.algorithm == 'fedavg':
+        for iter in tqdm(range(args.epochs)):
+            w_locals, loss_locals, acc_locals = [], [], []
+            m = max(int(args.frac * args.num_users), 1)
+            idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+            for idx in idxs_users:
+                local = LocalUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+                w, loss, acc = local.update_weights(net=copy.deepcopy(net_glob))
+                w_locals.append(copy.deepcopy(w))
+                loss_locals.append(copy.deepcopy(loss))
+                print("User ", idx, " Acc:", acc, " Loss:", loss)
+                acc_locals.append(copy.deepcopy(acc))
+            # update global weights
+            w_glob = average_weights(w_locals)
 
-        """
-        Second communication round: client update w_k_t+1 and send to server --> server update global w_t+1
-        """
-        for idx in idxs_users:
-            print("Training user {}".format(idx))
-            local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-            num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
-            w_locals.append(copy.deepcopy((num_samples, w_k)))
-            print("User ",idx, " Acc:",acc," Loss:",loss)
-            loss_locals.append(copy.deepcopy(loss))
-            acc_locals.append(copy.deepcopy(acc))
+            # copy weight to net_glob
+            net_glob.load_state_dict(w_glob)
 
-        # w_t = net_glob.state_dict()
-        w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob), args.gpu)
+            # print loss
+            loss_avg = sum(loss_locals) / len(loss_locals)
+            acc_avg = sum(acc_locals) / len(acc_locals)
+            if args.epochs % 1 == 0:
+                print('\nTrain loss:', loss_avg)
+                print('\nTrain accuracy', acc_avg)
+            loss_train.append(loss_avg)
+            acc_train.append(acc_avg)
 
-        # copy weight to net_glob
-        net_glob.load_state_dict(w_glob)
+    if args.algorithm == 'fsvgr':
+        for iter in tqdm(range(args.epochs)):
+            print("=========Global epoch {}=========".format(iter))
+            w_locals, loss_locals, acc_locals = [], [], []
+            m = max(int(args.frac * args.num_users), 1)
+            idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+            """
+            First communication round: server send w_t to client --> client calculate gradient and send
+            to sever --> server calculate average global gradient and send to client
+            """
+            for idx in idxs_users:
+                #print(idx)
+                local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+                num_sample, grad_k = local.calculate_global_grad(net=copy.deepcopy(net_glob))
+                user_grads.append((num_sample, grad_k))
+                global_grad = calculate_avg_grad(user_grads)
 
-        # print loss
-        loss_avg = sum(loss_locals) / len(loss_locals)
-        acc_avg = sum(acc_locals) / len(acc_locals)
-        if iter % 1 == 0:
-            print('\nTrain loss:', loss_avg)
-            print('\nTrain accuracy', acc_avg)
-        loss_train.append(loss_avg)
-        #acc, _ = test(net_glob)
+            """
+            Second communication round: client update w_k_t+1 and send to server --> server update global w_t+1
+            """
+            for idx in idxs_users:
+                print("Training user {}".format(idx))
+                local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+                num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, net=copy.deepcopy(net_glob))
+                w_locals.append(copy.deepcopy((num_samples, w_k)))
+                print("User ", idx, " Acc:", acc, " Loss:",loss)
+                loss_locals.append(copy.deepcopy(loss))
+                acc_locals.append(copy.deepcopy(acc))
+
+            # w_t = net_glob.state_dict()
+            w_glob = average_FSVRG_weights(w_locals, args.ag_scalar, copy.deepcopy(net_glob), args.gpu)
+
+            # copy weight to net_glob
+            net_glob.load_state_dict(w_glob)
+
+            # print loss
+            loss_avg = sum(loss_locals) / len(loss_locals)
+            acc_avg = sum(acc_locals) / len(acc_locals)
+            if iter % 1 == 0:
+                print('\nTrain loss:', loss_avg)
+                print('\nTrain accuracy', acc_avg)
+            loss_train.append(loss_avg)
+            acc_train.append(acc_avg)
+            #acc, _ = test(net_glob)
 
     # plot loss curve
-    plt.figure()
+    plt.figure(1)
+    plt.subplot(121)
     plt.plot(range(len(loss_train)), loss_train)
     plt.ylabel('train_loss')
+    plt.xlabel('num_epoches')
+    plt.subplot(122)
+    plt.plot(range(len(acc_train)), acc_train)
+    plt.ylabel('train_accuracy')
+    plt.xlabel('num_epoches')
     plt.savefig('../save/fed_{}_{}_{}_C{}_iid{}.png'.format(args.dataset, args.model, args.epochs, args.frac, args.iid))
 
     # testing
