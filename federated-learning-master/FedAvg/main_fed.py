@@ -62,18 +62,19 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     #Defaults: 100, 10, 10
-    args.gpu = 0            # -1 (CPU only) or GPU = 0
-    args.lr = 0.00000001
+    args.gpu = -1            # -1 (CPU only) or GPU = 0
+    args.lr = 0.0001
     args.ag_scalar = 1
     args.model = 'mlp'      # 'mlp' or 'cnn'
     args.dataset = 'mnist'  #  'cifar' or 'mnist'
-    args.num_users = 5
+    args.num_users = 1
     args.frac = 1.          # fraction number of users will be selected to update
     args.epochs = 1        # numb of global iters
-    args.local_ep = 100       # numb of local iters
-    args.local_bs = 420      # Local Batch size (420 = full dataset size of a user)
+    args.local_ep = 10       # numb of local iters
+    args.local_bs = 10      # Local Batch size (420 = full dataset size of a user)
     args.algorithm = 'fsvgr'
-    args.lg_scalar = 0.01
+    args.lg_scalar = 1
+    args.iid = True
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users

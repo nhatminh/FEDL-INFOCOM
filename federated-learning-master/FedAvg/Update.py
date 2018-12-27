@@ -36,14 +36,14 @@ class LocalUpdate(object):
 
     def train_val_test(self, dataset, idxs):
         # split train, validation, and test
-        idxs_train = idxs[:420]
+        idxs_train = idxs#[:420]
         idxs_val = idxs[420:480]
         idxs_test = idxs[480:]
 
         #If batch_size = 420 -> random permutation of all items
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
         val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
-        test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)/10), shuffle=True)
+        test = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=int(len(idxs_train)), shuffle=False)
         return train, val, test
 
     def update_weights(self, net):
