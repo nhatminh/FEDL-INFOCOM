@@ -226,10 +226,14 @@ class FederatedClientsModel(object):
                         user_w_grad.append(w_grad)
                         user_b_grad.append(b_grad)
                     user_data_ratio = len(self.dict_users[i])/len(self.full_data)
-                    users_w_gradients.append(user_data_ratio*np.sum(user_w_grad))
-                    users_b_gradients.append(user_data_ratio*np.sum(user_w_grad))
-                avg_server_w_grad = np.expand_dims(np.expand_dims(np.array(np.sum(users_w_gradients)), -1), -1)
-                avg_server_b_grad = np.expand_dims(np.array(np.sum(users_b_gradients)), -1)
+                    users_w_gradients.append(user_data_ratio*np.sum(user_w_grad, axis=0))
+                    users_b_gradients.append(user_data_ratio*np.sum(user_b_grad, axis=0))
+                if np.sum(users_w_gradients, axis=0).shape == ():
+                    avg_server_w_grad = np.expand_dims(np.expand_dims(np.array(np.sum(users_w_gradients, axis=0)), -1), -1)
+                    avg_server_b_grad = np.expand_dims(np.array(np.sum(users_b_gradients, axis=0)), -1)
+                else:
+                    avg_server_w_grad = np.array(np.sum(users_w_gradients, axis=0))
+                    avg_server_b_grad = np.array(np.sum(users_b_gradients, axis=0))
             return avg_server_w_grad, avg_server_b_grad
 
     def users_locally_training(self, server_weights, server_bias, global_iter):

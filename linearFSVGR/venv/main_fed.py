@@ -24,20 +24,21 @@ if __name__ == '__main__':
     args.algorithm = 'fsvgr'
     args.lg_scalar = 1.0
     args.iid = True
+    args.feature_dims = 10
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
     
     train_data, train_label = [], []
     dict_users = {}
     if args.dataset == 'ld' and args.model == 'linear':
-        train_data, train_label = linear_data_generation('./data/ld_train.csv', 1, 100)
+        train_data, train_label = linear_data_generation('./data/ld_train.csv', args.feature_dims, 100)
         train_label = np.expand_dims(train_label, axis=-1)
     if args.iid == True and args.model == 'linear':
         dict_users = linear_iid(len(train_data), args.num_users)
         
     if args.algorithm == 'fsvgr':
         tf.reset_default_graph()
-        server = ServerModel(1, 1, args.ag_scalar)
-        clients = FederatedClientsModel(dict_users, 1, 1, train_data, train_label,
+        server = ServerModel(args.feature_dims, 1, args.ag_scalar)
+        clients = FederatedClientsModel(dict_users, args.feature_dims, 1, train_data, train_label,
                                         args.local_ep, args.lr, args.lg_scalar, args.local_bs)
 
         with tf.name_scope("global_training"):
