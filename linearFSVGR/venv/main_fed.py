@@ -25,6 +25,7 @@ if __name__ == '__main__':
     args.lg_scalar = 1.0
     args.iid = True
     args.feature_dims = 10
+    args.hidden_dims = 5
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
     
     train_data, train_label = [], []
@@ -37,8 +38,8 @@ if __name__ == '__main__':
         
     if args.algorithm == 'fsvgr':
         tf.reset_default_graph()
-        server = ServerModel(args.feature_dims, 1, args.ag_scalar)
-        clients = FederatedClientsModel(dict_users, args.feature_dims, 1, train_data, train_label,
+        server = ServerModel(args.feature_dims, args.hidden_dims, 1, args.ag_scalar)
+        clients = FederatedClientsModel(dict_users, args.feature_dims, args.hidden_dims, 1, train_data, train_label,
                                         args.local_ep, args.lr, args.lg_scalar, args.local_bs)
 
         with tf.name_scope("global_training"):
@@ -50,10 +51,13 @@ if __name__ == '__main__':
                 avg_loss = []
                 for g in range(args.epochs):
                     print("================Global Epoch {}================".format(g))
-                    sw, sb = sess.run(server.server_params)
-                    agg_clients_w, agg_clients_b, avg_users_loss = clients.users_locally_training(sw, sb, g)
-                    sess.run(server.update, feed_dict={server.clients_agg_weights: agg_clients_w,
-                                                       server.clients_agg_bias: agg_clients_b})
+                    sw_1, sb_1, sw_2, sb_2 = sess.run(server.server_params)
+                    agg_clients_w1, agg_clients_b1, agg_clients_w2, agg_clients_b2, avg_users_loss = \
+                        clients.users_locally_training(sw_1, sb_1, sw_2, sb_2, g)
+                    sess.run(server.update, feed_dict={server.clients_agg_weights_1: agg_clients_w1,
+                                                       server.clients_agg_bias_1: agg_clients_b1,
+                                                       server.clients_agg_weights_2: agg_clients_w2,
+                                                       server.clients_agg_bias_2: agg_clients_b2})
                     avg_loss.append(avg_users_loss)
                     #Evaluate server
                     eval_loss = sess.run(server.loss, feed_dict={server.features: train_data, server.labels: train_label})
