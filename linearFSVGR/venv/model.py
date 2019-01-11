@@ -6,7 +6,7 @@ from sample_data import collect_data
 
 
 class ServerModel(object):
-    def __init__(self, input_dim, hidden_layer_dim, output_dim, ag_scalar):
+    def __init__(self, input_dim, hidden_layer_dim, output_dim, ag_scalar, is_regression=True):
         with tf.name_scope("server_model"):
             self.features = tf.placeholder(dtype=tf.float32, name='server_features', shape=[None, input_dim])
             self.labels = tf.placeholder(dtype=tf.float32, name='server_labels', shape=[None, output_dim])
@@ -24,6 +24,7 @@ class ServerModel(object):
                 self.clients_agg_bias_1 = tf.placeholder(dtype=tf.float32, shape=hidden_layer_dim, name='bs1')
                 self.clients_agg_weights_2 = tf.placeholder(dtype=tf.float32, shape=(hidden_layer_dim, output_dim), name='Ws2')
                 self.clients_agg_bias_2 = tf.placeholder(dtype=tf.float32, shape=output_dim, name='bs2')
+            self.is_reg = is_regression
             self.ag_scalar = ag_scalar
             self._loss = None
             self._forward = None
@@ -39,13 +40,18 @@ class ServerModel(object):
             if self._forward is None:
                 hidden_layer_output = tf.add(tf.matmul(self.features, self.w_1), self.b_1)
                 self._forward = tf.nn.relu(tf.add(tf.matmul(hidden_layer_output, self.w_2), self.b_2))
+                # if not self.is_reg:
+                #     self._forward = tf.nn.softmax(self._forward)
             return self._forward
 
     @property
     def loss(self):
         with tf.name_scope("server_loss_calc"):
             if self._loss is None:
-                self._loss = tf.reduce_mean(tf.square(tf.subtract(self.forward, self.labels)), axis=0)
+                if not self.is_reg:
+                    self._loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.forward)
+                else:
+                    self._loss = tf.reduce_mean(tf.square(tf.subtract(self.forward, self.labels)), axis=0)
             return self._loss
 
     @property
@@ -60,12 +66,13 @@ class ServerModel(object):
     
     
 class ClientLocalModel(object):
-    def __init__(self, input_dim, hidden_layer_dim, output_dim, step_size, lg_scalar):
+    def __init__(self, input_dim, hidden_layer_dim, output_dim, step_size, lg_scalar, is_regression=True):
         with tf.name_scope("client_model"):
             self.input_dim = input_dim
             self.output_dim = output_dim
             self.step_size = step_size
             self.lg_scalar = lg_scalar
+            self.is_reg = is_regression
             self.features = tf.placeholder(dtype=tf.float32, name='client_features', shape=[None, input_dim])
             self.labels = tf.placeholder(dtype=tf.float32, name='client_labels', shape=[None, output_dim])
             with tf.variable_scope('passed_in_params', reuse=tf.AUTO_REUSE):
@@ -130,6 +137,8 @@ class ClientLocalModel(object):
             if self._local_forward is None:
                 hidden_layer_output = tf.add(tf.matmul(self.features, self.w_1), self.b_1)
                 self._local_forward = tf.nn.relu(tf.add(tf.matmul(hidden_layer_output, self.w_2), self.b_2))
+                # if not self.is_reg:
+                #     self._local_forward = tf.nn.softmax(self._local_forward)
             return self._local_forward
 
     @property
@@ -138,20 +147,30 @@ class ClientLocalModel(object):
             if self._global_forward is None:
                 hidden_layer_output = tf.add(tf.matmul(self.features, self.sw_1), self.sb_1)
                 self._global_forward = tf.nn.relu(tf.add(tf.matmul(hidden_layer_output, self.sw_2), self.sb_2))
+                # if not self.is_reg:
+                #     self._global_forward = tf.nn.softmax(self._global_forward)
             return self._global_forward
 
     @property
     def local_loss(self):
         with tf.name_scope('local_param_loss_calc'):
             if self._local_loss is None:
-                self._local_loss = tf.reduce_mean(tf.square(tf.subtract(self.local_param_forward, self.labels)), axis=0)
+                if not self.is_reg:
+                    self._local_loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.local_param_forward)
+                    #tf.reduce_mean(tf.multiply(-tf.log(self.local_param_forward), self.labels))
+                else:
+                    self._local_loss = tf.reduce_mean(tf.square(tf.subtract(self.local_param_forward, self.labels)), axis=0)
             return self._local_loss
 
     @property
     def global_loss(self):
         with tf.name_scope('global_param_loss_calc'):
             if self._global_loss is None:
-                self._global_loss = tf.reduce_mean(tf.square(tf.subtract(self.global_param_forward, self.labels)), axis=0)
+                if not self.is_reg:
+                    self._global_loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.global_param_forward)
+                    #tf.reduce_mean(tf.multiply(-tf.log(self.global_param_forward), self.labels))
+                else:
+                    self._global_loss = tf.reduce_mean(tf.square(tf.subtract(self.global_param_forward, self.labels)), axis=0)
             return self._global_loss
 
     @property
@@ -192,7 +211,7 @@ class ClientLocalModel(object):
 
 
 class FederatedClientsModel(object):
-    def __init__(self, dict_users, input_dim, hidden_layer_dim, output_dim, full_data, full_label, local_epochs, step_size, lg_scalar, batch_size):
+    def __init__(self, dict_users, input_dim, hidden_layer_dim, output_dim, full_data, full_label, local_epochs, step_size, lg_scalar, batch_size, is_regression=True):
         self.dict_users = dict_users
         self.full_data = full_data
         self.full_label = full_label
@@ -202,6 +221,7 @@ class FederatedClientsModel(object):
         self.local_epochs = local_epochs
         self.step_size = step_size
         self.lg_scalar = lg_scalar
+        self.is_reg = is_regression
         self.batch_size = batch_size
         self.users, self.users_batches_data, self.users_batches_label = self.create_users_and_assign_data()
         
@@ -212,7 +232,7 @@ class FederatedClientsModel(object):
         users_batches_data = {}
         users_batches_label = {}
         for u in range(len(self.dict_users)):
-            users.append(ClientLocalModel(self.input_dim, self.hidden_layer_dim, self.output_dim, self.step_size, self.lg_scalar))
+            users.append(ClientLocalModel(self.input_dim, self.hidden_layer_dim, self.output_dim, self.step_size, self.lg_scalar, self.is_reg))
             users_data[u] = collect_data(self.full_data, self.dict_users[u])
             users_label[u] = collect_data(self.full_label, self.dict_users[u])
             users_batches_data[u], users_batches_label[u] = self.split_data_into_batches(users_data[u], users_label[u])

@@ -1,6 +1,27 @@
 import numpy as np
 import csv
+from keras.utils.np_utils import to_categorical
 np.random.seed(0)
+
+
+def get_iris_classification_non_iid_data(path, num_users, each_user_class_num):
+    dict_users = {}
+    features, labels = [], []
+    with open(path, "r") as csvfile:
+        reader = csv.reader(csvfile)
+        for item in reader:
+            features.append(item[0:-1])
+            labels.append(item[-1])
+    categorical_labels = to_categorical(labels, num_classes=3)
+    for u in range(num_users):
+        user_classes = np.random.choice([0, 1, 2], each_user_class_num, replace=False)
+        user_idx = []
+        for i, label in enumerate(labels):
+            label = int(label)
+            if label in user_classes:
+                user_idx.append(i)
+        dict_users[u] = set(user_idx)
+    return features, categorical_labels, dict_users
 
 
 def linear_non_iid_data_generation(path, size, length, num_users):
