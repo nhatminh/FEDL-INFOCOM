@@ -14,8 +14,8 @@
       <file leaf-file-name="main_fed.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/main_fed.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="96">
-              <caret line="41" column="89" selection-start-line="41" selection-start-column="89" selection-end-line="41" selection-end-column="89" />
+            <state relative-caret-position="-393">
+              <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -23,11 +23,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sample_data.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ld_train_non_iid.csv" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv/data/ld_train_non_iid.csv">
+          <provider editor-type-id="csv-table-editor">
+            <state showInfoPanel="true" rowLines="3" />
+          </provider>
+          <provider selected="true" editor-type-id="csv-text-editor">
+            <state relative-caret-position="-2623">
+              <caret line="99" column="59" selection-start-line="99" selection-start-column="59" selection-end-line="99" selection-end-column="59" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sample_data.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/venv/sample_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="58" selection-start-line="10" selection-start-column="58" selection-end-line="10" selection-end-column="58" />
+            <state relative-caret-position="182">
+              <caret line="16" column="22" selection-start-line="16" selection-start-column="22" selection-end-line="16" selection-end-column="22" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -44,11 +56,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="61">
-              <caret line="342" column="12" lean-forward="true" selection-start-line="342" selection-start-column="12" selection-end-line="342" selection-end-column="12" />
+            <state relative-caret-position="142">
+              <caret line="268" selection-start-line="268" selection-end-line="268" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -59,7 +71,7 @@
       <file leaf-file-name="backup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/backup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4637">
+            <state relative-caret-position="2936">
               <caret line="312" selection-start-line="312" selection-end-line="312" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
@@ -84,24 +96,25 @@
         <option value="$PROJECT_DIR$/venv/average.py" />
         <option value="$PROJECT_DIR$/venv/options.py" />
         <option value="$PROJECT_DIR$/venv/update.py" />
-        <option value="$PROJECT_DIR$/venv/sample_data.py" />
         <option value="$PROJECT_DIR$/venv/backup.py" />
-        <option value="$PROJECT_DIR$/venv/main_fed.py" />
         <option value="$PROJECT_DIR$/venv/model.py" />
+        <option value="$PROJECT_DIR$/venv/sample_data.py" />
+        <option value="$PROJECT_DIR$/venv/main_fed.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-47" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="210" />
     <option name="y" value="23" />
-    <option name="width" value="1307" />
-    <option name="height" value="723" />
+    <option name="width" value="1188" />
+    <option name="height" value="715" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -114,11 +127,22 @@
               <item name="linearFSVGR" type="462c0819:PsiDirectoryNode" />
               <item name="venv" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="linearFSVGR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="linearFSVGR" type="462c0819:PsiDirectoryNode" />
+              <item name="venv" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="linearFSVGR" type="b2602c69:ProjectViewProjectNode" />
+              <item name="linearFSVGR" type="462c0819:PsiDirectoryNode" />
+              <item name="venv" type="462c0819:PsiDirectoryNode" />
+              <item name="save" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -199,12 +223,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-27" y="34" width="1307" height="723" extended-state="0" />
+    <frame x="-23" y="23" width="1188" height="715" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.21117061" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.47643098" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Run" order="6" visible="true" weight="0.6502311" />
+      <window_info active="true" anchor="bottom" id="Run" order="6" visible="true" weight="0.32917318" />
       <window_info anchor="bottom" id="Version Control" order="3" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="0" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
@@ -224,6 +249,53 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/venv/main_fed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="41" column="89" selection-start-line="41" selection-start-column="89" selection-end-line="41" selection-end-column="89" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/sample_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="10" column="58" selection-start-line="10" selection-start-column="58" selection-end-line="10" selection-end-column="58" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/options.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="43" selection-start-line="43" selection-end-line="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5070">
+          <caret line="342" column="12" lean-forward="true" selection-start-line="342" selection-start-column="12" selection-end-line="342" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/backup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4620">
+          <caret line="312" selection-start-line="312" selection-end-line="312" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/venv/main_fed.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
@@ -328,9 +400,7 @@
     <entry file="file://$PROJECT_DIR$/venv/save/global_iter_1_user_0_train_loss.png" />
     <entry file="file://$PROJECT_DIR$/venv/save/global_iter_0_user_0_train_loss.png" />
     <entry file="file://$PROJECT_DIR$/venv/save/global_iter_2_user_2_train_loss.png" />
-    <entry file="file://$PROJECT_DIR$/../linearFEVGR/venv/model.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../linearFEVGR/venv/model.py" />
     <entry file="file://$PROJECT_DIR$/venv/options.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="645">
@@ -481,7 +551,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/venv/backup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4637">
+        <state relative-caret-position="2936">
           <caret line="312" selection-start-line="312" selection-end-line="312" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
@@ -489,32 +559,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/sample_data.py">
+    <entry file="file://$PROJECT_DIR$/venv/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="58" selection-start-line="10" selection-start-column="58" selection-end-line="10" selection-end-column="58" />
+        <state relative-caret-position="142">
+          <caret line="268" selection-start-line="268" selection-end-line="268" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/data/ld_train_non_iid.csv">
+      <provider editor-type-id="csv-table-editor">
+        <state showInfoPanel="true" rowLines="3" />
+      </provider>
+      <provider selected="true" editor-type-id="csv-text-editor">
+        <state relative-caret-position="-2623">
+          <caret line="99" column="59" selection-start-line="99" selection-start-column="59" selection-end-line="99" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/save/False_global_and_users_avg_loss_20_global_epochs_20_local_epochs.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/save/False_global_and_users_avg_loss_30_global_epochs_30_local_epochs.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/save/False_global_and_users_avg_loss_50_global_epochs_50_local_epochs.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/venv/main_fed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="41" column="89" selection-start-line="41" selection-start-column="89" selection-end-line="41" selection-end-column="89" />
+        <state relative-caret-position="-393">
+          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/model.py">
+    <entry file="file://$PROJECT_DIR$/venv/sample_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="61">
-          <caret line="342" column="12" lean-forward="true" selection-start-line="342" selection-start-column="12" selection-end-line="342" selection-end-column="12" />
+        <state relative-caret-position="182">
+          <caret line="16" column="22" selection-start-line="16" selection-start-column="22" selection-end-line="16" selection-end-column="22" />
           <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
