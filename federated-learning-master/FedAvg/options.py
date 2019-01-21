@@ -41,3 +41,4 @@ def args_parser():
     parser.add_argument('--algorithm', type=str, default='fedavg', help='algorithm for optimization')
     args = parser.parse_args()
     return args
+
