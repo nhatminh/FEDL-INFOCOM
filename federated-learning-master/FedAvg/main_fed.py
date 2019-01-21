@@ -17,7 +17,7 @@ from tensorboardX import SummaryWriter
 
 from sampling import mnist_iid, mnist_noniid, cifar_iid
 from options import args_parser
-from Update import LocalFSVGRUpdate, LocalUpdate
+from Update import LocalFSVGRUpdate, LocalUpdate, LocalFedProxUpdate
 from FedNets import MLP, CNNMnist, CNNCifar
 from averaging import average_FSVRG_weights, average_weights
 
@@ -61,20 +61,16 @@ if __name__ == '__main__':
     path_project = os.path.abspath('..')
 
     summary = SummaryWriter('local')
-    #Defaults: 100, 10, 10
     args.gpu = -1            # -1 (CPU only) or GPU = 0
-    args.lr = 0.0001
-    args.ag_scalar = 1
-    args.model = 'mlp'      # 'mlp' or 'cnn'
+    args.lr = 0.01
+    args.model = 'cnn'      # 'mlp' or 'cnn'
     args.dataset = 'mnist'  #  'cifar' or 'mnist'
-    args.num_users = 1
-    args.frac = 1.          # fraction number of users will be selected to update
-    args.epochs = 1        # numb of global iters
-    args.local_ep = 10       # numb of local iters
-    args.local_bs = 10      # Local Batch size (420 = full dataset size of a user)
-    args.algorithm = 'fsvgr'
-    args.lg_scalar = 1
-    args.iid = True
+    args.num_users = 3
+    args.epochs = 10        # numb of global iters
+    args.local_ep = 20       # numb of local iters
+    args.local_bs = 600     # Local Batch size (600 = full dataset size of a user)
+    args.algorithm = 'fsvgr' #'fedavg', 'fedprox', 'fsvgr'
+    args.iid = False
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -134,7 +130,6 @@ if __name__ == '__main__':
 
     # copy weights
     w_glob = net_glob.state_dict()
-
     # training
     global_grad = []
     user_grads = []
@@ -172,32 +167,60 @@ if __name__ == '__main__':
             loss_train.append(loss_avg)
             acc_train.append(acc_avg)
 
+    if args.algorithm == 'fedprox':
+        args.mu = 0.01
+        args.limit = 0.2
+        for iter in tqdm(range(args.epochs)):
+            w_locals, loss_locals, acc_locals = [], [], []
+            # m = max(int(args.frac * args.num_users), 1)
+            # idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+            for idx in range(args.num_users):
+                local = LocalFedProxUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
+                w, loss, acc = local.update_FedProx_weights(net=copy.deepcopy(net_glob))
+                w_locals.append(copy.deepcopy(w))
+                loss_locals.append(copy.deepcopy(loss))
+                print("User ", idx, " Acc:", acc, " Loss:", loss)
+                acc_locals.append(copy.deepcopy(acc))
+            # update global weights
+            w_glob = average_weights(w_locals)
+
+            # copy weight to net_glob
+            net_glob.load_state_dict(w_glob)
+
+            # print loss
+            loss_avg = sum(loss_locals) / len(loss_locals)
+            acc_avg = sum(acc_locals) / len(acc_locals)
+            if args.epochs % 1 == 0:
+                print('\nTrain loss:', loss_avg)
+                print('\nTrain accuracy', acc_avg)
+            loss_train.append(loss_avg)
+            acc_train.append(acc_avg)
+
     if args.algorithm == 'fsvgr':
+        args.ag_scalar = 0.1
+        args.lg_scalar = 1
         for iter in tqdm(range(args.epochs)):
             print("=========Global epoch {}=========".format(iter))
             w_locals, loss_locals, acc_locals = [], [], []
-            m = max(int(args.frac * args.num_users), 1)
-            idxs_users = np.random.choice(range(args.num_users), m, replace=False)
             """
             First communication round: server send w_t to client --> client calculate gradient and send
             to sever --> server calculate average global gradient and send to client
             """
-            for idx in idxs_users:
-                #print(idx)
+            for idx in range(args.num_users):
                 local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
                 num_sample, grad_k = local.calculate_global_grad(net=copy.deepcopy(net_glob))
-                user_grads.append((num_sample, grad_k))
-                global_grad = calculate_avg_grad(user_grads)
+                user_grads.append([num_sample, grad_k])
+            global_grad = calculate_avg_grad(user_grads)
 
             """
             Second communication round: client update w_k_t+1 and send to server --> server update global w_t+1
             """
-            for idx in idxs_users:
+            for idx in range(args.num_users):
                 print("Training user {}".format(idx))
                 local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[idx], tb=summary)
-                num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, idx, net=copy.deepcopy(net_glob))
-                w_locals.append(copy.deepcopy((num_samples, w_k)))
-                print("User ", idx, " Acc:", acc, " Loss:",loss)
+                num_samples, w_k, loss, acc = local.update_FSVGR_weights(global_grad, idx, copy.deepcopy(net_glob), iter)
+                w_locals.append(copy.deepcopy([num_samples, w_k]))
+                print("Global_Epoch ", iter, "User ", idx, " Acc:", acc, " Loss:", loss)
                 loss_locals.append(copy.deepcopy(loss))
                 acc_locals.append(copy.deepcopy(acc))
 
@@ -211,11 +234,10 @@ if __name__ == '__main__':
             loss_avg = sum(loss_locals) / len(loss_locals)
             acc_avg = sum(acc_locals) / len(acc_locals)
             if iter % 1 == 0:
-                print('\nTrain loss:', loss_avg)
-                print('\nTrain accuracy', acc_avg)
+                print('\nEpoch: {}, Users Average loss: {}'.format(iter, loss_avg))
+                print('\nEpoch: {}, Users Average accuracy: {}'.format(iter, acc_avg))
             loss_train.append(loss_avg)
             acc_train.append(acc_avg)
-            #acc, _ = test(net_glob)
 
     # plot loss curve
     plt.figure(1)
@@ -227,7 +249,7 @@ if __name__ == '__main__':
     plt.plot(range(len(acc_train)), acc_train)
     plt.ylabel('train_accuracy')
     plt.xlabel('num_epoches')
-    plt.savefig('../save/fed_{}_{}_{}_C{}_iid{}.png'.format(args.dataset, args.model, args.epochs, args.frac, args.iid))
+    plt.savefig('../save/fed_{}_{}_{}_{}_C{}_iid{}.png'.format(args.algorithm, args.dataset, args.model, args.epochs, args.frac, args.iid))
 
     # testing
     list_acc, list_loss = [], []
