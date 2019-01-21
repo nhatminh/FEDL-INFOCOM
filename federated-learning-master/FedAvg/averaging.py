@@ -25,21 +25,15 @@ def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
     :param net: global net model
     :return: global state_dict
     """
-    w_t = net.state_dict()
+    w_t = copy.deepcopy(net.state_dict())
     sg = {}
-    total_size = torch.from_numpy(np.array(np.sum([u[0] for u in w])))
+    total_size = np.array(np.sum([u[0] for u in w]))
     for key in w_t.keys():
-        sg[key] = torch.zeros(w_t[key].shape)
+        sg[key] = np.zeros(w_t[key].shape)
     for l in range(len(w)):
         for k in sg.keys():
             # += ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
-            if gpu != -1:
-                sg[k] = np.add(sg[k].long(), torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])).long(), total_size.long()).long().cpu())
-            else:
-                sg[k] = np.add(sg[k].long(), torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])).long(), total_size.long()).long())
+            sg[k] += w[l][0] * (w[l][1][k] - w_t[k])#np.add(sg[k].long(), torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])).long(), total_size.long()).long())
     for key in w_t.keys():
-        if gpu != -1:
-            w_t[key] = np.add(w_t[key].cpu(), sg[key]).cuda()  # += sg[key]
-        else:
-            w_t[key] = np.add(w_t[key], sg[key])#+= sg[key]
+        w_t[key] = np.add(w_t[key], ag_scalar * sg[key] / total_size)
     return w_t
