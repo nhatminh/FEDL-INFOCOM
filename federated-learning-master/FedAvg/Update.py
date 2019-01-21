@@ -30,21 +30,21 @@ class DatasetSplit(Dataset):
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, tb):
         self.args = args
-        self.loss_func = nn.CrossEntropyLoss() #nn.NLLLoss()
-        self.ldr_train, self.ldr_val, self.ldr_test = self.train_val_test(dataset, list(idxs))
+        self.loss_func = nn.NLLLoss()
+        self.ldr_train, self.ldr_test = self.train_val_test(dataset, list(idxs))
         self.tb = tb
 
     def train_val_test(self, dataset, idxs):
         # split train, validation, and test
-        idxs_train = idxs#[:420]
-        idxs_val = idxs[420:480]
+        idxs_train = idxs#[:480]
+        #idxs_val = idxs[420:480]
         idxs_test = idxs[480:]
 
         #If batch_size = 420 -> random permutation of all items
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
-        val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
-        test = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=int(len(idxs_train)), shuffle=False)
-        return train, val, test
+        #val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
+        test = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=int(len(idxs_test)), shuffle=False)
+        return train, test
 
     def update_weights(self, net):
         net.train()
@@ -97,6 +97,73 @@ class LocalUpdate(object):
         return acc, loss.data.item()
 
 
+class LocalFedProxUpdate(LocalUpdate):
+    def __init__(self, args, dataset, idxs, tb):
+        super(LocalFedProxUpdate, self).__init__(args, dataset, idxs, tb)
+        self.limit = args.limit
+        self.mu = args.mu
+        self.lr = args.lr
+
+    def get_l2_norm(self, params_a, params_b):
+        sum = 0
+        tmp_a = np.array([v.detach().numpy() for v in params_a])
+        tmp_b = np.array([v.detach().numpy() for v in params_b])
+        a = []
+        b = []
+        for i in tmp_a:
+            x = i.flatten()
+            for k in x:
+                a.append(k)
+        for i in tmp_b:
+            x = i.flatten()
+            for k in x:
+                b.append(k)
+        for i in range(len(a)):
+            sum += (a[i] - b[i]) ** 2
+        norm = np.sqrt(sum)
+        return norm
+
+    def update_FedProx_weights(self, net):
+        net.train()
+        # train and update
+        optimizer = torch.optim.SGD(net.parameters(), lr=self.lr, momentum=0.5)
+        epoch_loss = []
+        epoch_acc = []
+        origin_net = copy.deepcopy(net)
+        count = 0
+        flag = False
+        while True:
+            count += 1
+            batch_loss = []
+            for batch_idx, (images, labels) in enumerate(self.ldr_train):
+                if self.args.gpu != -1:
+                    images, labels = images.cuda(), labels.cuda()
+                images, labels = autograd.Variable(images), autograd.Variable(labels)
+                net.zero_grad()
+                log_probs = net(images)
+                norm = self.get_l2_norm(net.parameters(), origin_net.parameters())
+                loss = self.loss_func(log_probs, labels) + self.mu / 2 * norm
+                acc, _ = self.test(net)
+                batch_loss.append(loss.data.item())
+                if norm > self.limit:
+                    flag = True
+                    print(count)
+                    break
+                loss.backward()
+                optimizer.step()
+                if self.args.gpu != -1:
+                    loss = loss.cpu()
+                if self.args.verbose and batch_idx % 10 == 0:
+                    print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                        iter, batch_idx * len(images), len(self.ldr_train.dataset),
+                              100. * batch_idx / len(self.ldr_train), loss.data.item()))
+                self.tb.add_scalar('loss', loss.data.item())
+            epoch_loss.append(sum(batch_loss) / len(batch_loss))
+            epoch_acc.append(acc)
+            if flag:
+                return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+
+
 class LocalFSVGRUpdate(LocalUpdate):
     def __init__(self, args, dataset, idxs, tb):
         super(LocalFSVGRUpdate, self).__init__(args, dataset, idxs, tb)
@@ -115,17 +182,16 @@ class LocalFSVGRUpdate(LocalUpdate):
             log_probs = net(images)
             loss = self.loss_func(log_probs, labels)
             loss.backward()
-
             for i, param in enumerate(net.parameters()):
                 # print("Parameter:",i, " size: ", len(param.grad.data.numpy()))
-                grad_data = param.grad.data
+                grad_data = param.grad#.data
                 if self.args.gpu != -1:
                     grad_data = grad_data.cpu()
-                global_grad[i] += grad_data.numpy()[0]
+                global_grad[i] += grad_data
             if self.args.gpu != -1:
                 loss = loss.cpu()
         #global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
-        global_grad = np.divide(global_grad, 1)
+        global_grad = np.divide(global_grad, len(self.ldr_train))
         return total_size, global_grad
 
     def fetch_grad(self, net, images, labels):
@@ -140,10 +206,11 @@ class LocalFSVGRUpdate(LocalUpdate):
         for i, param in enumerate(net.parameters()):
             if self.args.gpu != -1:
                 grad[i] = param.grad.data.cpu()
-            else: grad[i] = param.grad.data
+            else:
+                grad[i] = param.grad.data
         return grad
 
-    def update_FSVGR_weights(self, server_avg_grad, uid, net):
+    def update_FSVGR_weights(self, server_avg_grad, uid, net, global_iter):
         net.train()
         # train and update
         epoch_loss = []
@@ -162,28 +229,29 @@ class LocalFSVGRUpdate(LocalUpdate):
                 net.zero_grad()
                 log_probs = net(images)
                 loss = self.loss_func(log_probs, labels)
-                loss.backward()
+                #loss.backward()
                 client_w_grad = self.fetch_grad(net, images, labels)
                 server_w_grad = self.fetch_grad(server_net, images, labels)
                 # if iter == 50:
                 #     print(client_w_grad)
                 for i, param in enumerate(net.parameters()):
-                    weights = param.data
+                    # if i == 0 and (batch_idx == 0):
+                    #     print("===before====")
+                    #     print(param.data)
                     if self.args.gpu != -1:
-                        weights = weights.cpu()
-                        param.data = np.subtract(weights, self.lr * (
-                            np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])),
-                                   server_avg_grad[i]))).cuda()
+                        param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
+                                                    torch.from_numpy(server_avg_grad[i]).float())).data).cuda()
                     else:
-                        param.data = np.subtract(weights, self.lr * (
-                            np.add(self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])),
-                                   server_avg_grad[i])))
+                        param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
+                                                 torch.from_numpy(server_avg_grad[i]).float())).data)
+                    # if i == 0 and (batch_idx == 0):
+                    #     print("====after====")
+                    #     print(param.data)
 
-                    #param.data -= self.lr * (self.lg_scalar * (np.subtract(client_w_grad[i], server_w_grad[i])) + server_avg_grad[i])
                 if self.args.gpu != -1:
                     loss = loss.cpu()
                 if self.args.verbose and batch_idx % 10 == 0:
-                    print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    print('Global_iter: {}, User: {}, Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(global_iter, uid,
                         iter, batch_idx * len(images), len(self.ldr_train.dataset),
                               100. * batch_idx / len(self.ldr_train), loss.data.item()))
                 self.tb.add_scalar('loss', loss.data.item())
