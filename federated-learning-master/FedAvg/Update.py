@@ -35,15 +35,16 @@ class LocalUpdate(object):
         self.tb = tb
 
     def train_val_test(self, dataset, idxs):
-        # split train, validation, and test
-        idxs_train = idxs#[:480]
-        #idxs_val = idxs[420:480]
-        idxs_test = idxs[480:]
-
-        #If batch_size = 420 -> random permutation of all items
+        # split train, and test
+        np.random.shuffle(idxs)
+        idxs_train = idxs
+        if self.args.dataset == 'mnist':
+            idxs_test = idxs[480:]
+        elif self.args.dataset == 'cifar':
+            idxs_test = idxs[800:]
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
         #val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
-        test = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=int(len(idxs_test)), shuffle=False)
+        test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)), shuffle=False)
         return train, test
 
     def update_weights(self, net):
@@ -242,12 +243,8 @@ class LocalFSVGRUpdate(LocalUpdate):
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
                                                     server_avg_grad[i].float())).data).cuda()
                     else:
-                        #param.data = np.subtract()
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
                                                  server_avg_grad[i].float())).data)
-                    # if i == 0 and (batch_idx == 0):
-                    #     print("====after====")
-                    #     print(param.data)
 
                 if self.args.gpu != -1:
                     loss = loss.cpu()

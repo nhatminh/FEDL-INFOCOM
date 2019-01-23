@@ -33,7 +33,7 @@ def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
     for l in range(len(w)):
         for k in sg.keys():
             # += ag_scalar * w[l][0] * (w[l][1][k] - w_t[k]) / total_size
-            sg[k] += w[l][0] * (w[l][1][k] - w_t[k])#np.add(sg[k].long(), torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])).long(), total_size.long()).long())
+            sg[k] = np.add(sg[k], w[l][0] * (w[l][1][k] - w_t[k]))#np.add(sg[k].long(), torch.div(ag_scalar * w[l][0] * (torch.add(w[l][1][k], -w_t[k])).long(), total_size.long()).long())
     for key in w_t.keys():
-        w_t[key] = np.add(w_t[key], ag_scalar * sg[key] / total_size)
+        w_t[key] = np.add(w_t[key], np.divide(ag_scalar * sg[key], total_size))
     return w_t
