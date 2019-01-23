@@ -171,7 +171,7 @@ class LocalFSVGRUpdate(LocalUpdate):
         self.lr = args.lr
 
     def calculate_global_grad(self, net):
-        global_grad = [np.zeros(v.shape) for v in net.parameters()]
+        global_grad = np.array([np.zeros(v.shape) for v in net.parameters()])
         total_size = 0
         for batch_idx, (images, labels) in enumerate(self.ldr_train):
             if self.args.gpu != -1:
@@ -184,10 +184,10 @@ class LocalFSVGRUpdate(LocalUpdate):
             loss.backward()
             for i, param in enumerate(net.parameters()):
                 # print("Parameter:",i, " size: ", len(param.grad.data.numpy()))
-                grad_data = param.grad#.data
+                grad_data = param.grad
                 if self.args.gpu != -1:
                     grad_data = grad_data.cpu()
-                global_grad[i] += grad_data
+                global_grad[i] = np.add(global_grad[i], grad_data)
             if self.args.gpu != -1:
                 loss = loss.cpu()
         #global_grad = np.divide(global_grad, total_size)#global_grad /= total_size => Check ?? (we don't need to divide size)
@@ -240,10 +240,11 @@ class LocalFSVGRUpdate(LocalUpdate):
                     #     print(param.data)
                     if self.args.gpu != -1:
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
-                                                    torch.from_numpy(server_avg_grad[i]).float())).data).cuda()
+                                                    server_avg_grad[i].float())).data).cuda()
                     else:
+                        #param.data = np.subtract()
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
-                                                 torch.from_numpy(server_avg_grad[i]).float())).data)
+                                                 server_avg_grad[i].float())).data)
                     # if i == 0 and (batch_idx == 0):
                     #     print("====after====")
                     #     print(param.data)

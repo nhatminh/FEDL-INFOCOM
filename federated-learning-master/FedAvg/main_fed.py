@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args.epochs = 10        # numb of global iters
     args.local_ep = 20       # numb of local iters
     args.local_bs = 600     # Local Batch size (600 = full dataset size of a user)
-    args.algorithm = 'fsvgr' #'fedavg', 'fedprox', 'fsvgr'
+    args.algorithm = 'fedprox' #'fedavg', 'fedprox', 'fsvgr'
     args.iid = False
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
