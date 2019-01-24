@@ -39,9 +39,9 @@ class LocalUpdate(object):
         np.random.shuffle(idxs)
         idxs_train = idxs
         if self.args.dataset == 'mnist':
-            idxs_test = idxs[480:]
+            idxs_test = idxs[480:]      #Test for samples[480 - 600] at each user
         elif self.args.dataset == 'cifar':
-            idxs_test = idxs[800:]
+            idxs_test = idxs[800:]      #Test for samples[800 - 1000] at each user
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
         #val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
         test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)), shuffle=False)
@@ -241,7 +241,7 @@ class LocalFSVGRUpdate(LocalUpdate):
                     #     print(param.data)
                     if self.args.gpu != -1:
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
-                                                    server_avg_grad[i].float())).data).cuda()
+                                                    server_avg_grad[i].float())).data.cuda())
                     else:
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
                                                  server_avg_grad[i].float())).data)

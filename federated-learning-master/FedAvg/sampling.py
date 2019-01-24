@@ -63,6 +63,7 @@ def cifar_iid(dataset, num_users):
     return dict_users
 
 
+# Divide into 100 portions of total data. Allocate 2 random portions for each user
 def cifar_noniid(dataset, num_users):
     num_shards, num_imgs = 100, 500
     idx_shard = [i for i in range(num_shards)]
@@ -82,6 +83,7 @@ def cifar_noniid(dataset, num_users):
         idx_shard = list(set(idx_shard) - rand_set)
         for rand in rand_set:
             dict_users[i] = np.concatenate((dict_users[i], idxs[rand * num_imgs:(rand + 1) * num_imgs]), axis=0)
+
     return dict_users
 
 

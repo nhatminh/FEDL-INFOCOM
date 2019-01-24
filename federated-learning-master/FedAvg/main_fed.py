@@ -61,7 +61,7 @@ if __name__ == '__main__':
     path_project = os.path.abspath('..')
 
     summary = SummaryWriter('local')
-    args.gpu = -1            # -1 (CPU only) or GPU = 0
+    args.gpu = 0            # -1 (CPU only) or GPU = 0
     args.lr = 0.05
     args.model = 'cnn'      # 'mlp' or 'cnn'
     args.dataset = 'cifar'  #  'cifar' or 'mnist'
@@ -141,6 +141,8 @@ if __name__ == '__main__':
     net_best = None
     val_acc_list, net_list = [], []
     #print(dict_users.keys())
+
+    ###  FedAvg Aglorithm  ###
     if args.algorithm == 'fedavg':
         for iter in tqdm(range(args.epochs)):
             w_locals, loss_locals, acc_locals = [], [], []
@@ -177,7 +179,8 @@ if __name__ == '__main__':
             loss_test.append(sum(list_loss) / len(list_loss))
             acc_test.append(sum(list_acc) / len(list_acc))
 
-    if args.algorithm == 'fedprox':
+    ###  FedProx Aglorithm  ###
+    elif args.algorithm == 'fedprox':
         args.mu = 0.01
         args.limit = 0.2
         for iter in tqdm(range(args.epochs)):
@@ -215,7 +218,8 @@ if __name__ == '__main__':
             loss_test.append(sum(list_loss)/len(list_loss))
             acc_test.append(sum(list_acc) / len(list_acc))
 
-    if args.algorithm == 'fsvgr':
+    ###  FSVGR Aglorithm  ###
+    elif args.algorithm == 'fsvgr':
         args.ag_scalar = 0.1
         args.lg_scalar = 1
         for iter in tqdm(range(args.epochs)):
