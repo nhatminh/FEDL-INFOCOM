@@ -26,6 +26,8 @@ def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
     :return: global state_dict
     """
     w_t = copy.deepcopy(net.state_dict())
+    #print("=======================before==============================")
+    #print(w_t)
     sg = {}
     total_size = np.array(np.sum([u[0] for u in w]))
     for key in w_t.keys():
@@ -43,4 +45,6 @@ def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
             w_t[key] = np.add(w_t[key].cpu(), np.divide(ag_scalar * sg[key], total_size))
         else:
             w_t[key] = np.add(w_t[key], np.divide(ag_scalar * sg[key], total_size))
+    #print('===========================after===================================')
+    #print(w_t)
     return w_t

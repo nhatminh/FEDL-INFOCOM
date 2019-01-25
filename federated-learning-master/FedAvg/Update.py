@@ -36,12 +36,11 @@ class LocalUpdate(object):
 
     def train_val_test(self, dataset, idxs):
         # split train, and test
-        np.random.shuffle(idxs)
         idxs_train = idxs
         if self.args.dataset == 'mnist':
             idxs_test = idxs[480:]      #Test for samples[480 - 600] at each user
         elif self.args.dataset == 'cifar':
-            idxs_test = idxs[800:]      #Test for samples[800 - 1000] at each user
+            idxs_test = idxs[1500:]      #Test for samples[800 - 1000] at each user
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
         #val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
         test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)), shuffle=False)
@@ -75,6 +74,7 @@ class LocalUpdate(object):
                 batch_loss.append(loss.data.item())
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
             acc, _ = self.test(net)
+            print("acc: {}".format(acc))
             epoch_acc.append(acc)
         return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 
@@ -218,6 +218,8 @@ class LocalFSVGRUpdate(LocalUpdate):
         epoch_acc = []
         server_net = copy.deepcopy(net)
         total_size = 0
+        count = 0
+        last_acc = 0
         for iter in range(self.args.local_ep):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
@@ -256,6 +258,12 @@ class LocalFSVGRUpdate(LocalUpdate):
                 batch_loss.append(loss.data.item())
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
             acc, _ = self.test(net)
+            if acc - last_acc < self.args.threshold and (acc - last_acc) >= 0 and acc <= 0.9 and self.lr <= 0.01:
+                self.lr *= 1.5
+            elif (acc - last_acc < 0 or acc > 0.9) and self.lr >= 0.0001:
+                self.lr /= 10
+            last_acc = acc
+            print("acc: {}".format(acc))
             epoch_acc.append(acc)
         plt.figure()
         plt.subplot(211)

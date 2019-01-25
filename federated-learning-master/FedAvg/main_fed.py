@@ -62,13 +62,13 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     args.gpu = 0            # -1 (CPU only) or GPU = 0
-    args.lr = 0.05
+    args.lr = 0.001
     args.model = 'cnn'      # 'mlp' or 'cnn'
     args.dataset = 'cifar'  #  'cifar' or 'mnist'
     args.num_users = 3
-    args.epochs = 10        # numb of global iters
-    args.local_ep = 20       # numb of local iters
-    args.local_bs = 1000     # Local Batch size (600 = full dataset size of a user for mnist, 1000 for cifar)
+    args.epochs = 50        # numb of global iters
+    args.local_ep = 500       # numb of local iters
+    args.local_bs = 2000     # Local Batch size (600 = full dataset size of a user for mnist, 1000 for cifar)
     args.algorithm = 'fsvgr' #'fedavg', 'fedprox', 'fsvgr'
     args.iid = False
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
@@ -220,9 +220,11 @@ if __name__ == '__main__':
 
     ###  FSVGR Aglorithm  ###
     elif args.algorithm == 'fsvgr':
-        args.ag_scalar = 0.1
+        args.ag_scalar = 1
         args.lg_scalar = 1
+        args.threshold = 0.001
         for iter in tqdm(range(args.epochs)):
+
             print("=========Global epoch {}=========".format(iter))
             w_locals, loss_locals, acc_locals = [], [], []
             """
