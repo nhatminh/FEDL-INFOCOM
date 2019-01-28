@@ -1,26 +1,31 @@
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 import os
 import copy
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 import tensorboard
+from sklearn import metrics
 from options import args_parser
 from sample_data import linear_iid_data_generation, linear_non_iid_data_generation, \
     get_iris_classification_non_iid_data, linear_iid, collect_data
 from model import ServerModel, ClientLocalModel, FederatedClientsModel
 import time
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 if __name__ == '__main__':
     
     args = args_parser()
-    args.lr = 0.000000001
-    args.ag_scalar = 1.0
+    args.lr = 0.0000005 #This learning rate must be very small to converge
+    args.ag_scalar = 0.01
     args.task = 'classification' #or regression
-    args.dataset = 'ld'
-    args.num_users = 3
+    args.dataset = 'iris'
+    args.num_users = 5
     args.epochs = 20  # numb of global iters
-    args.local_ep = 20  # numb of local iters
-    args.local_bs = 10  # Local Batch size (420 = full dataset size of a user)
+    args.local_ep = 20 # numb of local iters
+    args.local_bs = 120  # Local Batch size (120 = full dataset size of a user)
     args.algorithm = 'fsvgr'
     args.lg_scalar = 1.0
     args.iid = False
@@ -59,6 +64,7 @@ if __name__ == '__main__':
                 writer = tf.summary.FileWriter(log_dir+'/global_training', sess.graph)
                 sess.run(tf.global_variables_initializer())
                 global_loss = []
+                global_acc = []
                 avg_loss = []
                 for g in range(args.epochs):
                     print("================Global Epoch {}================".format(g))
@@ -73,8 +79,18 @@ if __name__ == '__main__':
                     avg_loss.append(avg_users_loss)
                     #Evaluate server
                     eval_loss = np.mean(sess.run(server.loss, feed_dict={server.features: train_data, server.labels: train_label}))
+                    logits = sess.run(server.forward, feed_dict={server.features: train_data})
+                    pred = np.argmax(logits, axis=1)
+                    truth = np.argmax(train_label, axis=1)
+                    # print(logits)
+                    # print(pred)
+                    # print(train_label)
+                    eval_acc = metrics.accuracy_score(y_true=truth, y_pred=pred)
+                    #eval_acc = sess.run(server.accuracy, feed_dict={server.features: train_data, server.labels: train_label})
                     print("global_test_loss: ", eval_loss)
+                    print("global_test_acc: ", eval_acc)
                     global_loss.append(eval_loss)
+                    global_acc.append(eval_acc)
         plt.figure()
         #print(global_loss)
         plt.subplot(121)
@@ -82,9 +98,13 @@ if __name__ == '__main__':
         plt.ylabel('global_test_loss')
         plt.xlabel('global_epoch_num')
         plt.subplot(122)
-        plt.plot(range(len(avg_loss)), avg_loss)
-        plt.ylabel('users_avg_loss')
+        plt.plot(range(len(global_acc)), global_acc)
+        plt.ylabel('global_test_acc')
         plt.xlabel('global_epoch_num')
+        #plt.subplot(121)
+        # plt.plot(range(len(avg_loss)), avg_loss)
+        # plt.ylabel('users_avg_loss')
+        # plt.xlabel('global_epoch_num')
         plt.savefig('./save/{}_{}_global_and_users_avg_loss_{}_global_epochs_{}_local_epochs.png'.format(args.task, args.iid, args.epochs, args.local_ep))
 
 
