@@ -38,7 +38,7 @@ class LocalUpdate(object):
         # split train, and test
         idxs_train = idxs
         if self.args.dataset == 'mnist':
-            idxs_test = idxs[480:]      #Test for samples[480 - 600] at each user
+            idxs_test = idxs[800:]      #Test for samples[480 - 600] at each user
         elif self.args.dataset == 'cifar':
             idxs_test = idxs[1500:]      #Test for samples[800 - 1000] at each user
         train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)

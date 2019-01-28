@@ -62,13 +62,13 @@ if __name__ == '__main__':
 
     summary = SummaryWriter('local')
     args.gpu = 0            # -1 (CPU only) or GPU = 0
-    args.lr = 0.001
+    args.lr = 0.001         # 0.001 for cifar dataset
     args.model = 'cnn'      # 'mlp' or 'cnn'
     args.dataset = 'cifar'  #  'cifar' or 'mnist'
     args.num_users = 5
     args.epochs = 100        # numb of global iters
     args.local_ep = 500       # numb of local iters
-    args.local_bs = 2000     # Local Batch size (600 = full dataset size of a user for mnist, 2000 for cifar)
+    args.local_bs = 2000     # Local Batch size (1200 = full dataset size of a user for mnist, 2000 for cifar)
     args.algorithm = 'fsvgr' #'fedavg', 'fedprox', 'fsvgr'
     args.iid = False
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
