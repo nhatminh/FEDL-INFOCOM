@@ -259,7 +259,7 @@ class LocalFSVGRUpdate(LocalUpdate):
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
             acc, _ = self.test(net)
             if acc - last_acc < self.args.threshold and (acc - last_acc) >= 0 and acc <= 0.9 and self.lr <= 0.01:
-                self.lr *= 1.5
+                self.lr *= 5
             elif (acc - last_acc < 0 or acc > 0.9) and self.lr >= 0.0001:
                 self.lr /= 10
             last_acc = acc

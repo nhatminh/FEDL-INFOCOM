@@ -80,7 +80,7 @@ def cifar_noniid(dataset, num_users):
     # divide and assign
     for i in range(num_users):
         rand_set = set(np.random.choice(idx_shard, 4, replace=False))
-        idx_shard = list(set(idx_shard) - rand_set)
+        #idx_shard = list(set(idx_shard) - rand_set)
         for rand in rand_set:
             dict_users[i] = np.concatenate((dict_users[i], idxs[rand * num_imgs:(rand + 1) * num_imgs]), axis=0)
             #np.random.shuffle(dict_users[i])
