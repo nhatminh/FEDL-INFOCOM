@@ -101,14 +101,19 @@ class LocalUpdate(object):
 class LocalFedProxUpdate(LocalUpdate):
     def __init__(self, args, dataset, idxs, tb):
         super(LocalFedProxUpdate, self).__init__(args, dataset, idxs, tb)
+
         self.limit = args.limit
         self.mu = args.mu
         self.lr = args.lr
 
     def get_l2_norm(self, params_a, params_b):
         sum = 0
-        tmp_a = np.array([v.detach().numpy() for v in params_a])
-        tmp_b = np.array([v.detach().numpy() for v in params_b])
+        if self.args.gpu != -1:
+            tmp_a = np.array([v.detach().cpu().numpy() for v in params_a])
+            tmp_b = np.array([v.detach().cpu().numpy() for v in params_b])
+        else:
+            tmp_a = np.array([v.detach().numpy() for v in params_a])
+            tmp_b = np.array([v.detach().numpy() for v in params_b])
         a = []
         b = []
         for i in tmp_a:
@@ -132,8 +137,10 @@ class LocalFedProxUpdate(LocalUpdate):
         epoch_acc = []
         origin_net = copy.deepcopy(net)
         count = 0
-        flag = False
-        while True:
+        # flag = False
+
+        # while True:
+        for iter in range(self.args.local_ep):
             count += 1
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
@@ -146,10 +153,10 @@ class LocalFedProxUpdate(LocalUpdate):
                 loss = self.loss_func(log_probs, labels) + self.mu / 2 * norm
                 acc, _ = self.test(net)
                 batch_loss.append(loss.data.item())
-                if norm > self.limit:
-                    flag = True
-                    print(count)
-                    break
+                # if norm > self.limit:
+                #     flag = True
+                #     print(count)
+                #     break
                 loss.backward()
                 optimizer.step()
                 if self.args.gpu != -1:
@@ -161,8 +168,11 @@ class LocalFedProxUpdate(LocalUpdate):
                 self.tb.add_scalar('loss', loss.data.item())
             epoch_loss.append(sum(batch_loss) / len(batch_loss))
             epoch_acc.append(acc)
-            if flag:
-                return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+            # print("acc: {}".format(acc))
+
+            # if flag:
+            #     return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 
 
 class LocalFSVGRUpdate(LocalUpdate):
@@ -220,6 +230,7 @@ class LocalFSVGRUpdate(LocalUpdate):
         total_size = 0
         count = 0
         last_acc = 0
+        last_loss = 2
         for iter in range(self.args.local_ep):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
@@ -231,12 +242,10 @@ class LocalFSVGRUpdate(LocalUpdate):
                 net = net.float()
                 net.zero_grad()
                 log_probs = net(images)
-                loss = self.loss_func(log_probs, labels)
-                #loss.backward()
+
                 client_w_grad = self.fetch_grad(net, images, labels)
                 server_w_grad = self.fetch_grad(server_net, images, labels)
-                # if iter == 50:
-                #     print(client_w_grad)
+
                 for i, param in enumerate(net.parameters()):
                     # if i == 0 and (batch_idx == 0):
                     #     print("===before====")
@@ -248,34 +257,52 @@ class LocalFSVGRUpdate(LocalUpdate):
                         param.data.sub_((self.lr * (self.lg_scalar * (client_w_grad[i] - server_w_grad[i]) +
                                                  server_avg_grad[i].float())).data)
 
-                if self.args.gpu != -1:
-                    loss = loss.cpu()
+                if (iter == (self.args.local_ep - 1)):
+                    loss = self.loss_func(log_probs, labels)
+                    # loss.backward()
+
+                    if self.args.gpu != -1:
+                        loss = loss.cpu()
+                    self.tb.add_scalar('loss', loss.data.item())
+                    batch_loss.append(loss.data.item())
+                else:
+                    loss = 0
+                    self.tb.add_scalar('loss', loss)
+
                 if self.args.verbose and batch_idx % 10 == 0:
                     print('Global_iter: {}, User: {}, Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(global_iter, uid,
                         iter, batch_idx * len(images), len(self.ldr_train.dataset),
                               100. * batch_idx / len(self.ldr_train), loss.data.item()))
-                self.tb.add_scalar('loss', loss.data.item())
-                batch_loss.append(loss.data.item())
-            epoch_loss.append(sum(batch_loss) / len(batch_loss))
-            acc, _ = self.test(net)
-            if acc - last_acc < self.args.threshold and (acc - last_acc) >= 0 and acc <= 0.9 and self.lr <= 0.01:
-                self.lr *= 5
-            elif (acc - last_acc < 0 or acc > 0.9) and self.lr >= 0.0001:
-                self.lr /= 10
+
+            if(iter == (self.args.local_ep-1)):
+                acc, _ = self.test(net)
+                epoch_loss.append(sum(batch_loss) / len(batch_loss))
+                loss = sum(batch_loss) / len(batch_loss)
+            else:
+                acc = 0
+
+            if self.args.dataset == 'cifar':
+                if acc - last_acc < self.args.threshold and (acc - last_acc) >= 0 and acc <= 0.9 and self.lr <= 0.01:
+                    self.lr *= 5
+                elif (acc - last_acc < 0 or acc > 0.9) and self.lr >= 0.0001:
+                    self.lr /= 10
+
             last_acc = acc
-            print("acc: {}".format(acc))
+            # print("acc: {}".format(acc))
             epoch_acc.append(acc)
-        plt.figure()
-        plt.subplot(211)
-        plt.plot(range(len(epoch_loss)), epoch_loss)
-        plt.ylabel('train_loss')
-        plt.xlabel('num_local_epoches')
-        plt.subplot(212)
-        plt.plot(range(len(epoch_acc)), epoch_acc)
-        plt.ylabel('train_accuracy')
-        plt.xlabel('num_local_epoches')
-        plt.savefig('../save/{}.png'.format(uid))
+
+        # plt.figure()
+        # plt.subplot(211)
+        # plt.plot(range(len(epoch_loss)), epoch_loss)
+        # plt.ylabel('train_loss')
+        # plt.xlabel('num_local_epoches')
+        # plt.subplot(212)
+        # plt.plot(range(len(epoch_acc)), epoch_acc)
+        # plt.ylabel('train_accuracy')
+        # plt.xlabel('num_local_epoches')
+        # plt.savefig('../save/{}.png'.format(uid))
 
             #print('Local Epoch: {}, accuracy: {:.6f}'.format(iter, acc))
-        return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        # return total_size, net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        return total_size, net.state_dict(), epoch_loss[-1], epoch_acc[-1]
 

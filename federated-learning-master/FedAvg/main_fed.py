@@ -3,6 +3,8 @@
 # Python version: 3.6
 
 import matplotlib
+import sys
+import pylab
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
@@ -18,9 +20,8 @@ from tensorboardX import SummaryWriter
 from sampling import mnist_iid, mnist_noniid, cifar_iid, cifar_noniid
 from options import args_parser
 from Update import LocalFSVGRUpdate, LocalUpdate, LocalFedProxUpdate
-from FedNets import MLP, CNNMnist, CNNCifar
+from FedNets import MLP1, CNNMnist, CNNCifar
 from averaging import average_FSVRG_weights, average_weights
-
 
 def test(net_g, data_loader, args):
     # testing
@@ -49,28 +50,29 @@ def calculate_avg_grad(users_g):
     for i in range(len(users_g)):
         avg_grad = np.add(avg_grad, users_g[i][0] * users_g[i][1])#+= users_g[i][0] * users_g[i][1]   <=> n_k * grad_k
     avg_grad = np.divide(avg_grad, total_size)#/= total_size
-    # print(avg_grad)
+    # print("avg_grad:", avg_grad)
     return avg_grad
 
 
 if __name__ == '__main__':
     # parse args
     args = args_parser()
-
+    algo_list = ['fedavg', 'fedprox', 'fsvgr']
     # define paths
     path_project = os.path.abspath('..')
 
     summary = SummaryWriter('local')
     args.gpu = 0            # -1 (CPU only) or GPU = 0
-    args.lr = 0.001         # 0.001 for cifar dataset
-    args.model = 'cnn'      # 'mlp' or 'cnn'
-    args.dataset = 'cifar'  #  'cifar' or 'mnist'
+    args.lr = 0.002         # 0.001 for cifar dataset
+    args.model = 'mlp'      # 'mlp' or 'cnn'
+    args.dataset = 'mnist'  #  'cifar' or 'mnist'
     args.num_users = 5
-    args.epochs = 100        # numb of global iters
-    args.local_ep = 500       # numb of local iters
-    args.local_bs = 2000     # Local Batch size (1200 = full dataset size of a user for mnist, 2000 for cifar)
+    args.epochs = 300        # numb of global iters
+    args.local_ep = 120       # numb of local iters
+    args.local_bs = 1200     # Local Batch size (1200 = full dataset size of a user for mnist, 2000 for cifar)
     args.algorithm = 'fsvgr' #'fedavg', 'fedprox', 'fsvgr'
     args.iid = False
+    args.verbose = False
     print("dataset:", args.dataset, " num_users:", args.num_users, " epochs:", args.epochs, "local_ep:", args.local_ep)
 
     # load dataset and split users
@@ -121,16 +123,32 @@ if __name__ == '__main__':
             len_in *= x
         if args.gpu != -1:
             torch.cuda.set_device(args.gpu)
-            net_glob = MLP(dim_in=len_in, dim_hidden=64, dim_out=args.num_classes).cuda()
+            # net_glob = MLP1(dim_in=len_in, dim_hidden=128, dim_out=args.num_classes).cuda()
+            net_glob = MLP1(dim_in=len_in, dim_hidden=256, dim_out=args.num_classes).cuda()
         else:
-            net_glob = MLP(dim_in=len_in, dim_hidden=64, dim_out=args.num_classes)
+            # net_glob = MLP1(dim_in=len_in, dim_hidden=128, dim_out=args.num_classes)
+            net_glob = MLP1(dim_in=len_in, dim_hidden=256, dim_out=args.num_classes)
     else:
         exit('Error: unrecognized model')
-    print(net_glob)
-    net_glob.train()
+    print("Nerual Net:",net_glob)
 
+    net_glob.train()  #Train() does not change the weight values
     # copy weights
     w_glob = net_glob.state_dict()
+
+    w_size = 0
+    for k in w_glob.keys():
+        size = w_glob[k].size()
+        if(len(size)==1):
+            nelements = size[0]
+        else:
+            nelements = size[0] * size[1]
+        w_size += nelements*4
+        # print("Size ", k, ": ",nelements*4)
+    print("Weight Size:", w_size, " bytes")
+    print("Weight & Grad Size:", w_size*2, " bytes")
+    print("Each user Training size:", 784* 8/8* args.local_bs, " bytes")
+    print("Total Training size:", 784 * 8 / 8 * 60000, " bytes")
     # training
     global_grad = []
     user_grads = []
@@ -181,8 +199,8 @@ if __name__ == '__main__':
 
     ###  FedProx Aglorithm  ###
     elif args.algorithm == 'fedprox':
-        args.mu = 0.01
-        args.limit = 0.2
+        args.mu = 0.001
+        args.limit = 0.3
         for iter in tqdm(range(args.epochs)):
             w_locals, loss_locals, acc_locals = [], [], []
             # m = max(int(args.frac * args.num_users), 1)
@@ -220,10 +238,11 @@ if __name__ == '__main__':
 
     ###  FSVGR Aglorithm  ###
     elif args.algorithm == 'fsvgr':
-        args.ag_scalar = 0.001
+        args.ag_scalar = 1. #0.001 or 0.1
         args.lg_scalar = 1
         args.threshold = 0.001
-        for iter in tqdm(range(args.epochs)):
+        # for iter in tqdm(range(args.epochs)):
+        for iter in range(args.epochs):
 
             print("=========Global epoch {}=========".format(iter))
             w_locals, loss_locals, acc_locals = [], [], []
@@ -258,11 +277,14 @@ if __name__ == '__main__':
             # global test
             list_acc, list_loss = [], []
             net_glob.eval()
-            for c in tqdm(range(args.num_users)):
+            # for c in tqdm(range(args.num_users)):
+            for c in range(args.num_users):
                 net_local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[c], tb=summary)
                 acc, loss = net_local.test(net=net_glob)
                 list_acc.append(acc)
                 list_loss.append(loss)
+
+            print("\nTest Global Weight:", list_acc)
             print("\nEpoch: {}, Global test loss {}, Global test acc: {:.2f}%".format(iter, sum(list_loss) / len(list_loss),
                                                                                   100. * sum(list_acc) / len(list_acc)))
 
@@ -275,6 +297,10 @@ if __name__ == '__main__':
             loss_test.append(sum(list_loss) / len(list_loss))
             acc_test.append(sum(list_acc) / len(list_acc))
 
+            if(acc_avg >= 0.89):
+                break
+
+
     # plot loss curve
     plt.figure(1)
     plt.subplot(121)
@@ -285,15 +311,15 @@ if __name__ == '__main__':
     plt.plot(range(len(acc_test)), acc_test)
     plt.ylabel('train_accuracy')
     plt.xlabel('num_epoches')
-    plt.savefig('../save/fed_{}_{}_{}_{}_C{}_iid{}.png'.format(args.algorithm, args.dataset, args.model, args.epochs, args.frac, args.iid))
+    plt.savefig('../save/new_fed_{}_{}_{}_{}_C{}_iid{}.png'.format(args.algorithm, args.dataset, args.model, args.epochs, args.frac, args.iid))
 
-    # # testing
-    # list_acc, list_loss = [], []
-    # net_glob.eval()
-    # for c in tqdm(range(args.num_users)):
-    #     net_local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[c], tb=summary)
-    #     acc, loss = net_local.test(net=net_glob)
-    #     list_acc.append(acc)
-    #     list_loss.append(loss)
-    # print("average acc: {:.2f}%".format(100.*sum(list_acc)/len(list_acc)))
-    #
+# # testing
+# list_acc, list_loss = [], []
+# net_glob.eval()
+# for c in tqdm(range(args.num_users)):
+#     net_local = LocalFSVGRUpdate(args=args, dataset=dataset_train, idxs=dict_users[c], tb=summary)
+#     acc, loss = net_local.test(net=net_glob)
+#     list_acc.append(acc)
+#     list_loss.append(loss)
+# print("average acc: {:.2f}%".format(100.*sum(list_acc)/len(list_acc)))
+#

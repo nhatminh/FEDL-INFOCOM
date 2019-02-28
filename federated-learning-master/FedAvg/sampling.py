@@ -6,6 +6,8 @@
 import numpy as np
 from torchvision import datasets, transforms
 
+np.random.seed(1)
+
 def mnist_iid(dataset, num_users):
     """
     Sample I.I.D. client data from MNIST dataset
@@ -33,6 +35,7 @@ def mnist_noniid(dataset, num_users):
     dict_users = {i: np.array([]) for i in range(num_users)}
     idxs = np.arange(num_shards*num_imgs)
     labels = dataset.train_labels.numpy()
+    # print("total_data:",len(labels))
 
     # sort labels
     idxs_labels = np.vstack((idxs, labels))
@@ -45,6 +48,7 @@ def mnist_noniid(dataset, num_users):
         #idx_shard = list(set(idx_shard) - rand_set)
         for rand in rand_set:
             dict_users[i] = np.concatenate((dict_users[i], idxs[rand*num_imgs:(rand+1)*num_imgs]), axis=0)
+
     return dict_users
 
 
