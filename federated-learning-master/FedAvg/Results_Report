@@ -1,3 +1,4 @@
+### FSVRG ###
 Weight Size: 814120  bytes
 Weight & Grad Size: 1628240  bytes
 Each user Training size: 940800.0  bytes ~ 940KB
@@ -21,478 +22,66 @@ local 150 =>  17 / 17
 local 170 =>  15 / 15
 
 
-=========Global epoch 0=========
-Training user 0
-Global_Epoch  0 User  0  Acc: 0.8025  Loss: 1.2410796880722046
-Training user 1
-Global_Epoch  0 User  1  Acc: 0.7475  Loss: 1.6230517625808716
-Training user 2
-Global_Epoch  0 User  2  Acc: 0.64  Loss: 1.7764654159545898
-Training user 3
-Global_Epoch  0 User  3  Acc: 0.1975  Loss: 1.7637076377868652
-Training user 4
-Global_Epoch  0 User  4  Acc: 0.4425  Loss: 1.9118857383728027
+### FedProx ###  89%
+Local 5   =>  152
+Local 10  =>  48
+Local 15  =>  20
+Local 20  =>  12
+Local 25  =>  8
+Local 30  =>  6
+Local 35  =>  5
+Local 40  =>  5
+
+
+### FedAvg ###   89%
+Local 5   =>  141
+Local 10  =>  39
+Local 15  =>  20
+Local 20  =>  12
+Local 25  =>  8
+Local 30  =>  6
+Local 35  =>  5
+Local 40  =>  4
+
+####################
+Unbalanced Dataset
+####################
+
+### FedProx ###  89%
+Local 5   =>  
+Local 10  =>  
+Local 15  =>  
+Local 20  =>  
+Local 25  =>  34
+Local 30  =>  
+Local 35  =>  
+Local 40  =>  
+Local 45  =>  
+Local 50  =>  
+
+### FedProx (weighted) ###  89%
+Local 5   =>  
+Local 10  =>  
+Local 15  =>  
+Local 20  =>  
+Local 25  =>  32
+Local 30  =>  
+Local 35  =>  
+Local 40  => 
+Local 45  =>  
+Local 50  =>   
+
+### FedAvg ###   89%
+Local 5   =>  
+Local 10  =>  
+Local 15  =>  
+Local 20  =>  
+Local 25  =>  
+Local 30  =>  
+Local 35  =>  34 
+Local 40  =>  
 
-Test Global Weight: [0.7775, 0.8, 0.65, 0.1825, 0.5625]
 
-Epoch: 0, Global test loss 1.5376807689666747, Global test acc: 59.45%
 
-Epoch: 0, Users train average loss: 1.6632380485534668
 
-Epoch: 0, Users train average accuracy: 0.5660000000000001
-=========Global epoch 1=========
-Training user 0
-Global_Epoch  1 User  0  Acc: 0.84  Loss: 0.7921352982521057
-Training user 1
-Global_Epoch  1 User  1  Acc: 0.8125  Loss: 1.2502299547195435
-Training user 2
-Global_Epoch  1 User  2  Acc: 0.8075  Loss: 1.3994845151901245
-Training user 3
-Global_Epoch  1 User  3  Acc: 0.2575  Loss: 1.4074859619140625
-Training user 4
-Global_Epoch  1 User  4  Acc: 0.6025  Loss: 1.5616565942764282
 
-Test Global Weight: [0.8375, 0.8325, 0.855, 0.2425, 0.675]
-
-Epoch: 1, Global test loss 1.1412189722061157, Global test acc: 68.85%
-
-Epoch: 1, Users train average loss: 1.282198464870453
-
-Epoch: 1, Users train average accuracy: 0.6639999999999999
-=========Global epoch 2=========
-Training user 0
-Global_Epoch  2 User  0  Acc: 0.8575  Loss: 0.5476301908493042
-Training user 1
-Global_Epoch  2 User  1  Acc: 0.82  Loss: 1.0193374156951904
-Training user 2
-Global_Epoch  2 User  2  Acc: 0.86  Loss: 1.1552929878234863
-Training user 3
-Global_Epoch  2 User  3  Acc: 0.3425  Loss: 1.1490154266357422
-Training user 4
-Global_Epoch  2 User  4  Acc: 0.695  Loss: 1.2920215129852295
-
-Test Global Weight: [0.87, 0.835, 0.8975, 0.3525, 0.735]
-
-Epoch: 2, Global test loss 0.9231295347213745, Global test acc: 73.80%
-
-Epoch: 2, Users train average loss: 1.0326595067977906
-
-Epoch: 2, Users train average accuracy: 0.715
-=========Global epoch 3=========
-Training user 0
-Global_Epoch  3 User  0  Acc: 0.865  Loss: 0.4582183361053467
-Training user 1
-Global_Epoch  3 User  1  Acc: 0.8375  Loss: 0.8696250319480896
-Training user 2
-Global_Epoch  3 User  2  Acc: 0.8925  Loss: 0.9872502684593201
-Training user 3
-Global_Epoch  3 User  3  Acc: 0.455  Loss: 0.9644555449485779
-Training user 4
-Global_Epoch  3 User  4  Acc: 0.7375  Loss: 1.0724706649780273
-
-Test Global Weight: [0.87, 0.83, 0.9, 0.5475, 0.75]
-
-Epoch: 3, Global test loss 0.7780882239341735, Global test acc: 77.95%
-
-Epoch: 3, Users train average loss: 0.8704039692878723
-
-Epoch: 3, Users train average accuracy: 0.7575000000000001
-=========Global epoch 4=========
-Training user 0
-Global_Epoch  4 User  0  Acc: 0.87  Loss: 0.4259577989578247
-Training user 1
-Global_Epoch  4 User  1  Acc: 0.835  Loss: 0.7672160267829895
-Training user 2
-Global_Epoch  4 User  2  Acc: 0.89  Loss: 0.8591649532318115
-Training user 3
-Global_Epoch  4 User  3  Acc: 0.62  Loss: 0.8232650756835938
-Training user 4
-Global_Epoch  4 User  4  Acc: 0.7625  Loss: 0.8902678489685059
-
-Test Global Weight: [0.87, 0.835, 0.8975, 0.705, 0.7675]
-
-Epoch: 4, Global test loss 0.6770555257797242, Global test acc: 81.50%
-
-Epoch: 4, Users train average loss: 0.753174340724945
-
-Epoch: 4, Users train average accuracy: 0.7955
-=========Global epoch 5=========
-Training user 0
-Global_Epoch  5 User  0  Acc: 0.87  Loss: 0.41711652278900146
-Training user 1
-Global_Epoch  5 User  1  Acc: 0.8325  Loss: 0.6983970403671265
-Training user 2
-Global_Epoch  5 User  2  Acc: 0.89  Loss: 0.7573843598365784
-Training user 3
-Global_Epoch  5 User  3  Acc: 0.7475  Loss: 0.7137563824653625
-Training user 4
-Global_Epoch  5 User  4  Acc: 0.77  Loss: 0.7562137246131897
-
-Test Global Weight: [0.8725, 0.83, 0.8925, 0.7925, 0.7725]
-
-Epoch: 5, Global test loss 0.6096073389053345, Global test acc: 83.20%
-
-Epoch: 5, Users train average loss: 0.6685736060142518
-
-Epoch: 5, Users train average accuracy: 0.8220000000000001
-=========Global epoch 6=========
-Training user 0
-Global_Epoch  6 User  0  Acc: 0.865  Loss: 0.41968175768852234
-Training user 1
-Global_Epoch  6 User  1  Acc: 0.835  Loss: 0.6541839838027954
-Training user 2
-Global_Epoch  6 User  2  Acc: 0.8875  Loss: 0.6747899651527405
-Training user 3
-Global_Epoch  6 User  3  Acc: 0.815  Loss: 0.6368141770362854
-Training user 4
-Global_Epoch  6 User  4  Acc: 0.7775  Loss: 0.6682826280593872
-
-Test Global Weight: [0.8675, 0.8275, 0.89, 0.8425, 0.785]
-
-Epoch: 6, Global test loss 0.5664256989955903, Global test acc: 84.25%
-
-Epoch: 6, Users train average loss: 0.6107505023479461
-
-Epoch: 6, Users train average accuracy: 0.836
-=========Global epoch 7=========
-Training user 0
-Global_Epoch  7 User  0  Acc: 0.8625  Loss: 0.4277481734752655
-Training user 1
-Global_Epoch  7 User  1  Acc: 0.825  Loss: 0.6266683340072632
-Training user 2
-Global_Epoch  7 User  2  Acc: 0.8825  Loss: 0.6079051494598389
-Training user 3
-Global_Epoch  7 User  3  Acc: 0.855  Loss: 0.58905428647995
-Training user 4
-Global_Epoch  7 User  4  Acc: 0.795  Loss: 0.6140287518501282
-
-Test Global Weight: [0.87, 0.8275, 0.8825, 0.8625, 0.795]
-
-Epoch: 7, Global test loss 0.5387397587299347, Global test acc: 84.75%
-
-Epoch: 7, Users train average loss: 0.5730809390544891
-
-Epoch: 7, Users train average accuracy: 0.844
-=========Global epoch 8=========
-Training user 0
-Global_Epoch  8 User  0  Acc: 0.8675  Loss: 0.4372328817844391
-Training user 1
-Global_Epoch  8 User  1  Acc: 0.8325  Loss: 0.6095770001411438
-Training user 2
-Global_Epoch  8 User  2  Acc: 0.885  Loss: 0.556124210357666
-Training user 3
-Global_Epoch  8 User  3  Acc: 0.8825  Loss: 0.5620506405830383
-Training user 4
-Global_Epoch  8 User  4  Acc: 0.8025  Loss: 0.5813058614730835
-
-Test Global Weight: [0.87, 0.8325, 0.885, 0.8875, 0.805]
-
-Epoch: 8, Global test loss 0.5199218392372131, Global test acc: 85.60%
-
-Epoch: 8, Users train average loss: 0.5492581188678741
-
-Epoch: 8, Users train average accuracy: 0.8539999999999999
-=========Global epoch 9=========
-Training user 0
-Global_Epoch  9 User  0  Acc: 0.8725  Loss: 0.4450967013835907
-Training user 1
-Global_Epoch  9 User  1  Acc: 0.825  Loss: 0.598524808883667
-Training user 2
-Global_Epoch  9 User  2  Acc: 0.88  Loss: 0.5185501575469971
-Training user 3
-Global_Epoch  9 User  3  Acc: 0.895  Loss: 0.5476694703102112
-Training user 4
-Global_Epoch  9 User  4  Acc: 0.8025  Loss: 0.5616835951805115
-
-Test Global Weight: [0.8725, 0.8275, 0.88, 0.8975, 0.7975]
-
-Epoch: 9, Global test loss 0.5056534051895142, Global test acc: 85.50%
-
-Epoch: 9, Users train average loss: 0.5343049466609955
-
-Epoch: 9, Users train average accuracy: 0.8550000000000001
-=========Global epoch 10=========
-Training user 0
-Global_Epoch  10 User  0  Acc: 0.8725  Loss: 0.4494023621082306
-Training user 1
-Global_Epoch  10 User  1  Acc: 0.8175  Loss: 0.5907354354858398
-Training user 2
-Global_Epoch  10 User  2  Acc: 0.88  Loss: 0.4926548898220062
-Training user 3
-Global_Epoch  10 User  3  Acc: 0.9  Loss: 0.5399117469787598
-Training user 4
-Global_Epoch  10 User  4  Acc: 0.7975  Loss: 0.5497029423713684
-
-Test Global Weight: [0.875, 0.8175, 0.88, 0.9, 0.8]
-
-Epoch: 10, Global test loss 0.4934049010276794, Global test acc: 85.45%
-
-Epoch: 10, Users train average loss: 0.524481475353241
-
-Epoch: 10, Users train average accuracy: 0.8535
-=========Global epoch 11=========
-Training user 0
-Global_Epoch  11 User  0  Acc: 0.8775  Loss: 0.44929879903793335
-Training user 1
-Global_Epoch  11 User  1  Acc: 0.825  Loss: 0.5846189856529236
-Training user 2
-Global_Epoch  11 User  2  Acc: 0.88  Loss: 0.47520071268081665
-Training user 3
-Global_Epoch  11 User  3  Acc: 0.9025  Loss: 0.5346834063529968
-Training user 4
-Global_Epoch  11 User  4  Acc: 0.805  Loss: 0.5417088866233826
-
-Test Global Weight: [0.8775, 0.825, 0.8825, 0.9025, 0.81]
-
-Epoch: 11, Global test loss 0.4818741023540497, Global test acc: 85.95%
-
-Epoch: 11, Users train average loss: 0.5171021580696106
-
-Epoch: 11, Users train average accuracy: 0.858
-=========Global epoch 12=========
-Training user 0
-Global_Epoch  12 User  0  Acc: 0.8825  Loss: 0.444819837808609
-Training user 1
-Global_Epoch  12 User  1  Acc: 0.825  Loss: 0.579378068447113
-Training user 2
-Global_Epoch  12 User  2  Acc: 0.88  Loss: 0.4633190929889679
-Training user 3
-Global_Epoch  12 User  3  Acc: 0.9025  Loss: 0.529366672039032
-Training user 4
-Global_Epoch  12 User  4  Acc: 0.805  Loss: 0.5352498292922974
-
-Test Global Weight: [0.8825, 0.8275, 0.8775, 0.9, 0.8075]
-
-Epoch: 12, Global test loss 0.4705457746982574, Global test acc: 85.90%
-
-Epoch: 12, Users train average loss: 0.5104267001152039
-
-Epoch: 12, Users train average accuracy: 0.859
-=========Global epoch 13=========
-Training user 0
-Global_Epoch  13 User  0  Acc: 0.8875  Loss: 0.4365949034690857
-Training user 1
-Global_Epoch  13 User  1  Acc: 0.8325  Loss: 0.5746884942054749
-Training user 2
-Global_Epoch  13 User  2  Acc: 0.8775  Loss: 0.4549369215965271
-Training user 3
-Global_Epoch  13 User  3  Acc: 0.9  Loss: 0.5225690007209778
-Training user 4
-Global_Epoch  13 User  4  Acc: 0.8075  Loss: 0.528866708278656
-
-Test Global Weight: [0.8875, 0.8325, 0.8775, 0.9, 0.8075]
-
-Epoch: 13, Global test loss 0.45937240719795225, Global test acc: 86.10%
-
-Epoch: 13, Users train average loss: 0.5035312056541443
-
-Epoch: 13, Users train average accuracy: 0.861
-=========Global epoch 14=========
-Training user 0
-Global_Epoch  14 User  0  Acc: 0.8925  Loss: 0.42556139826774597
-Training user 1
-Global_Epoch  14 User  1  Acc: 0.8325  Loss: 0.5704690217971802
-Training user 2
-Global_Epoch  14 User  2  Acc: 0.8775  Loss: 0.4487513303756714
-Training user 3
-Global_Epoch  14 User  3  Acc: 0.9  Loss: 0.5139188170433044
-Training user 4
-Global_Epoch  14 User  4  Acc: 0.815  Loss: 0.5219603776931763
-
-Test Global Weight: [0.8925, 0.8325, 0.8775, 0.9, 0.82]
-
-Epoch: 14, Global test loss 0.44854971766471863, Global test acc: 86.45%
-
-Epoch: 14, Users train average loss: 0.49613218903541567
-
-Epoch: 14, Users train average accuracy: 0.8634999999999999
-=========Global epoch 15=========
-Training user 0
-Global_Epoch  15 User  0  Acc: 0.8925  Loss: 0.4127310812473297
-Training user 1
-Global_Epoch  15 User  1  Acc: 0.8425  Loss: 0.5667320489883423
-Training user 2
-Global_Epoch  15 User  2  Acc: 0.88  Loss: 0.4440358579158783
-Training user 3
-Global_Epoch  15 User  3  Acc: 0.9075  Loss: 0.5037927031517029
-Training user 4
-Global_Epoch  15 User  4  Acc: 0.8225  Loss: 0.5145896673202515
-
-Test Global Weight: [0.8925, 0.8425, 0.88, 0.9075, 0.8275]
-
-Epoch: 15, Global test loss 0.4383619725704193, Global test acc: 87.00%
-
-Epoch: 15, Users train average loss: 0.48837627172470094
-
-Epoch: 15, Users train average accuracy: 0.869
-=========Global epoch 16=========
-Training user 0
-Global_Epoch  16 User  0  Acc: 0.8925  Loss: 0.3990316092967987
-Training user 1
-Global_Epoch  16 User  1  Acc: 0.86  Loss: 0.5634971261024475
-Training user 2
-Global_Epoch  16 User  2  Acc: 0.885  Loss: 0.4404301345348358
-Training user 3
-Global_Epoch  16 User  3  Acc: 0.9075  Loss: 0.4929875135421753
-Training user 4
-Global_Epoch  16 User  4  Acc: 0.835  Loss: 0.5072027444839478
-
-Test Global Weight: [0.8925, 0.8625, 0.885, 0.9075, 0.8375]
-
-Epoch: 16, Global test loss 0.4290845036506653, Global test acc: 87.70%
-
-Epoch: 16, Users train average loss: 0.48062982559204104
-
-Epoch: 16, Users train average accuracy: 0.876
-=========Global epoch 17=========
-Training user 0
-Global_Epoch  17 User  0  Acc: 0.8925  Loss: 0.38522544503211975
-Training user 1
-Global_Epoch  17 User  1  Acc: 0.87  Loss: 0.5607497096061707
-Training user 2
-Global_Epoch  17 User  2  Acc: 0.8875  Loss: 0.4377712905406952
-Training user 3
-Global_Epoch  17 User  3  Acc: 0.9075  Loss: 0.48240718245506287
-Training user 4
-Global_Epoch  17 User  4  Acc: 0.8425  Loss: 0.5003701448440552
-
-Test Global Weight: [0.8975, 0.875, 0.8875, 0.9075, 0.8425]
-
-Epoch: 17, Global test loss 0.42093016505241393, Global test acc: 88.20%
-
-Epoch: 17, Users train average loss: 0.4733047544956207
-
-Epoch: 17, Users train average accuracy: 0.8800000000000001
-=========Global epoch 18=========
-Training user 0
-Global_Epoch  18 User  0  Acc: 0.9  Loss: 0.37188348174095154
-Training user 1
-Global_Epoch  18 User  1  Acc: 0.8775  Loss: 0.5584306716918945
-Training user 2
-Global_Epoch  18 User  2  Acc: 0.8875  Loss: 0.435977578163147
-Training user 3
-Global_Epoch  18 User  3  Acc: 0.905  Loss: 0.47283458709716797
-Training user 4
-Global_Epoch  18 User  4  Acc: 0.8475  Loss: 0.4945847988128662
-
-Test Global Weight: [0.9, 0.8775, 0.89, 0.905, 0.8475]
-
-Epoch: 18, Global test loss 0.41402904987335204, Global test acc: 88.40%
-
-Epoch: 18, Users train average loss: 0.4667422235012054
-
-Epoch: 18, Users train average accuracy: 0.8835000000000001
-=========Global epoch 19=========
-Training user 0
-Global_Epoch  19 User  0  Acc: 0.9025  Loss: 0.35939669609069824
-Training user 1
-Global_Epoch  19 User  1  Acc: 0.8775  Loss: 0.5564463138580322
-Training user 2
-Global_Epoch  19 User  2  Acc: 0.8925  Loss: 0.43497639894485474
-Training user 3
-Global_Epoch  19 User  3  Acc: 0.9  Loss: 0.46481338143348694
-Training user 4
-Global_Epoch  19 User  4  Acc: 0.845  Loss: 0.49015742540359497
-
-Test Global Weight: [0.9025, 0.8775, 0.8925, 0.9, 0.845]
-
-Epoch: 19, Global test loss 0.4084290862083435, Global test acc: 88.35%
-
-Epoch: 19, Users train average loss: 0.4611580431461334
-
-Epoch: 19, Users train average accuracy: 0.8835
-=========Global epoch 20=========
-Training user 0
-Global_Epoch  20 User  0  Acc: 0.905  Loss: 0.3480049669742584
-Training user 1
-Global_Epoch  20 User  1  Acc: 0.885  Loss: 0.5546868443489075
-Training user 2
-Global_Epoch  20 User  2  Acc: 0.8975  Loss: 0.43466344475746155
-Training user 3
-Global_Epoch  20 User  3  Acc: 0.8975  Loss: 0.4586252272129059
-Training user 4
-Global_Epoch  20 User  4  Acc: 0.845  Loss: 0.48719534277915955
-
-Test Global Weight: [0.9075, 0.89, 0.8975, 0.895, 0.85]
-
-Epoch: 20, Global test loss 0.40410793423652647, Global test acc: 88.80%
-
-Epoch: 20, Users train average loss: 0.45663516521453856
-
-Epoch: 20, Users train average accuracy: 0.8859999999999999
-=========Global epoch 21=========
-Training user 0
-Global_Epoch  21 User  0  Acc: 0.905  Loss: 0.3378306031227112
-Training user 1
-Global_Epoch  21 User  1  Acc: 0.8875  Loss: 0.5530450940132141
-Training user 2
-Global_Epoch  21 User  2  Acc: 0.9  Loss: 0.4348807632923126
-Training user 3
-Global_Epoch  21 User  3  Acc: 0.89  Loss: 0.4543270766735077
-Training user 4
-Global_Epoch  21 User  4  Acc: 0.8525  Loss: 0.485633909702301
-
-Test Global Weight: [0.905, 0.89, 0.9, 0.89, 0.8525]
-
-Epoch: 21, Global test loss 0.40098761320114135, Global test acc: 88.75%
-
-Epoch: 21, Users train average loss: 0.45314348936080934
-
-Epoch: 21, Users train average accuracy: 0.8870000000000001
-=========Global epoch 22=========
-Training user 0
-Global_Epoch  22 User  0  Acc: 0.905  Loss: 0.3289097845554352
-Training user 1
-Global_Epoch  22 User  1  Acc: 0.8925  Loss: 0.5514297485351562
-Training user 2
-Global_Epoch  22 User  2  Acc: 0.905  Loss: 0.43541035056114197
-Training user 3
-Global_Epoch  22 User  3  Acc: 0.8925  Loss: 0.4518144130706787
-Training user 4
-Global_Epoch  22 User  4  Acc: 0.8575  Loss: 0.4852920472621918
-
-Test Global Weight: [0.905, 0.89, 0.905, 0.8925, 0.86]
-
-Epoch: 22, Global test loss 0.39894899129867556, Global test acc: 89.05%
-
-Epoch: 22, Users train average loss: 0.4505712687969208
-
-Epoch: 22, Users train average accuracy: 0.8905
-=========Global epoch 23=========
-Training user 0
-Global_Epoch  23 User  0  Acc: 0.8975  Loss: 0.3212169408798218
-Training user 1
-Global_Epoch  23 User  1  Acc: 0.89  Loss: 0.5497705936431885
-Training user 2
-Global_Epoch  23 User  2  Acc: 0.905  Loss: 0.4359835684299469
-Training user 3
-Global_Epoch  23 User  3  Acc: 0.8925  Loss: 0.4508824050426483
-Training user 4
-Global_Epoch  23 User  4  Acc: 0.8625  Loss: 0.48592403531074524
-
-Test Global Weight: [0.8975, 0.89, 0.905, 0.8925, 0.8675]
-
-Epoch: 23, Global test loss 0.3978433728218079, Global test acc: 89.05%
-
-Epoch: 23, Users train average loss: 0.4487555086612701
-
-Epoch: 23, Users train average accuracy: 0.8895
-=========Global epoch 24=========
-Training user 0
-Global_Epoch  24 User  0  Acc: 0.8975  Loss: 0.31468361616134644
-Training user 1
-Global_Epoch  24 User  1  Acc: 0.89  Loss: 0.5480192303657532
-Training user 2
-Global_Epoch  24 User  2  Acc: 0.9075  Loss: 0.4363071322441101
-Training user 3
-Global_Epoch  24 User  3  Acc: 0.8925  Loss: 0.4512748122215271
-Training user 4
-Global_Epoch  24 User  4  Acc: 0.87  Loss: 0.48726150393486023
-
-Test Global Weight: [0.8975, 0.89, 0.9075, 0.89, 0.87]
-
-Epoch: 24, Global test loss 0.39750158190727236, Global test acc: 89.10%
-
-Epoch: 24, Users train average loss: 0.4475092589855194
-
-Epoch: 24, Users train average accuracy: 0.8915000000000001

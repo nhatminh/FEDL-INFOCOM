@@ -28,20 +28,25 @@ class DatasetSplit(Dataset):
 
 
 class LocalUpdate(object):
-    def __init__(self, args, dataset, idxs, tb):
+    def __init__(self, args, dataset, idxs, tb, bs):
         self.args = args
         self.loss_func = nn.NLLLoss()
+        self.batch_size = bs
         self.ldr_train, self.ldr_test = self.train_val_test(dataset, list(idxs))
         self.tb = tb
 
+
     def train_val_test(self, dataset, idxs):
+        # print("Train DS:", self.batch_size, " for ", len(idxs))
         # split train, and test
         idxs_train = idxs
         if self.args.dataset == 'mnist':
-            idxs_test = idxs[800:]      #Test for samples[480 - 600] at each user
+            # idxs_test = idxs[800:]
+            idxs_test = idxs[-300:]      #Test for samples[480 - 600] at each user
         elif self.args.dataset == 'cifar':
             idxs_test = idxs[1500:]      #Test for samples[800 - 1000] at each user
-        train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
+        # train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.args.local_bs, shuffle=True)
+        train = DataLoader(DatasetSplit(dataset, idxs_train), batch_size=self.batch_size, shuffle=True)
         #val = DataLoader(DatasetSplit(dataset, idxs_val), batch_size=int(len(idxs_val)/10), shuffle=True)
         test = DataLoader(DatasetSplit(dataset, idxs_test), batch_size=int(len(idxs_test)), shuffle=False)
         return train, test
@@ -50,7 +55,7 @@ class LocalUpdate(object):
         net.train()
         # train and update
         optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=0.5)
-
+        total_size = 0
         epoch_loss = []
         epoch_acc = []
         for iter in range(self.args.local_ep):
@@ -58,6 +63,8 @@ class LocalUpdate(object):
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
                 if self.args.gpu != -1:
                     images, labels = images.cuda(), labels.cuda()
+                if iter == 0:
+                    total_size += len(images)
                 images, labels = autograd.Variable(images), autograd.Variable(labels)
                 net.zero_grad()
                 log_probs = net(images)
@@ -74,9 +81,10 @@ class LocalUpdate(object):
                 batch_loss.append(loss.data.item())
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
             acc, _ = self.test(net)
-            print("acc: {}".format(acc))
+            # print("acc: {}".format(acc))
             epoch_acc.append(acc)
-        return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        # return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        return total_size, net.state_dict(), epoch_loss[-1], epoch_acc[-1]
 
     def test(self, net):
         loss = 0
@@ -99,8 +107,8 @@ class LocalUpdate(object):
 
 
 class LocalFedProxUpdate(LocalUpdate):
-    def __init__(self, args, dataset, idxs, tb):
-        super(LocalFedProxUpdate, self).__init__(args, dataset, idxs, tb)
+    def __init__(self, args, dataset, idxs, tb, bs):
+        super(LocalFedProxUpdate, self).__init__(args, dataset, idxs, tb, bs)
 
         self.limit = args.limit
         self.mu = args.mu
@@ -137,6 +145,7 @@ class LocalFedProxUpdate(LocalUpdate):
         epoch_acc = []
         origin_net = copy.deepcopy(net)
         count = 0
+        total_size = 0
         # flag = False
 
         # while True:
@@ -146,6 +155,8 @@ class LocalFedProxUpdate(LocalUpdate):
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
                 if self.args.gpu != -1:
                     images, labels = images.cuda(), labels.cuda()
+                if iter == 0:
+                    total_size += len(images)
                 images, labels = autograd.Variable(images), autograd.Variable(labels)
                 net.zero_grad()
                 log_probs = net(images)
@@ -172,8 +183,8 @@ class LocalFedProxUpdate(LocalUpdate):
 
             # if flag:
             #     return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
-        return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
-
+        # return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
+        return total_size, net.state_dict(), epoch_loss[-1], epoch_acc[-1]
 
 class LocalFSVGRUpdate(LocalUpdate):
     def __init__(self, args, dataset, idxs, tb):

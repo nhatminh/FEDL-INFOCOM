@@ -16,6 +16,24 @@ def average_weights(w):
         w_avg[k] = torch.div(w_avg[k], len(w))
     return w_avg
 
+def weighted_average_weights(w, num_samples):
+    w_avg = copy.deepcopy(w[0]) # The first user
+    total_size = np.sum(num_samples)
+
+    for k in w_avg.keys():
+        # print("w0:", w_avg[k])
+        w_avg[k] *= num_samples[0] #Weighted for the first user
+        # print("w0*Ds:", w_avg[k])
+        # print("Numb of samples:", num_samples[0])
+        # print("update weight key=", str(k))
+        for i in range(1, len(w)): # The remanining users
+            # print("Numb of samples:", num_samples[i])
+            w_avg[k] += num_samples[i]*w[i][k]
+        # print("w*Ds:", w_avg[k])
+        w_avg[k] = torch.div(w_avg[k], total_size)
+        # print("w_avg:", w_avg[k])
+    return w_avg
+
 
 def average_FSVRG_weights(w, ag_scalar, net, gpu=-1):
     """
