@@ -417,56 +417,60 @@ def plot_rs(loc_ep,alg):
     plt.savefig('glob_loss_{}_{}.png'.format(alg, loc_ep))
 
 def plot_summary():
+
+    Numb_Glob_Iters=20
+    Numb_Algs = 2
+
     avg_acc, avg_acc1     = np.zeros((3,30)), np.zeros((3,30))
     avg_loss, avg_loss1   = np.zeros((3, 30)), np.zeros((3, 30))
     glob_acc, glob_acc1   = np.zeros((3, 30)), np.zeros((3, 30))
     glob_loss, glob_loss1 = np.zeros((3, 30)), np.zeros((3, 30))
 
 
-    avg_acc[0, :], avg_loss[0, :], glob_acc[0, :], glob_loss[0, :] = simple_read_data(15, 'fedavg')
-    avg_acc[1, :], avg_loss[1, :], glob_acc[1, :], glob_loss[1, :] = simple_read_data(15, 'fedprox')
-    avg_acc[2, :], avg_loss[2, :], glob_acc[2, :], glob_loss[2, :] = simple_read_data(15, 'fedprox1')
+    avg_acc[0, :], avg_loss[0, :], glob_acc[0, :], glob_loss[0, :] = simple_read_data(20, 'fedavg')
+    avg_acc[1, :], avg_loss[1, :], glob_acc[1, :], glob_loss[1, :] = simple_read_data(20, 'fedprox')
+    avg_acc[2, :], avg_loss[2, :], glob_acc[2, :], glob_loss[2, :] = simple_read_data(20, 'fedprox1')
 
     avg_acc1[0, :], avg_loss1[0, :], glob_acc1[0, :], glob_loss1[0, :] = simple_read_data(30, 'fedavg')
     avg_acc1[1, :], avg_loss1[1, :], glob_acc1[1, :], glob_loss1[1, :] = simple_read_data(30, 'fedprox')
     avg_acc1[2, :], avg_loss1[2, :], glob_acc1[2, :], glob_loss1[2, :] = simple_read_data(30, 'fedprox1')
-    algs_lbl = ["FedAvg - 15", "FedProx - 15","FedProx1 - 15"]
+    algs_lbl = ["FedAvg - 20", "FedProx - 20","FedProx1 - 20"]
     algs_lbl1 = ["FedAvg - 30", "FedProx - 30", "FedProx1 - 30"]
 
     plt.figure(1)
-    for i in range(2):
-        plt.plot(avg_acc[i, :], linestyle=":", label=algs_lbl[i])
-        plt.plot(avg_acc1[i, :], label=algs_lbl1[i])
+    for i in range(Numb_Algs):
+        plt.plot(avg_acc[i, :Numb_Glob_Iters], linestyle=":", label=algs_lbl[i])
+        plt.plot(avg_acc1[i, :Numb_Glob_Iters], label=algs_lbl1[i])
     plt.legend(loc='best')
-    plt.ylabel('avg_acc')
-    plt.xlabel('num_epochs')
+    plt.ylabel('Average Accuracy')
+    plt.xlabel('Number of Global Iterations')
     plt.savefig('avg_acc.png')
 
     plt.figure(2)
-    for i in range(2):
-        plt.plot(avg_loss[i, :], linestyle=":", label=algs_lbl[i])
-        plt.plot(avg_loss1[i, :], label=algs_lbl1[i])
+    for i in range(Numb_Algs):
+        plt.plot(avg_loss[i, :Numb_Glob_Iters], linestyle=":", label=algs_lbl[i])
+        plt.plot(avg_loss1[i, :Numb_Glob_Iters], label=algs_lbl1[i])
     plt.legend(loc='best')
-    plt.ylabel('avg_loss')
-    plt.xlabel('num_epochs')
+    plt.ylabel('Average Loss')
+    plt.xlabel('Number of Global Iterations')
     plt.savefig('avg_loss.png')
 
     plt.figure(3)
-    for i in range(2):
-        plt.plot(glob_acc[i, :], linestyle=":", label=algs_lbl[i])
-        plt.plot(glob_acc1[i, :], label=algs_lbl1[i])
+    for i in range(Numb_Algs):
+        plt.plot(glob_acc[i, :Numb_Glob_Iters], linestyle=":", label=algs_lbl[i])
+        plt.plot(glob_acc1[i, :Numb_Glob_Iters], label=algs_lbl1[i])
     plt.legend(loc='best')
-    plt.ylabel('glob_acc')
+    plt.ylabel('Global Accuracy')
     plt.xlabel('num_epochs')
     plt.savefig('glob_acc.png')
 
     plt.figure(4)
-    for i in range(2):
-        plt.plot(glob_loss[i, :], linestyle=":", label=algs_lbl[i])
-        plt.plot(glob_loss1[i, :], label=algs_lbl1[i])
+    for i in range(Numb_Algs):
+        plt.plot(glob_loss[i, :Numb_Glob_Iters], linestyle=":", label=algs_lbl[i])
+        plt.plot(glob_loss1[i, :Numb_Glob_Iters], label=algs_lbl1[i])
     plt.legend(loc='best')
-    plt.ylabel('glob_loss')
-    plt.xlabel('num_epochs')
+    plt.ylabel('Global Loss')
+    plt.xlabel('Number of Global Iterations')
     plt.savefig('glob_loss.png')
 
 
@@ -484,7 +488,7 @@ if __name__ == '__main__':
     if(SUMARRY):
         plot_summary()
     else:
-       main(loc_ep=15, weighted=True, alg='fedprox') #'fedavg', 'fedprox', 'fsvgr'
+       main(loc_ep=10, weighted=False, alg='fedprox') #'fedavg', 'fedprox', 'fsvgr'
        print("-- FINISH -- :",)
 
 
