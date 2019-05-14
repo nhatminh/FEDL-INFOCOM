@@ -5,12 +5,13 @@ from tqdm import tqdm
 from flearn.models.client import Client
 from flearn.utils.model_utils import Metrics
 from flearn.utils.tf_utils import process_grad
+import h5py
 
 class BaseFedarated(object):
     def __init__(self, params, learner, dataset):
         # transfer parameters to self
         for key, val in params.items(): setattr(self, key, val);
-
+        self.parameters = params
         # create worker nodes
         tf.reset_default_graph()
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
@@ -20,6 +21,7 @@ class BaseFedarated(object):
 
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
+        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
 
     def __del__(self):
         self.client_model.close()
@@ -93,7 +95,12 @@ class BaseFedarated(object):
         return ids, groups, num_samples, tot_correct
 
     def save(self):
-        pass
+        with h5py.File('data_{}_{}.h5'.format(self.parameters['optimizer'], self.parameters['num_epochs']), 'w') as hf:
+            hf.create_dataset('rs_glob_acc', data=self.rs_glob_acc)
+            hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
+            hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
+            hf.close()
+        # pass
 
     def select_clients(self, round, num_clients=20):
         '''selects num_clients clients weighted by number of samples from possible_clients
@@ -106,15 +113,24 @@ class BaseFedarated(object):
         Return:
             list of selected clients objects
         '''
+        if(num_clients == len(self.clients)):
+            print("All users are selected")
+            return self.clients
+
         num_clients = min(num_clients, len(self.clients))
         np.random.seed(round)
+
         return np.random.choice(self.clients, num_clients, replace=False) #, p=pk)
 
 
-    def aggregate(self, wsolns):
+    def aggregate(self, wsolns, weighted=True):
         total_weight = 0.0
         base = [0]*len(wsolns[0][1])
         for (w, soln) in wsolns:  # w is the number of samples
+            # Equal weights
+            if(weighted==False):
+                w=1 # Equal weights
+
             total_weight += w
             for i, v in enumerate(soln):
                 base[i] += w*v.astype(np.float64)

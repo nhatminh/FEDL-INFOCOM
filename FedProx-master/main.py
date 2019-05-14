@@ -5,6 +5,11 @@ import random
 import os
 import tensorflow as tf
 from flearn.utils.model_utils import read_data
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import h5py
+
 
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'feddane', 'fedddane', 'fedsgd']
@@ -24,7 +29,7 @@ MODEL_PARAMS = {
 }
 
 
-def read_options():
+def read_options(num_users=5, loc_ep=10, alg='fedprox'):
     ''' Parse command line arguments or load defaults '''
     parser = argparse.ArgumentParser()
 
@@ -32,44 +37,44 @@ def read_options():
                     help='name of optimizer;',
                     type=str,
                     choices=OPTIMIZERS,
-                    default='fedavg')
+                    default=alg)  #fedavg, fedprox
     parser.add_argument('--dataset',
                     help='name of dataset;',
                     type=str,
                     choices=DATASETS,
-                    default='nist')
+                    default='mnist')
     parser.add_argument('--model',
                     help='name of model;',
                     type=str,
-                    default='stacked_lstm.py')
+                    default='mclr.py') #'stacked_lstm.py'
     parser.add_argument('--num_rounds',
                     help='number of rounds to simulate;',
                     type=int,
-                    default=-1)
+                    default=50)
     parser.add_argument('--eval_every',
                     help='evaluate every ____ rounds;',
                     type=int,
-                    default=-1)
+                    default=1)
     parser.add_argument('--clients_per_round',
                     help='number of clients trained per round;',
                     type=int,
-                    default=-1)
+                    default=num_users)
     parser.add_argument('--batch_size',
                     help='batch size when clients train on data;',
                     type=int,
-                    default=10)
+                    default=0) #0 is full dataset
     parser.add_argument('--num_epochs', 
                     help='number of epochs when clients train on data;',
                     type=int,
-                    default=1) 
+                    default=loc_ep)
     parser.add_argument('--learning_rate',
                     help='learning rate for inner solver;',
                     type=float,
-                    default=0.003)
+                    default=0.004) #0.003
     parser.add_argument('--mu',
                     help='constant for prox;',
                     type=float,
-                    default=0.01)
+                    default=1.) #0.01
     parser.add_argument('--seed',
                     help='seed for randomness;',
                     type=int,
@@ -91,7 +96,9 @@ def read_options():
     else:
         model_path = '%s.%s.%s.%s' % ('flearn', 'models', parsed['dataset'], parsed['model'])
 
-    mod = importlib.import_module(model_path)
+    # mod = importlib.import_module(model_path)
+    import flearn.models.mnist.mclr as mclr
+    mod = mclr
     learner = getattr(mod, 'Model')
 
     # load selected trainer
@@ -100,7 +107,8 @@ def read_options():
     optimizer = getattr(mod, 'Server')
 
     # add selected model parameter
-    parsed['model_params'] = MODEL_PARAMS['.'.join(model_path.split('.')[2:])]
+    parsed['model_params'] = MODEL_PARAMS['.'.join(model_path.split('.')[2:-1])]
+    # parsed['model_params'] = MODEL_PARAMS['mnist.mclr']
 
     # print and return
     maxLen = max([len(ii) for ii in parsed.keys()]);
@@ -110,12 +118,12 @@ def read_options():
 
     return parsed, learner, optimizer
 
-def main():
+def main(num_users = 5, loc_ep=10, alg='fedprox'):
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
     
     # parse command line arguments
-    options, learner, optimizer = read_options()
+    options, learner, optimizer = read_options(num_users, loc_ep, alg)
 
     # read data
     train_path = os.path.join('data', options['dataset'], 'data', 'train')
@@ -125,6 +133,69 @@ def main():
     # call appropriate trainer
     t = optimizer(options, learner, dataset)
     t.train()
-    
+
+
+def simple_read_data(loc_ep,alg):
+    hf = h5py.File('data_{}_{}.h5'.format(alg,loc_ep), 'r')
+    rs_glob_acc = np.array(hf.get('rs_glob_acc')[:])
+    rs_train_acc = np.array(hf.get('rs_train_acc')[:])
+    rs_train_loss = np.array(hf.get('rs_train_loss')[:])
+    return rs_train_acc, rs_train_loss, rs_glob_acc
+
+def plot_summary(loc_ep1=5, loc_ep2=20):
+
+    Numb_Glob_Iters=50
+    Numb_Algs = 3
+
+    train_acc, train_acc1     = np.zeros((3,Numb_Glob_Iters)), np.zeros((3,Numb_Glob_Iters))
+    train_loss, train_loss1   = np.zeros((3, Numb_Glob_Iters)), np.zeros((3, Numb_Glob_Iters))
+    glob_acc, glob_acc1   = np.zeros((3, Numb_Glob_Iters)), np.zeros((3, Numb_Glob_Iters))
+
+
+    train_acc[0, :], train_loss[0, :], glob_acc[0, :] = simple_read_data(loc_ep1, 'fedavg')
+    train_acc[1, :], train_loss[1, :], glob_acc[1, :] = simple_read_data(loc_ep1, 'fedprox')
+    train_acc[2, :], train_loss[2, :], glob_acc[2, :] = simple_read_data(loc_ep1, 'fedprox1')
+
+    train_acc1[0, :], train_loss1[0, :], glob_acc1[0, :] = simple_read_data(loc_ep2, 'fedavg')
+    train_acc1[1, :], train_loss1[1, :], glob_acc1[1, :] = simple_read_data(loc_ep2, 'fedprox')
+    train_acc1[2, :], train_loss1[2, :], glob_acc1[2, :] = simple_read_data(loc_ep2, 'fedprox1')
+
+    algs_lbl = ["FedAvg - 5", "FedProx - 5","FedProx1 - 5"]
+    algs_lbl1 = ["FedAvg - 20", "FedProx - 20", "FedProx1 - 20"]
+
+    plt.figure(1)
+    for i in range(Numb_Algs):
+        plt.plot(train_acc[i, 1:], linestyle=":", label=algs_lbl[i])
+        plt.plot(train_acc1[i, 1:], label=algs_lbl1[i])
+    plt.legend(loc='best')
+    plt.ylabel('Training Accuracy')
+    plt.xlabel('Number of Global Iterations')
+    plt.savefig('train_acc.png')
+
+    plt.figure(2)
+    for i in range(Numb_Algs):
+        plt.plot(train_loss[i, 1:], linestyle=":", label=algs_lbl[i])
+        plt.plot(train_loss1[i, 1:], label=algs_lbl1[i])
+    plt.legend(loc='best')
+    plt.ylabel('Training Loss')
+    plt.xlabel('Number of Global Iterations')
+    plt.savefig('train_loss.png')
+
+    plt.figure(3)
+    for i in range(Numb_Algs):
+        plt.plot(glob_acc[i, 1:], linestyle=":", label=algs_lbl[i])
+        plt.plot(glob_acc1[i, 1:], label=algs_lbl1[i])
+    plt.legend(loc='best')
+    plt.ylabel('Test Accuracy')
+    plt.xlabel('Number of Global Iterations')
+    plt.savefig('glob_acc.png')
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    SUMARRY = True  #True: Plot summary results, False: run algorithms
+    if(SUMARRY):
+        plot_summary(loc_ep1=5, loc_ep2=20)
+    else:
+       main(num_users= 50, loc_ep=20, alg='fedprox') #'fedavg', 'fedprox'
+       print("-- FINISH -- :",)

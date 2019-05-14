@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import trange, tqdm
 import tensorflow as tf
+from flearn.utils.tf_utils import process_grad
 
 from .fedbase import BaseFedarated
 
@@ -13,8 +14,10 @@ class Server(BaseFedarated):
 
     def train(self):
         '''Train using Federated Averaging'''
+        print("Train using Federated Averaging")
         print('Training with {} workers ---'.format(self.clients_per_round))
-        for i in trange(self.num_rounds, desc='Round: ', ncols=120):
+        # for i in trange(self.num_rounds, desc='Round: ', ncols=120):
+        for i in range(self.num_rounds):
             # test model
             if i % self.eval_every == 0:
                 stats = self.test()
@@ -24,6 +27,10 @@ class Server(BaseFedarated):
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
                 tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+
+                self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
+                self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
+                self.rs_train_loss.append(np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2]))
                 
                 model_len = process_grad(self.latest_model).size
                 global_grads = np.zeros(model_len) 
@@ -66,12 +73,13 @@ class Server(BaseFedarated):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
         
             # update model
-            self.latest_model = self.aggregate(csolns)
+            self.latest_model = self.aggregate(csolns,weighted=False)
 
         # final test model
         stats = self.test()
-        stats_train = self.train_error()
-        stats_loss = self.train_loss()
+        # stats_train = self.train_error()
+        # stats_loss = self.train_loss()
+        stats_train = self.train_error_and_loss()
 
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
@@ -80,3 +88,7 @@ class Server(BaseFedarated):
         # save server model
         self.metrics.write()
         self.save()
+
+        print("Test ACC:", self.rs_glob_acc)
+        print("Training ACC:", self.rs_train_acc)
+        print("Training Loss:", self.rs_train_loss)

@@ -16,8 +16,8 @@ class Server(BaseFedarated):
 
     def train(self):
         '''Train using Federated Proximal'''
+        print("Train using Federated Proximal")
         print('Training with {} workers ---'.format(self.clients_per_round))
-
 
         for i in range(self.num_rounds):
             # test model
@@ -28,6 +28,9 @@ class Server(BaseFedarated):
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))  # testing accuracy
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
                 tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+                self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
+                self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
+                self.rs_train_loss.append(np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2]))
 
                 model_len = process_grad(self.latest_model).size
                 global_grads = np.zeros(model_len) 
@@ -69,14 +72,23 @@ class Server(BaseFedarated):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
             # update model
-            self.latest_model = self.aggregate(csolns)
+            self.latest_model = self.aggregate(csolns,weighted=False)  #Weighted = False / True
             self.client_model.set_params(self.latest_model)
 
         # final test model
         stats = self.test()
         stats_train = self.train_error_and_loss()
+
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
         tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
         tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+
+        # save server model
+        self.metrics.write()
+        self.save()
+
+        print("Test ACC:", self.rs_glob_acc)
+        print("Training ACC:", self.rs_train_acc)
+        print("Training Loss:", self.rs_train_loss)
 
