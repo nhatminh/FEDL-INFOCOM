@@ -47,7 +47,6 @@ print("IDX1:", idx) # counting samples for each labels
 # Assign remaining sample by power law
 user = 0
 props = np.random.lognormal(0, 2.0, (10,100,2))
-
 props = np.array([[[len(v)-1000]] for v in mnist_data])*props/np.sum(props,(1,2), keepdims=True)
 #idx = 1000*np.ones(10, dtype=np.int64)
 for user in trange(1000):

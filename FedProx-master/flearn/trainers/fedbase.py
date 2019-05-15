@@ -94,8 +94,13 @@ class BaseFedarated(object):
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
 
-    def save(self):
-        with h5py.File('data_{}_{}.h5'.format(self.parameters['optimizer'], self.parameters['num_epochs']), 'w') as hf:
+    def save(self,weighted=True):
+        alg = self.parameters['optimizer']
+
+        if (weighted == True) & (alg == "fedprox"):
+            alg = alg+"1"
+
+        with h5py.File('data_{}_{}.h5'.format(alg, self.parameters['num_epochs']), 'w') as hf:
             hf.create_dataset('rs_glob_acc', data=self.rs_glob_acc)
             hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
             hf.create_dataset('rs_train_loss', data=self.rs_train_loss)

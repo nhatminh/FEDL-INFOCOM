@@ -70,7 +70,7 @@ def read_options(num_users=5, loc_ep=10, alg='fedprox'):
     parser.add_argument('--learning_rate',
                     help='learning rate for inner solver;',
                     type=float,
-                    default=0.004) #0.003
+                    default=0.005) #0.003
     parser.add_argument('--mu',
                     help='constant for prox;',
                     type=float,
@@ -193,9 +193,9 @@ def plot_summary(loc_ep1=5, loc_ep2=20):
 
 if __name__ == '__main__':
     # main()
-    SUMARRY = True  #True: Plot summary results, False: run algorithms
+    SUMARRY = False  #True: Plot summary results, False: run algorithms
     if(SUMARRY):
         plot_summary(loc_ep1=5, loc_ep2=20)
     else:
-       main(num_users= 50, loc_ep=20, alg='fedprox') #'fedavg', 'fedprox'
+       main(num_users= 50, loc_ep=5, alg='fedprox') #'fedavg', 'fedprox'
        print("-- FINISH -- :",)

@@ -73,7 +73,7 @@ class Server(BaseFedarated):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
         
             # update model
-            self.latest_model = self.aggregate(csolns,weighted=False)
+            self.latest_model = self.aggregate(csolns,weighted=True)
 
         # final test model
         stats = self.test()

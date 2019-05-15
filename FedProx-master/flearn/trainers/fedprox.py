@@ -6,6 +6,7 @@ from .fedbase import BaseFedarated
 from flearn.optimizer.pgd import PerturbedGradientDescent
 from flearn.utils.tf_utils import process_grad, process_sparse_grad
 
+WEIGHTED = True
 
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
@@ -72,7 +73,7 @@ class Server(BaseFedarated):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
             # update model
-            self.latest_model = self.aggregate(csolns,weighted=False)  #Weighted = False / True
+            self.latest_model = self.aggregate(csolns,weighted=WEIGHTED)  #Weighted = False / True
             self.client_model.set_params(self.latest_model)
 
         # final test model
@@ -86,7 +87,7 @@ class Server(BaseFedarated):
 
         # save server model
         self.metrics.write()
-        self.save()
+        self.save(weighted=WEIGHTED)
 
         print("Test ACC:", self.rs_glob_acc)
         print("Training ACC:", self.rs_train_acc)
