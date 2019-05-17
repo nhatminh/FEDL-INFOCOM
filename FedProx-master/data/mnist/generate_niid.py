@@ -86,9 +86,9 @@ for i in trange(1000, ncols=120):
 print("Num_samples:", train_data['num_samples'])
 print("Total_samples:",sum(train_data['num_samples']))
     
-# with open(train_path,'w') as outfile:
-#     json.dump(train_data, outfile)
-# with open(test_path, 'w') as outfile:
-#     json.dump(test_data, outfile)
-#
-# print("Finish Generating Samples")
+with open(train_path,'w') as outfile:
+    json.dump(train_data, outfile)
+with open(test_path, 'w') as outfile:
+    json.dump(test_data, outfile)
+
+print("Finish Generating Samples")
