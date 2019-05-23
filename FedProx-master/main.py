@@ -29,7 +29,7 @@ MODEL_PARAMS = {
 }
 
 
-def read_options(num_users=5, loc_ep=10, alg='fedprox'):
+def read_options(num_users=5, loc_ep=10, alg='fedprox', weight = False):
     ''' Parse command line arguments or load defaults '''
     parser = argparse.ArgumentParser()
 
@@ -79,6 +79,10 @@ def read_options(num_users=5, loc_ep=10, alg='fedprox'):
                     help='seed for randomness;',
                     type=int,
                     default=0)
+    parser.add_argument('--weight',
+                    help='enable weight value;',
+                    type=int,
+                    default=weight)
 
 
     try: parsed = vars(parser.parse_args())
@@ -118,12 +122,13 @@ def read_options(num_users=5, loc_ep=10, alg='fedprox'):
 
     return parsed, learner, optimizer
 
-def main(num_users = 5, loc_ep=10, alg='fedprox'):
+
+def main(num_users=5, loc_ep=10, alg='fedprox', weight = False):
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
     
     # parse command line arguments
-    options, learner, optimizer = read_options(num_users, loc_ep, alg)
+    options, learner, optimizer = read_options(num_users, loc_ep, alg, weight)
 
     # read data
     train_path = os.path.join('data', options['dataset'], 'data', 'train')
@@ -197,5 +202,5 @@ if __name__ == '__main__':
     if(SUMARRY):
         plot_summary(loc_ep1=5, loc_ep2=20)
     else:
-       main(num_users= 50, loc_ep=5, alg='fedprox') #'fedavg', 'fedprox'
+       main(num_users=10, loc_ep=20, alg='fedprox', weight=True)  # 'fedavg', 'fedprox'
        print("-- FINISH -- :",)
