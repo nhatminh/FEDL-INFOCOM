@@ -15,7 +15,7 @@
 Instruction used to generate EMNIST with 50 users:
 
 ```
-./preprocess.sh -s niid --sf 1.0 -k 0 -tf 0.8 -t sample -nu 50
+./preprocess.sh -s niid --sf 1.0 -k 0 -tf 0.8 -t sample --nu 50
 ```
 
 

@@ -157,7 +157,6 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $MINSAMPLES = "na" ]; then
         if [ -z $MINSAMPLES ]; then
             python3 remove_users.py $NAMETAG
         else
-            echo $MINSAMPLES
             python3 remove_users.py $NAMETAG --min_samples $MINSAMPLES --usernum $NUSER
         fi
 

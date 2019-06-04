@@ -76,7 +76,13 @@ class Model(object):
     
     def solve_inner(self, data, num_epochs=1, batch_size=32):
         '''Solves local optimization problem'''
-        for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
+
+        if (batch_size == 0):  ## Full data or batch_size
+            # print("Full dataset")
+            batch_size = len(data['y'])
+
+        # for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
+        for _ in range(num_epochs):
             for X, y in batch_data(data, batch_size):
                 with self.graph.as_default():
                     self.sess.run(self.train_op,
