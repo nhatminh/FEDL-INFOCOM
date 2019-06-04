@@ -12,6 +12,7 @@ SFRAC="" # --sf tag, fraction of data to sample
 MINSAMPLES="na" # -k tag, minimum allowable # of samples per user
 TRAIN="na" # -t tag, user or sample
 TFRAC="" # --tf tag, fraction of data in training set
+NUSER="" # --nu tag, number of user in all dataset
 
 while [[ $# -gt 0 ]]
 do
@@ -68,6 +69,15 @@ case $key in
     shift # past argument
     if [ -z "$TRAIN" ] || [ ${TRAIN:0:1} = "-" ]; then
         TRAIN=""
+    else
+        shift # past value
+    fi
+    ;;
+    --nu)
+    NUSER="$2"
+    shift # past argument
+    if [ ${NUSER:0:1000} = "-" ]; then
+        NUSER=""
     else
         shift # past value
     fi
@@ -147,7 +157,8 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $MINSAMPLES = "na" ]; then
         if [ -z $MINSAMPLES ]; then
             python3 remove_users.py $NAMETAG
         else
-            python3 remove_users.py $NAMETAG --min_samples $MINSAMPLES
+            echo $MINSAMPLES
+            python3 remove_users.py $NAMETAG --min_samples $MINSAMPLES --usernum $NUSER
         fi
 
         cd ../data/$NAME

@@ -21,11 +21,15 @@ parser.add_argument('--min_samples',
                 type=int,
                 default=10)
 
+parser.add_argument('--usernum',
+                help='Generate number of user default is : 0;',
+                type=int,
+                default=0)
+
 args = parser.parse_args()
 
 
 print('------------------------------')
-
 
 parent_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 dir = os.path.join(parent_path, 'data', args.name, 'data')
@@ -66,7 +70,8 @@ for f in files:
             if curr_hierarchy is not None:
                 hierarchies.append(curr_hierarchy)
             num_samples.append(data['num_samples'][i])
-
+        if(args.usernum > 0) and (max_number == args.usernum):
+            break;
 
     all_data = {}
     all_data['users'] = users
@@ -75,6 +80,7 @@ for f in files:
     all_data['num_samples'] = num_samples
     all_data['user_data'] = user_data
 
+    print("Number of user after removing: ", len(all_data['user_data']))
     file_name = '%s_keep_%d.json' % ((f[:-5]), args.min_samples)
     ouf_dir = os.path.join(dir, 'rem_user_data', file_name)
 

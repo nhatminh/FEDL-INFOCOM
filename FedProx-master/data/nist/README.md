@@ -10,11 +10,12 @@
     - ```-k``` := minimum number of samples per user
     - ```-t``` := 'user' to partition users into train-test groups, or 'sample' to partition each user's samples into train-test groups
     - ```--tf``` := fraction of data in training set, written as a decimal; default is 0.9
+    - ```--nu``` := The total number of users generated.
 
-Instruction used to generate EMNIST in the paper:
+Instruction used to generate EMNIST with 50 users:
 
 ```
-./preprocess.sh -s niid --sf 1.0 -k 0 -tf 0.8 -t sample
+./preprocess.sh -s niid --sf 1.0 -k 0 -tf 0.8 -t sample -nu 50
 ```
 
 

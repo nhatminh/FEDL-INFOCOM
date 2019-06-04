@@ -15,7 +15,7 @@ Run preprocess.sh with a choice of the following tags:
 Instruction used to generate EMNIST in the paper:
 
 ```
-./preprocess.sh -s niid --sf 1.0 -k 20 -tf 0.8 -t sample
+./preprocess.sh -s niid --sf 1.0 -k 20 -tf 0.8 -t sample --nu 50 
 ```
 
 
