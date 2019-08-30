@@ -331,17 +331,45 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     return rs_Theta, Obj
 end
 
+function Solving_isub_prob3( T_cmp, E_cmp, T_com, E_com)
+    println("\n===== Solving Sub3: Solver =====\n")
+    numb_serv = 1
+    prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=1000000, print_level =1))
+
+    @variable(prob, 0 + eps <= Theta[1:numb_serv] <= 1 - eps)    #Local error
+
+    @NLobjective(prob, Min, sum(1/(1 - Theta[s]) * (E_com[s] - log(Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(Theta[s])*T_cmp[s])) for s=1:numb_serv) )
+
+    optimize!(prob)
+    println("Solve Status: ",termination_status(prob))
+
+    rs_Theta = value.(Theta)
+    Obj = 0
+    for s =1:numb_serv
+        Obj += 1/(1 - rs_Theta[s]) * (E_com[s] - log(rs_Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(rs_Theta[s])*T_cmp[s]))
+    end
+    println("Theta: ", rs_Theta)
+    println("Obj1: ", JuMP.objective_value(prob))
+    if (DEBUG > 0)
+        println("Theta: ", rs_Theta)
+        println("Obj: ", Obj)
+        println("Obj1: ", JuMP.objective_value(prob))
+    end
+
+    return rs_Theta[1], Obj
+end
+
 ############ ############ ############
 ############ CLOSED FORM ############
 ############ ############ ############
 
-function Solving_sub3( T_cmp, E_cmp, T_com, E_com)
-    println("\n===== Solving Sub3: Closed Form =====\n")
+function Solving_isub3( T_cmp, E_cmp, T_com, E_com)
+    println("\n===== Solving iSub3: Closed Form =====\n")
     eta   = (E_cmp + kappa*T_cmp)/(E_cmp + E_com + kappa*(T_cmp + T_com))
     println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
-    rs_Theta = find_zero(fx,1e-6)
+    rs_Theta = find_zero(fx,1e-7)
     # Theta = find_zeros(fx, 0+0.00001, 1-0.00001)
     # println("Roots: ", Theta)
 

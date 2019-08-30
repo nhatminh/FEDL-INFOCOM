@@ -116,9 +116,9 @@ function ADMM(dist_list, gain_list, capacity, D_n)
     tau, tau1       = zeros(Numb_kaps,Numb_Services,NumbDevs), zeros(Numb_kaps,NumbDevs)
 
     Theta, Theta1 = 0.1*ones(Numb_kaps,Numb_Services),  0.1*ones(Numb_kaps,Numb_Services)
-    Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps)
-    Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
-    d_eta  = zeros(Numb_kaps)
+    Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps,Numb_Services)
+    Obj_E, Obj_T    = zeros(Numb_kaps,Numb_Services), zeros(Numb_kaps,Numb_Services)
+    d_eta  = zeros(Numb_kaps,Numb_Services)
 
     r1, y  = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)    #primal residual and dual variable for SUB1
     r2, v  = zeros(Numb_kaps,Numb_Services,NumbDevs), zeros(Numb_kaps,Numb_Services,NumbDevs)    #primal residual and dual variable for SUB2
@@ -146,14 +146,18 @@ function ADMM(dist_list, gain_list, capacity, D_n)
                 T_com[k,s], w1[k,s,:], tau[k,s,:], E_com[k,s] = Solving_isub_prob2(Theta,capacity,s, v[k,:,:], z[k,:])
                 # # T_com1[k], p1[k,:], tau1[k,:], E_com1[k] = Solving_sub2(ratios[s,:])
                 # # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
+
+                ### Sub3 ###
+                # Theta[k,s], Obj1[k,s]  = Solving_isub_prob3(T_cmp[k,s],E_cmp[k,s],T_com[k,s],E_com[k,s])
+                Theta[k,s], Obj1[k,s], Obj_E[k,s], Obj_T[k,s], d_eta[k,s] = Solving_isub3(T_cmp[k,s],E_cmp[k,s],T_com[k,s],E_com[k,s])
             end
             # ### Sub2 ###
             # T_com[k,:], w[k,:], tau[k,:,:], E_com[k,:] = Solving_sub_prob2(Theta,capacity)
 
-            ### Sub3 ###
-            Theta[k,:], Obj[k]  = Solving_sub_prob3(T_cmp[k,:],E_cmp[k,:],T_com[k,:],E_com[k,:])
-            # Theta1[k], Obj1[k], Obj_E[k], Obj_T[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
-            # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
+            # ### Sub3 ###
+            # Theta[k,:], Obj[k]  = Solving_sub_prob3(T_cmp[k,:],E_cmp[k,:],T_com[k,:],E_com[k,:])
+            # # Theta1[k], Obj1[k], Obj_E[k], Obj_T[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
+            # # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
 
             ### Dual Update ###
             for n=1:NumbDevs
@@ -170,7 +174,8 @@ function ADMM(dist_list, gain_list, capacity, D_n)
                 println("Theta:", Theta[k,:])
                 println("z:", z[k,:])
                 println("f:", f[k,t,:,:])
-                println("Obj:", Obj[k])
+                # println("Obj:", Obj[k])
+                println("Obj1:", sum(Obj1[k,:]))
                 break
             else
                 Theta_old = Theta[k, :]
