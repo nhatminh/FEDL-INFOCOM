@@ -163,6 +163,37 @@ function Solving_sub_prob2(ratios)
     return rs_T_com, rs_p, rs_tau, rs_E_com
 end
 
+# function Solving_sub_prob3_old( T_cmp, E_cmp, T_com, E_com)
+#     println("\n===== Solving Sub3: Solver =====\n")
+#
+#     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=1000000, print_level =1))
+#     # prob = Model(solver=IpoptSolver(tol=1e-10, max_iter=1000000, print_level =1))
+#
+#     @variable(prob, 0 + eps <= Theta <= 1 - eps)
+#
+#     # T_iter = T_com + cvx.log(cvx.inv_pos(Theta))*T_cmp
+#     # E_iter = E_com + cvx.log(cvx.inv_pos(Theta))*E_cmp
+#     # T_iter = T_com - log(Theta)*T_cmp
+#     # E_iter = E_com - log(Theta)*E_cmp
+#     #
+#     # objective = 1/(1-Theta)*(E_iter+ kappa*T_iter)
+#
+#     @NLobjective(prob, Min, 1/(1 - Theta) * (E_com - log(Theta)*E_cmp + kappa * (T_com - log(Theta)*T_cmp)))
+#
+#     optimize!(prob)
+#     println("Solve Status: ",termination_status(prob))
+#
+#     rs_Theta = value.(Theta)
+#     Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
+#     if (DEBUG > 0)
+#         println("Theta: ", rs_Theta)
+#         println("Obj: ", Obj)
+#         println("Obj1: ", JuMP.objective_value(prob))
+#     end
+#
+#     return rs_Theta, Obj
+# end
+
 function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     println("\n===== Solving Sub3: Solver =====\n")
 
