@@ -26,8 +26,8 @@ folder = string("figs//")
 function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, levels)
     clf()
     cfig = figure(1,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(levels,T_cmp1,color=colors[6],linestyle="-",linewidth=l_width+0.3)
     # plot(levels,T_cmp+ 0.02*maximum(T_cmp1),color="gold",linestyle=":",linewidth=l_width+0.3,label="Solver")
@@ -48,8 +48,8 @@ end
 function plot_sub1_N(N1, N2, N3, levels)
     clf()
     cfig = figure(2,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
     step(levels,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=11)
     step(levels,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="post", marker=markers[3], markersize=marker_size, markevery=11)
@@ -66,8 +66,8 @@ end
 function plot_sub1_f(f1,levels)
     clf()
     cfig = figure(3,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
     plot(levels,f_min[1]*ones(Numb_D)*1e-9,linestyle=":",color=colors[6])
 
     for n = 1:NumbDevs
@@ -87,8 +87,8 @@ end
 function plot_sub2_tau(tau1,levels)
     clf()
     cfig = figure(4,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     # for n = 1:5
     #     plot(tau_ratios,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width,label=string("UE ",n))
@@ -110,8 +110,8 @@ end
 function plot_sub2_p(p1,levels)
     clf()
     cfig = figure(5,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(levels,Ptx_Max*ones(Numb_Dis),linestyle=":",color=colors[6])
     plot(levels,Ptx_Min*ones(Numb_Dis),linestyle=":",color=colors[6])
@@ -133,8 +133,8 @@ end
 function plot_sub2_Tcom(T_com1,levels)
     clf()
     cfig = figure(5,figsize=fig_size)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(levels,T_com1,linestyle="-",color=colors[6])
     # for n = 1:5
@@ -187,8 +187,8 @@ end
 function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, E_com12, levels, levels2)
     clf()
     cfig = figure(11,figsize=fig_size1)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(kaps,T_cmp1[1,:]./(T_cmp1[1,:]+T_com1[1,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[1],digits=2)))
     plot(kaps,T_cmp1[end,:]./(T_cmp1[end,:]+T_com1[end,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[end],digits=2)))
@@ -206,8 +206,8 @@ function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, 
 
     clf()
     cfig = figure(11,figsize=fig_size1)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(kaps,E_cmp1[1,:]./(E_cmp1[1,:]+E_com1[1,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[1],digits=2)))
     plot(kaps,E_cmp1[end,:]./(E_cmp1[end,:]+E_com1[end,:]),linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5, label=string("\$L_{cmp}\$=",round(levels[end],digits=2)))
@@ -237,8 +237,8 @@ function plot_sub3_kappa_theta(Theta, d_eta, levels, sub)
 
     clf()
     cfig = figure(10,figsize=fig_size1)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
     plot(kaps, 1 ./d_eta[1,:],linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
@@ -295,8 +295,8 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     idx_levels = [1,3,5]
     clf()
     cfig = figure(9,figsize=fig_size1)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     x = 1
 
@@ -360,8 +360,8 @@ function plot_total_cost(Obj, levels, sub)
     Numb_Levels = size(levels)[1]
     clf()
     cfig = figure(9,figsize=fig_size1)
-    ax = cfig[:add_subplot](1,1,1)
-    ax[:tick_params]("both",labelsize=legend_fontsize)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize)
 
     plot(kaps, Obj[1,:],linestyle=line_style[1],label=string(lbl_lv,"=",round(levels[1],digits=round_numb)))
     plot(kaps, Obj[3,:],linestyle=line_style[2],label=string(lbl_lv,"=",round(levels[3],digits=round_numb)))
