@@ -187,8 +187,8 @@ function main_sub2()
            # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
            ### Sub3 ###
-           Theta1[s,k], Obj1[s,k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
-           # Theta1[s,k], Obj1[s,k], Obj_E[s,k], Obj_T[s,k], d_eta[s,k] = Solving_sub3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
+           # Theta[s,k], Obj[s,k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
+           Theta1[s,k], Obj1[s,k], Obj_E[s,k], Obj_T[s,k], d_eta[s,k] = Solving_sub3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
            # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
        end
        s += 1
