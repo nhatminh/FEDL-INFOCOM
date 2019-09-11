@@ -72,7 +72,7 @@ end
 
 function Solving_sub_prob1(D_n)
     println("\n===== Solving Sub1: Solver =====\n")
-    println("D_n: ",D_n)
+
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-7, max_iter=10000, print_level =0))
 
     @variable(prob, T_cmp >= 0 + eps)                   # T computing
@@ -200,7 +200,9 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=1000000, print_level =1))
     # prob = Model(solver=IpoptSolver(tol=1e-10, max_iter=1000000, print_level =1))
 
-    @variable(prob, 0 + eps <= Theta <= 1 - eps)
+    @variable(prob, 0 + eps <= Theta <= 1 - eps) #Upper_Theta
+    @variable(prob, 0 + eps <= theta <= 1 - eps) #Small_theta
+    @variable(prob, eta >= 0+ eps) #eta
 
     # T_iter = T_com + cvx.log(cvx.inv_pos(Theta))*T_cmp
     # E_iter = E_com + cvx.log(cvx.inv_pos(Theta))*E_cmp
@@ -209,20 +211,60 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     #
     # objective = 1/(1-Theta)*(E_iter+ kappa*T_iter)
 
-    @NLobjective(prob, Min, 1/(1 - Theta) * (E_com - log(Theta)*E_cmp + kappa * (T_com - log(Theta)*T_cmp)))
+    @NLconstraint(prob, Theta == 2*eta*L/beta *( ((1-theta)*beta/L)^2 - theta*(1+theta) - (1+theta)^2*eta/2 ) )
+
+    @NLobjective(prob, Min, 1/Theta * ( E_com + (1/gamma*(log(C) - log(theta))*E_cmp + kappa * (T_com + 1/gamma*(log(C) - log(theta))*T_cmp))) )
 
     optimize!(prob)
     println("Solve Status: ",termination_status(prob))
 
     rs_Theta = value.(Theta)
-    Obj = 1/(1 - rs_Theta) * (E_com - log(rs_Theta)*E_cmp + kappa * (T_com - log(rs_Theta)*T_cmp))
+    rs_theta = value.(theta)
+    rs_eta = value.(eta)
+    rs_Theta1 =  2*rs_eta*L/beta *( ((1-rs_theta)*beta/L)^2 - rs_theta*(1+rs_theta) - (1+rs_theta)^2*rs_eta/2 )
+    # Obj = 1/ rs_Theta * (E_com - log(rs_theta)*E_cmp + kappa * (T_com - log(rs_theta)*T_cmp))
+    Obj = 1/rs_Theta * ( E_com + (1/gamma*(log(C) - log(rs_theta))*E_cmp + kappa * (T_com + 1/gamma*(log(C) - log(rs_theta))*T_cmp)))
+
     if (DEBUG > 0)
         println("Theta: ", rs_Theta)
+        println("Theta1: ", rs_Theta1)
+        println("theta: ", rs_theta)
+        println("eta: ", rs_eta)
         println("Obj: ", Obj)
         println("Obj1: ", JuMP.objective_value(prob))
     end
 
-    return rs_Theta, Obj
+    return rs_Theta, rs_theta, rs_eta, Obj
+end
+
+function Solving_sub_prob3_search( T_cmp, E_cmp, T_com, E_com)
+    x = collect(1.e-5:0.0003:0.99)
+    y = collect(1.e-5:0.0003:0.99)
+
+    obj   = zeros(size(x)[1],size(y)[1])
+
+    min_obj = maxintfloat()
+    min_theta = 0
+    min_eta = 0
+    min_Theta = 0
+    for i=1:size(x)[1]
+        for j=1:size(y)[1]
+            Theta=( 2*y[j]*L/beta *( ((1-x[i])*beta/L)^2 - x[i]*(1+x[i]) - (1+x[i])^2*y[j]/2 ))
+            obj[i,j] = 1/Theta * ( E_com + (1/gamma*(log(C) - log(x[i]))*E_cmp + kappa * (T_com + 1/gamma*(log(C) - log(x[i]))*T_cmp)))
+            if(Theta<=0  || Theta >=1)
+                obj[i,j] = 0
+            else
+                if min_obj >= obj[i,j]
+                    min_obj = obj[i,j]
+                    min_theta= x[i]
+                    min_eta=y[j]
+                    min_Theta = Theta
+                end
+            end
+        end
+    end
+
+    return min_Theta, min_theta, min_eta, min_obj
 end
 
 ############ ############ ############

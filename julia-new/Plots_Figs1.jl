@@ -224,7 +224,37 @@ function plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, 
     savefig(string(folder,"sub3_E_ratio_rs.pdf"))
 end
 
-function plot_sub3_kappa_theta(Theta, d_eta, levels, sub)
+# function plot_sub3_kappa_theta(Theta, d_eta, levels, sub)
+#     if(sub==1)
+#         round_numb = 2
+#         lbl_lv = "\$L_{cmp}\$"
+#     else
+#         round_numb = 2
+#         lbl_lv = "\$L_{com}\$"
+#     end
+#
+#     Numb_Levels = size(levels)[1]
+#
+#     clf()
+#     cfig = figure(10,figsize=fig_size1)
+#     ax = subplot(1,1,1)
+#     ax.tick_params("both",labelsize=legend_fontsize)
+#
+#     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
+#     plot(kaps, 1 ./d_eta[1,:],linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
+#     plot(kaps, Theta[1,:],linestyle=line_style[1],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
+#     plot(kaps, 1 ./d_eta[end,:],linestyle=line_style[2],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
+#     plot(kaps, Theta[end,:],linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
+#
+#     legend(loc="best",fontsize=legend_fontsize-1)
+#     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
+#     ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+1)
+#     xscale("log")
+#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+#     savefig(string(folder,"sub3_kappa_theta_rs",sub,".pdf"))
+# end
+
+function plot_sub3_kappa_theta_eta(Theta, theta, eta, levels, sub)
     if(sub==1)
         round_numb = 2
         lbl_lv = "\$L_{cmp}\$"
@@ -240,11 +270,14 @@ function plot_sub3_kappa_theta(Theta, d_eta, levels, sub)
     ax = subplot(1,1,1)
     ax.tick_params("both",labelsize=legend_fontsize)
 
-    # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1 ./d_eta[1,:],linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
-    plot(kaps, Theta[1,:],linestyle=line_style[1],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
-    plot(kaps, 1 ./d_eta[end,:],linestyle=line_style[2],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
-    plot(kaps, Theta[end,:],linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
+    # plot(kaps, Theta,linestyle="--",color=colors[1],label="\$\\Theta^*\$")
+    # plot(kaps, theta,linestyle="--",color=colors[2],label="\$\\theta^*\$")
+    # plot(kaps, eta,linestyle="--",color=colors[3],label="\$\\eta^*\$")
+
+    plot(kaps, eta[1,:],linestyle=line_style[1],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta^*\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
+    plot(kaps, theta[1,:],linestyle=line_style[1],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta^*\$, ",lbl_lv,"=",round(levels[1],digits=round_numb)))
+    plot(kaps, eta[end,:],linestyle=line_style[2],marker=markers[2], markersize=marker_size,markevery=5,label=string("\$\\eta^*\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
+    plot(kaps, theta[end,:],linestyle=line_style[2],marker=markers[3], markersize=marker_size,markevery=5,label=string("\$\\theta^*\$, ",lbl_lv,"=",round(levels[end],digits=round_numb)))
 
     legend(loc="best",fontsize=legend_fontsize-1)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
@@ -275,7 +308,14 @@ function plot_sub3_equation(d_eta,levels)
     savefig(string(folder,"Sub3_eq.pdf"))
 end
 
-function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, sub)
+function plot_numerical_pareto(Theta1, theta, T_cmp1, E_cmp1, T_com1, E_com1, levels, sub)
+    # println("Theta1",Theta1)
+    # println("T_cmp1",T_cmp1)
+    # println("E_cmp1",E_cmp1)
+    # println("T_com1",T_com1)
+    # println("E_com1",E_com1)
+    # println("levels",levels)
+
     if(sub==1)
         round_numb = 2
         lbl_lv = "\$L_{cmp}\$"
@@ -294,7 +334,7 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     # end
     idx_levels = [1,3,5]
     clf()
-    cfig = figure(9,figsize=fig_size1)
+    cfig = figure(30,figsize=fig_size1)
     ax = subplot(1,1,1)
     ax.tick_params("both",labelsize=legend_fontsize)
 
@@ -305,8 +345,8 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
 
     for idx in idx_levels
         for i=1:Numb_kaps
-            E_obj[i,x] = 1/(1 - Theta1[idx,i])* (E_com1[idx,i] - log(Theta1[idx,i])*E_cmp1[idx,i])
-            T_obj[i,x] = 1/(1 - Theta1[idx,i])* (T_com1[idx,i] - log(Theta1[idx,i])*T_cmp1[idx,i])
+            E_obj[i,x] = 1/(Theta1[idx,i])* (E_com1[idx,i] + 1/gamma*(log(C) - log(theta[idx,i]))*E_cmp1[idx,i])
+            T_obj[i,x] = 1/(Theta1[idx,i])* (T_com1[idx,i] + 1/gamma*(log(C) - log(theta[idx,i]))*T_cmp1[idx,i])
         end
 
         x+=1
@@ -337,11 +377,11 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, s
     ylabel("Time Cost",fontsize=label_fontsize1+1)
 
     if(sub==1)
-        xlim(0,20)
-        ylim(0,13)
+        xlim(0,1250)
+        ylim(50,700)
     else
-        xlim(0,25)
-        ylim(0,15)
+        xlim(0,1250)
+        ylim(50,550)
     end
 
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
@@ -359,7 +399,7 @@ function plot_total_cost(Obj, levels, sub)
 
     Numb_Levels = size(levels)[1]
     clf()
-    cfig = figure(9,figsize=fig_size1)
+    cfig = figure(32,figsize=fig_size1)
     ax = subplot(1,1,1)
     ax.tick_params("both",labelsize=legend_fontsize)
 
@@ -371,8 +411,8 @@ function plot_total_cost(Obj, levels, sub)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+2)
     ylabel("FEDL's obj",fontsize=label_fontsize1+1)
     xscale("log")
-    ylim(0,200)
-    xlim(1e-1,5e1)
+    ylim(0,1000)
+    xlim(1e-1,5e0)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"total1_rs",sub,".pdf"))
 
@@ -395,7 +435,8 @@ function plot_total_cost(Obj, levels, sub)
     # savefig(string(folder,"total2_rs",sub,".pdf"))
 end
 
-function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2)
+function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2,
+    Theta, theta, eta)
     h5open(filename, "w") do file
         # write(file,"kaps", kaps)
         write(file,"Theta1", Theta1)
@@ -419,6 +460,9 @@ function save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1
         write(file,"d_eta", d_eta)
         write(file,"levels1", levels1)
         write(file,"levels2", levels2)
+        write(file,"Theta", Theta)
+        write(file,"theta", theta)
+        write(file,"eta", eta)
     end
 end
 
@@ -446,6 +490,10 @@ function read_result(filename)
         d_eta = read(file,"d_eta")
         levels1 = read(file,"levels1")
         levels2 = read(file,"levels2")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2
+        Theta = read(file,"Theta")
+        theta = read(file,"theta")
+        eta = read(file,"eta")
+        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta, levels1, levels2,
+            Theta, theta, eta
     end
 end

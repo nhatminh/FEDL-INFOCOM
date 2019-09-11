@@ -26,8 +26,10 @@ function main()
     p, p1           = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)
     tau, tau1       = zeros(Numb_kaps,NumbDevs), zeros(Numb_kaps,NumbDevs)
 
-    Theta, Theta1   = zeros(Numb_kaps), zeros(Numb_kaps)
-    Obj, Obj1       = zeros(Numb_kaps), zeros(Numb_kaps)
+    Theta,Theta1   = zeros(Numb_kaps),zeros(Numb_kaps)
+    theta,theta1   = zeros(Numb_kaps),zeros(Numb_kaps)
+    eta,eta1     = zeros(Numb_kaps),zeros(Numb_kaps)
+    Obj,Obj1     = zeros(Numb_kaps),zeros(Numb_kaps)
     Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
     d_eta  = zeros(Numb_kaps)
     global ZoneA = []
@@ -37,7 +39,7 @@ function main()
     global ZoneD = []
     # println("Numb_kaps: ", Numb_kaps)
     for s =1:Numb_SIMs
-        # for k=1:1
+        # for k=36:36
         for k=1:Numb_kaps
             global kappa = kaps[k]
             ### Sub1 ###
@@ -51,8 +53,11 @@ function main()
             # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
             ### Sub3 ###
-            Theta[k], Obj[k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
-            Theta1[k], Obj1[k], Obj_E[k], Obj_T[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
+            Theta[k], theta[k], eta[k], Obj[k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
+            # Theta1[k], theta1[k], eta1[k], Obj1[k]  = Solving_sub_prob3_search(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
+            # println("Solving Obj:", Obj[k], " theta:",theta[k], " eta:",eta[k])
+            # println("Search Obj:", Obj1[k], " theta1:",theta1[k], " eta1:",eta1[k])
+            # Theta1[k], Obj1[k], Obj_E[k], Obj_T[k], d_eta[k] = Solving_sub3(T_cmp1[k],E_cmp1[k],T_com1[k],E_com1[k])
             # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
 
             # ### Global ###
@@ -62,7 +67,8 @@ function main()
         end
    end
 
-   save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
+   save_result(Theta, Obj, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, theta, eta,
+   Theta1, theta1, eta1, Obj1)
 
    plot_sub1_f(f1)
    plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
@@ -71,16 +77,16 @@ function main()
    plot_sub2_p(p1)
    plot_sub2_tau(tau1)
 
-   plot_sub3_equation(Theta1, d_eta)
-   plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
-   plot_sub3_kappa_theta(Theta1, d_eta)
-   plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
-   println("K1: ",minimum(alpha*(f_min.^3)) )
-   println("ZoneA: ", ZoneA)
-   # println("ZoneB1: ", ZoneB1)
-   println("ZoneB2: ", ZoneB2)
-   println("ZoneC: ", ZoneC)
-   println("ZoneD: ", ZoneD)
+   # plot_sub3_equation(Theta1, d_eta)
+   plot_sub3_cvx(theta, eta, Obj, T_cmp1, E_cmp1, T_com1, E_com1)
+   plot_sub3_kappa_theta_eta(Theta, theta, eta, Theta1, theta1, eta1)
+   # plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
+   # println("K1: ",minimum(alpha*(f_min.^3)) )
+   # println("ZoneA: ", ZoneA)
+   # # println("ZoneB1: ", ZoneB1)
+   # println("ZoneB2: ", ZoneB2)
+   # println("ZoneC: ", ZoneC)
+   # println("ZoneD: ", ZoneD)
 end
 
 function main_sub1()
@@ -94,12 +100,13 @@ function main_sub1()
 
     T_com1   = zeros(Numb_D,Numb_kaps)
     E_com1   = zeros(Numb_D,Numb_kaps)
-    p1           = zeros(Numb_D,Numb_kaps,NumbDevs)
-    tau1       = zeros(Numb_D,Numb_kaps,NumbDevs)
+    p1       = zeros(Numb_D,Numb_kaps,NumbDevs)
+    tau1     = zeros(Numb_D,Numb_kaps,NumbDevs)
 
-    Theta1   = zeros(Numb_D,Numb_kaps)
-    Obj1       = zeros(Numb_D,Numb_kaps)
-    Obj_E, Obj_T  = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
+    Theta,Theta1    = zeros(Numb_D,Numb_kaps),zeros(Numb_D,Numb_kaps)
+    theta,eta       = zeros(Numb_D,Numb_kaps),zeros(Numb_D,Numb_kaps)
+    Obj,Obj1        = zeros(Numb_D,Numb_kaps),zeros(Numb_D,Numb_kaps)
+    Obj_E, Obj_T    = zeros(Numb_D,Numb_kaps), zeros(Numb_D,Numb_kaps)
     d_eta  = zeros(Numb_D,Numb_kaps)
 
     t_ratios = 1 ./D_ratios*(f_min[1]/f_max[1])
@@ -121,13 +128,14 @@ function main_sub1()
             # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
             ### Sub3 ###
-            # Theta[s,k], Obj[s,k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
-            Theta1[s,k], Obj1[s,k], Obj_E[s,k], Obj_T[s,k], d_eta[s,k] = Solving_sub3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
+            Theta[s,k], theta[s,k], eta[s,k], Obj1[s,k]  = Solving_sub_prob3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
+            # Theta1[s,k], Obj1[s,k], Obj_E[s,k], Obj_T[s,k], d_eta[s,k] = Solving_sub3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
             # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
         end
    end
    filename = string("result",NumbDevs,"_sub1.h5")
-   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios, tau_ratios)
+   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios, tau_ratios,
+                Theta, theta, eta)
 
    plot_sub1_f(f1[:,10,:], t_ratios)
    plot_sub1_T(T_cmp[:,10], T_cmp1[:,10], Tcmp_N1[:,10], Tcmp_N2[:,10], Tcmp_N3[:,10], t_ratios)
@@ -135,8 +143,9 @@ function main_sub1()
 
     # plot_sub3_equation(d_eta, t_ratios)
     # plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1, t_ratios)
-    plot_sub3_kappa_theta(Theta1, d_eta, t_ratios, 1)
-    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, t_ratios, 1)
+    plot_sub3_kappa_theta_eta(Theta, theta, eta, t_ratios,1)
+    # plot_sub3_kappa_theta(Theta1, d_eta, t_ratios, 1)
+    plot_numerical_pareto(Theta, theta, T_cmp1, E_cmp1, T_com1, E_com1, t_ratios, 1)
     plot_total_cost(Obj1, t_ratios, 1)
 end
 
@@ -155,8 +164,9 @@ function main_sub2()
     p1       = zeros(Numb_Dis,Numb_kaps,NumbDevs)
     tau1     = zeros(Numb_Dis,Numb_kaps,NumbDevs)
 
-    Theta1   = zeros(Numb_Dis,Numb_kaps)
-    Obj1       = zeros(Numb_Dis,Numb_kaps)
+    Theta, Theta1   = zeros(Numb_Dis,Numb_kaps), zeros(Numb_Dis,Numb_kaps)
+    theta, eta      = zeros(Numb_Dis,Numb_kaps), zeros(Numb_Dis,Numb_kaps)
+    Obj1            = zeros(Numb_Dis,Numb_kaps)
     Obj_E, Obj_T    = zeros(Numb_Dis,Numb_kaps), zeros(Numb_Dis,Numb_kaps)
     d_eta  = zeros(Numb_Dis,Numb_kaps)
 
@@ -187,7 +197,7 @@ function main_sub2()
            # println("\n---->> Check Sub2 Solution: ", check([T_com, p, tau, E_com], [T_com1, p1, tau1, E_com1]))
 
            ### Sub3 ###
-           Theta1[s,k], Obj1[s,k]  = Solving_sub_prob3(T_cmp[k],E_cmp[k],T_com[k],E_com[k])
+           Theta[s,k], theta[s,k], eta[s,k], Obj1[s,k]  = Solving_sub_prob3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
            # Theta1[s,k], Obj1[s,k], Obj_E[s,k], Obj_T[s,k], d_eta[s,k] = Solving_sub3(T_cmp1[s,k],E_cmp1[s,k],T_com1[s,k],E_com1[s,k])
            # println("\n---->> Check Sub3 Solution: ", check([Theta], [Theta1]))
        end
@@ -196,15 +206,17 @@ function main_sub2()
    tau_ratios_sorted = sort(tau_ratios)
    # println("here3: ",tau_ratios_sorted)
    filename = string("result",NumbDevs,"_sub2.h5")
-   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios,tau_ratios_sorted)
+   save_result(filename,Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta,t_ratios,tau_ratios_sorted,
+                Theta, theta, eta)
 
    plot_sub2_p(p1[:,10,:], tau_ratios_sorted)
    plot_sub2_tau(tau1[:,10,:], tau_ratios_sorted)
    plot_sub2_Tcom(T_com1[:,10],tau_ratios_sorted)
    # plot_sub3_equation(d_eta, tau_ratios_sorted)
    # plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1, tau_ratios_sorted)
-   plot_sub3_kappa_theta(Theta1, d_eta, tau_ratios_sorted, 2)
-   plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, tau_ratios_sorted, 2)
+   # plot_sub3_kappa_theta(Theta1, d_eta, tau_ratios_sorted, 2)
+   plot_sub3_kappa_theta_eta(Theta, theta, eta, tau_ratios_sorted,2)
+   plot_numerical_pareto(Theta, theta, T_cmp1, E_cmp1, T_com1, E_com1, tau_ratios_sorted, 2)
    plot_total_cost(Obj1, tau_ratios_sorted, 2)
    println("tau_ratios: ",tau_ratios)
    println("tau_ratios_idx: ",tau_ratios_idx)
@@ -250,15 +262,15 @@ if(NUMERICAL_RS)
         # d_eta, levels = read_result(string("result",NumbDevs,"_sub1.h5"))
         Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
         E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
-        d_eta,levels, tau_ratios = read_result(string("result",NumbDevs,"_sub1.h5"))
+        d_eta,levels, tau_ratios, Theta, theta, eta = read_result(string("result",NumbDevs,"_sub1.h5"))
 
         id_kap = 10
         println("Figs of kappa = ",kaps[id_kap])
         plot_sub1_f(f1[:,id_kap,:], levels)
         plot_sub1_T(T_cmp[:,id_kap],T_cmp1[:,id_kap], Tcmp_N1[:,id_kap], Tcmp_N2[:,id_kap], Tcmp_N3[:,id_kap], levels)
         plot_sub1_N(N1[:,id_kap], N2[:,id_kap], N3[:,id_kap], levels)
-        plot_sub3_kappa_theta(Theta1, d_eta, levels, 1)
-        plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1, levels, 1)
+        plot_sub3_kappa_theta_eta(Theta, theta, eta, levels,1)
+        plot_numerical_pareto(Theta, theta, T_cmp1, E_cmp1, T_com1, E_com1, levels, 1)
         plot_total_cost(Obj1, levels, 1)
 
         ### RATIO 2
@@ -266,12 +278,12 @@ if(NUMERICAL_RS)
 
         Theta1, Obj1, Obj_E, Obj_T, T_cmp2, T_cmp12, Tcmp_N1, Tcmp_N2, Tcmp_N3,
         E_cmp12, T_com12, E_com12, N1, N2, N3, f1, tau1, p1,
-        d_eta, t_ratios, levels2 = read_result(string("result",NumbDevs,"_sub2.h5"))
+        d_eta, t_ratios, levels2, Theta, theta, eta = read_result(string("result",NumbDevs,"_sub2.h5"))
         plot_sub2_p(p1[:,id_kap,:], levels2)
         plot_sub2_tau(tau1[:,id_kap,:], levels2)
         plot_sub2_Tcom(T_com12[:,id_kap],levels2)
-        plot_sub3_kappa_theta(Theta1, d_eta, levels2, 2)
-        plot_numerical_pareto(Theta1, T_cmp12, E_cmp12, T_com12, E_com12, levels2, 2)
+        plot_sub3_kappa_theta_eta(Theta, theta, eta, levels2,2)
+        plot_numerical_pareto(Theta, theta, T_cmp12, E_cmp12, T_com12, E_com12, levels2, 2)
         plot_total_cost(Obj1, levels2, 2)
 
         plot_ratios(T_cmp1, E_cmp1, T_com1, E_com1, T_cmp12, E_cmp12, T_com12, E_com12, levels, levels2)
@@ -286,9 +298,9 @@ if(NUMERICAL_RS)
 elseif READ_RESULT
     dist_list, gain_list, ratios, D_n = mobile_gen()
 
-    Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
+    Theta, Obj, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3,
     E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1,
-    d_eta = read_result(string("result",NumbDevs,".h5"))
+    theta, eta, Theta1, theta1, eta1, Obj1 = read_result(string("result",NumbDevs,".h5"))
 
     # Theta1, Obj1, Obj_E1, Obj_T1, T_cmp11, E_cmp11, T_com11, E_com11,
     # N11, N21, N31, f11, tau11, p11,
@@ -301,10 +313,14 @@ elseif READ_RESULT
     plot_sub2_p(p1)
     plot_sub2_tau(tau1)
 
-    plot_sub3_equation(Theta1, d_eta)
-    plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
-    plot_sub3_kappa_theta(Theta1, d_eta)
-    plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
+    plot_sub3_cvx(theta, eta, Obj, T_cmp1, E_cmp1, T_com1, E_com1)
+    # plot_sub3_cvx_3D(theta, eta, Obj, T_cmp1, E_cmp1, T_com1, E_com1)
+    plot_sub3_kappa_theta_eta(Theta, theta, eta, Theta1, theta1, eta1)
+
+    # plot_sub3_equation(Theta1, d_eta)
+    # plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+    # plot_sub3_kappa_theta(Theta1, d_eta)
+    # plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 
     # println("K1: ",minimum(alpha*(f_min.^3)) )
     # println("K2: ",sum(alpha*1e27*((C_n.*D_n*1e-9).^3))/maximum(C_n.*D_n./f_min)^3 )

@@ -111,3 +111,17 @@ println(f_max)
 alpha    = 2e-28
 
 Numb_kaps = size(kaps)[1]
+
+#FEDL convergence analysis parameters
+L=1 #L-Lipschitz
+beta=0.5 #beta strongly convex
+gamma=0.5
+c=1
+C=c*L/beta
+
+# #FEDL convergence analysis parameters
+# L=1 #L-Lipschitz
+# beta=0.3 #beta strongly convex
+# gamma=0.3
+# c=1
+# C=c*L/beta

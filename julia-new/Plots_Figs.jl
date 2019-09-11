@@ -164,8 +164,6 @@ function plot_sub1_f(f1)
             plot(kaps,f_max[n]*ones(Numb_kaps)*1e-9,linestyle="--",color=colors[n])
             # plot(kaps,f_min[n]*ones(Numb_kaps)*1e-9,linestyle=":",color=colors[n])
         end
-        print(size(f1[:,n]))
-        print(size(kaps))
         plot(kaps,f1[:,n],color=colors[n],linestyle="-",linewidth=l_width,marker=markers[n], markersize=marker_size-1, markevery=3, label=string("UE ",n))
     end
 
@@ -266,94 +264,284 @@ function plot_sub2_p(p1)
     savefig(string(folder,"Sub2_p.pdf"))
 end
 
-function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+# function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
+#     clf()
+#     cfig = figure(6,figsize=fig_size1)
+#     ax = subplot(1,1,1)
+#     ax.tick_params("both",labelsize=legend_fontsize+2)
+#
+#     x = collect(1.e-5:0.001:0.99)
+#     obj   = zeros(size(x)[1])
+#     glob_cost_iter = zeros(size(x)[1])
+#     glob_numb_iter = zeros(size(x)[1])
+#     id = 36
+#     println("Convex for kappa: ",  kaps[id])
+#     for i=1:size(x)[1]
+#         obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
+#         glob_cost_iter[i] = E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id])
+#         glob_numb_iter[i] = 1/(1 - x[i])
+#         # obj[i]   = obj_E[i] + obj_T[i]
+#     end
+#     plot(x, obj,linestyle="-",color="k", label=string("SUB3 Obj: \$\\kappa\$ =", kaps[id]))
+#     plot(x, glob_cost_iter,linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
+#     plot(x, glob_numb_iter,linestyle="--",color=colors[3], label=string("\$ K(\\theta)\$"))
+#     # println(x)
+#     plot(Theta1[id], Obj1[id],color="r", marker=markers[2], markersize=marker_size)
+#
+#     legend(loc="best",fontsize=legend_fontsize+6)
+#     xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
+#     # ylabel("Objective",fontsize=label_fontsize1+1)
+#     yscale("log")
+#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+#     savefig(string(folder,"Sub3_obj.pdf"))
+#     println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
+# end
+#
+# function plot_sub3_kappa_theta(Theta, d_eta)
+#     clf()
+#     cfig = figure(10,figsize=fig_size1)
+#     ax = subplot(1,1,1)
+#     ax.tick_params("both",labelsize=legend_fontsize+3.5)
+#     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
+#     plot(kaps, 1 ./d_eta,linestyle="--",color=colors[3],label="\$\\eta\$")
+#     plot(kaps, Theta,linestyle="-",color=colors[2],label="\$\\theta^*\$")
+#     # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
+#     # plot(kaps, 1 ./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
+#
+#     legend(loc="best",fontsize=legend_fontsize+2)
+#     xlabel("\$\\kappa\$",fontsize=label_fontsize1+7)
+#     ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+4)
+#     xscale("log")
+#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+#     savefig(string(folder,"sub3_kappa_theta.pdf"))
+#
+#     println("kaps: ", kaps[24], ", theta:", round(Theta[24],digits=3), ", eta: ", round(1/d_eta[24],digits=3) )
+#     println("kaps: ", kaps[end], ", theta:", round(Theta[end],digits=3), ", eta: ", round(1/d_eta[end],digits=3) )
+# end
+#
+# function plot_sub3_equation(Theta, d_eta)
+#     clf()
+#     x = collect(1.e-6:0.001:0.999)
+#
+#     cfig = figure(7,figsize=fig_size1)
+#     ax = subplot(1,1,1)
+#     ax.tick_params("both",labelsize=legend_fontsize+2)
+#     id1 = 24
+#     id2 = 32
+#     plot(x,d_eta[id1]*ones(size(x)),linestyle="-",color="b",label=string("\$\\kappa\$ = ",kaps[id1]))
+#     plot(x,d_eta[id2]*ones(size(x)),linestyle="-",color="g",label=string("\$\\kappa\$ = ",kaps[id2]))
+#     # hlines(y=d_eta[20],xmin=0, xmax=Theta[20], linestyle=":",color="k", zorder=1)
+#     # hlines(y=d_eta[30],xmin=0, xmax=Theta[30], linestyle=":",color="k", zorder=1)
+#     vlines(x=Theta[id1],ymin=0, ymax=d_eta[id1], linestyle=":",color="k", zorder=2)
+#     vlines(x=Theta[id2],ymin=0, ymax=d_eta[id2], linestyle=":",color="k", zorder=2)
+#
+#     plot(x, 1 ./x + log.(x),linestyle="-",color=colors[6], label="\$\\log(e^{1/\\theta} \\theta)\$")
+#     # for k = 1:Numb_kaps
+#     #     plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
+#     # end
+#
+#     annotate(string("(",round(Theta[id1],digits=3),", 1/",round(1/d_eta[id1],digits=3),")"), xy=[Theta[id1];1.05*d_eta[id1]], xycoords="data",size=18)
+#     annotate(string("(",round(Theta[id2],digits=3),", 1/",round(1/d_eta[id2],digits=3),")"), xy=[0.9*Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
+#     scatter(Theta[id1], d_eta[id1],color="k")
+#     scatter(Theta[id2], d_eta[id2],color="k")
+#
+#     legend(loc="best",fontsize=legend_fontsize+6)
+#     xlim(0, 0.3)
+#     ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
+#     xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
+#     ylabel("\$1/\\eta\$",fontsize=label_fontsize1+3)
+#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+#     savefig(string(folder,"Sub3_eq.pdf"))
+# end
+
+function plot_sub3_cvx(theta, eta, Obj, T_cmp1, E_cmp1, T_com1, E_com1)
+    # println("theta",theta)
+    # println("eta",eta)
+    # println("Obj",Obj)
     clf()
     cfig = figure(6,figsize=fig_size1)
     ax = subplot(1,1,1)
     ax.tick_params("both",labelsize=legend_fontsize+2)
 
-    x = collect(1.e-5:0.001:0.99)
+    x = collect(1.e-5:0.0005:0.99)
     obj   = zeros(size(x)[1])
     glob_cost_iter = zeros(size(x)[1])
     glob_numb_iter = zeros(size(x)[1])
     id = 36
     println("Convex for kappa: ",  kaps[id])
+
+    j=-1
     for i=1:size(x)[1]
-        obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
-        glob_cost_iter[i] = E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id])
-        glob_numb_iter[i] = 1/(1 - x[i])
+        j+=1
+        Theta=( 2*eta[id]*L/beta *( ((1-x[i])*beta/L)^2 - x[i]*(1+x[i]) - (1+x[i])^2*eta[id]/2 ))
+        if(Theta<0)
+            break
+        end
+
+        obj[i] = 1/Theta * ( E_com1[id] + (1/gamma*(log(C) - log(x[i]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(x[i]))*T_cmp1[id])))
+
+        glob_cost_iter[i] =  E_com1[id] + (1/gamma*(log(C) - log(x[i]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(x[i]))*T_cmp1[id]))
+        glob_numb_iter[i] = 1/Theta
         # obj[i]   = obj_E[i] + obj_T[i]
     end
-    plot(x, obj,linestyle="-",color="k", label=string("SUB3 Obj: \$\\kappa\$ =", kaps[id]))
-    plot(x, glob_cost_iter,linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
-    plot(x, glob_numb_iter,linestyle="--",color=colors[3], label=string("\$ K(\\theta)\$"))
-    # println(x)
-    plot(Theta1[id], Obj1[id],color="r", marker=markers[2], markersize=marker_size)
+    plot(x[1:j], obj[1:j],linestyle="-",color="k", label=string("SUB3 Obj: \$\\eta^*,\\kappa\$ =", kaps[id]))
+    plot(x[1:j], glob_cost_iter[1:j],linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
+    plot(x[1:j], glob_numb_iter[1:j],linestyle="--",color=colors[3], label=string("\$ 1/\\Theta\$"))
+
+    plot(theta[id], Obj[id],color="r", marker=markers[2], markersize=marker_size)
 
     legend(loc="best",fontsize=legend_fontsize+6)
     xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
     # ylabel("Objective",fontsize=label_fontsize1+1)
     yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub3_obj.pdf"))
-    println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
+    savefig(string(folder,"Sub3_obj1.pdf"))
+    # println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
+
+
+
+    clf()
+    cfig = figure(6,figsize=fig_size1)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize+2)
+
+    x = collect(1.e-5:0.0005:0.99)
+    obj   = zeros(size(x)[1])
+    glob_cost_iter = zeros(size(x)[1])
+    glob_numb_iter = zeros(size(x)[1])
+    id = 36
+    println("Convex for kappa: ",  kaps[id])
+
+    j=-1
+    for i=1:size(x)[1]
+        j+=1
+        Theta=( 2*x[i]*L/beta *( ((1-theta[id])*beta/L)^2 - theta[id]*(1+theta[id]) - (1+theta[id])^2*x[i]/2 ))
+        if(Theta<=0)
+            break
+        end
+
+        obj[i] = 1/Theta * ( E_com1[id] + (1/gamma*(log(C) - log(theta[id]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(theta[id]))*T_cmp1[id])))
+
+        glob_cost_iter[i] =  E_com1[id] + (1/gamma*(log(C) - log(theta[id]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(theta[id]))*T_cmp1[id]))
+        glob_numb_iter[i] = 1/Theta
+        # obj[i]   = obj_E[i] + obj_T[i]
+    end
+    plot(x[1:j], obj[1:j],linestyle="-",color="k", label=string("SUB3 Obj: \$\\theta^*,\\kappa\$ =", kaps[id]))
+    # plot(x[1:j], glob_cost_iter[1:j],linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
+    plot(x[1:j], glob_numb_iter[1:j],linestyle="--",color=colors[3], label=string("\$ 1/\\Theta\$"))
+
+    plot(eta[id], Obj[id],color="r", marker=markers[2], markersize=marker_size)
+
+    legend(loc="best",fontsize=legend_fontsize+6)
+    xlabel("\$\\eta\$",fontsize=label_fontsize1+3)
+    # ylabel("Objective",fontsize=label_fontsize1+1)
+    yscale("log")
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Sub3_obj2.pdf"))
 end
 
-function plot_sub3_kappa_theta(Theta, d_eta)
+function plot_sub3_cvx_3D(theta, eta, Obj, T_cmp1, E_cmp1, T_com1, E_com1)
+    # println("theta",theta)
+    # println("eta",eta)
+    # println("Obj",Obj)
+    clf()
+    cfig = figure(6,figsize=fig_size1)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize+2)
+
+    x = collect(1.e-5:0.0005:0.99)
+    y = collect(1.e-5:0.0005:0.99)
+    xgrid = repeat(x',size(y)[1],1)
+    ygrid = repeat(y,1,size(x)[1])
+
+    obj   = zeros(size(x)[1],size(y)[1])
+    glob_cost_iter = zeros(size(x)[1],size(y)[1])
+    glob_numb_iter = zeros(size(x)[1],size(y)[1])
+    id = 36
+    println("Convex for kappa: ",  kaps[id])
+    j1=0
+    min_obj = maxintfloat()
+    min_theta = 0
+    min_eta = 0
+    for i=1:size(x)[1]
+        for j=1:size(y)[1]
+            Theta=( 2*y[j]*L/beta *( ((1-x[i])*beta/L)^2 - x[i]*(1+x[i]) - (1+x[i])^2*y[j]/2 ))
+            obj[i,j] = 1/Theta * ( E_com1[id] + (1/gamma*(log(C) - log(x[i]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(x[i]))*T_cmp1[id])))
+            if(Theta<=0)
+                obj[i,j] = 0
+            else
+                j1=j
+                if min_obj >= obj[i,j]
+                    min_obj = obj[i,j]
+                    min_theta= x[i]
+                    min_eta=y[j]
+                end
+                obj[i,j] = log(obj[i,j])
+            end
+
+
+            glob_cost_iter[i,j] =  E_com1[id] + (1/gamma*(log(C) - log(x[i]))*E_cmp1[id] + kaps[id] * (T_com1[id] + 1/gamma*(log(C) - log(x[i]))*T_cmp1[id]))
+            glob_numb_iter[i,j] = 1/Theta
+        # obj[i]   = obj_E[i] + obj_T[i]
+        end
+    end
+
+    println("Optimal Obj:", Obj[id], " theta:",theta[id], " eta:",eta[id])
+    println("Search Obj:", min_obj, " theta:",min_theta, " eta:",min_eta)
+
+
+    # # plot_surface(xgrid, ygrid, obj, cstride=2, cmap=ColorMap("gray"), alpha=0.8, linewidth=0.25)
+    # print(size(xgrid[:,1:j1,:]))
+    # print(size(ygrid[1:j1,:,:]))
+    # print(size(obj[:,1:j1]))
+    # pcolor(xgrid[:,1:j1,:], ygrid[1:j1,:,:], obj[:,1:j1]) #, cmap=ColorMap("coolwarm")
+    println(size(xgrid))
+    println(size(ygrid))
+    println(size(obj))
+    # # plot_surface(xgrid, ygrid, obj)
+    # pcolor(xgrid, ygrid, obj) #, cmap=ColorMap("coolwarm")
+    # # pcolor(probs_plt,cmap="YlOrRd")
+    # # colorbar()
+    # # println(x)
+    # # plot(theta[id], Obj[id],color="r", marker=markers[2], markersize=marker_size-1)
+    #
+    # # legend(loc="best",fontsize=legend_fontsize+6)
+    # xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
+    # ylabel("\$\\eta\$",fontsize=label_fontsize1+3)
+    # ylim(0,0.2)
+    # # zlabel("Objective",fontsize=label_fontsize1+1)
+    # # zscale("log")
+    # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    # colorbar()
+    # savefig(string(folder,"Sub3_obj_3D.pdf"))
+
+end
+
+function plot_sub3_kappa_theta_eta(Theta, theta, eta, Theta1, theta1, eta1)
     clf()
     cfig = figure(10,figsize=fig_size1)
     ax = subplot(1,1,1)
     ax.tick_params("both",labelsize=legend_fontsize+3.5)
     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1 ./d_eta,linestyle="--",color=colors[3],label="\$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="\$\\theta^*\$")
+    plot(kaps, Theta,linestyle="--",color=colors[1],label="\$\\Theta^*\$")
+    # plot(kaps, Theta,linestyle="-",color=colors[1],label="\$\\Theta^*\$ search")
+    plot(kaps, theta,linestyle="--",color=colors[2],label="\$\\theta^*\$")
+    # plot(kaps, theta,linestyle="-",color=colors[2],label="\$\\theta^*\$ search")
+    plot(kaps, eta,linestyle="--",color=colors[3],label="\$\\eta^*\$")
+    # plot(kaps, eta,linestyle="-",color=colors[3],label="\$\\eta^*\$ search")
+
     # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
     # plot(kaps, 1 ./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
 
     legend(loc="best",fontsize=legend_fontsize+2)
     xlabel("\$\\kappa\$",fontsize=label_fontsize1+7)
-    ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+4)
+    # ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+4)
     xscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"sub3_kappa_theta.pdf"))
+    savefig(string(folder,"sub3_kappa_theta_eta.pdf"))
 
-    println("kaps: ", kaps[24], ", theta:", round(Theta[24],digits=3), ", eta: ", round(1/d_eta[24],digits=3) )
-    println("kaps: ", kaps[end], ", theta:", round(Theta[end],digits=3), ", eta: ", round(1/d_eta[end],digits=3) )
-end
-
-function plot_sub3_equation(Theta, d_eta)
-    clf()
-    x = collect(1.e-6:0.001:0.999)
-
-    cfig = figure(7,figsize=fig_size1)
-    ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+2)
-    id1 = 24
-    id2 = 32
-    plot(x,d_eta[id1]*ones(size(x)),linestyle="-",color="b",label=string("\$\\kappa\$ = ",kaps[id1]))
-    plot(x,d_eta[id2]*ones(size(x)),linestyle="-",color="g",label=string("\$\\kappa\$ = ",kaps[id2]))
-    # hlines(y=d_eta[20],xmin=0, xmax=Theta[20], linestyle=":",color="k", zorder=1)
-    # hlines(y=d_eta[30],xmin=0, xmax=Theta[30], linestyle=":",color="k", zorder=1)
-    vlines(x=Theta[id1],ymin=0, ymax=d_eta[id1], linestyle=":",color="k", zorder=2)
-    vlines(x=Theta[id2],ymin=0, ymax=d_eta[id2], linestyle=":",color="k", zorder=2)
-
-    plot(x, 1 ./x + log.(x),linestyle="-",color=colors[6], label="\$\\log(e^{1/\\theta} \\theta)\$")
-    # for k = 1:Numb_kaps
-    #     plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
-    # end
-
-    annotate(string("(",round(Theta[id1],digits=3),", 1/",round(1/d_eta[id1],digits=3),")"), xy=[Theta[id1];1.05*d_eta[id1]], xycoords="data",size=18)
-    annotate(string("(",round(Theta[id2],digits=3),", 1/",round(1/d_eta[id2],digits=3),")"), xy=[0.9*Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
-    scatter(Theta[id1], d_eta[id1],color="k")
-    scatter(Theta[id2], d_eta[id2],color="k")
-
-    legend(loc="best",fontsize=legend_fontsize+6)
-    xlim(0, 0.3)
-    ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
-    xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
-    ylabel("\$1/\\eta\$",fontsize=label_fontsize1+3)
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub3_eq.pdf"))
+    # println("kaps: ", kaps[24], ", theta:", round(Theta[24],digits=3), ", eta: ", round(1/d_eta[24],digits=3) )
+    # println("kaps: ", kaps[end], ", theta:", round(Theta[end],digits=3), ", eta: ", round(1/d_eta[end],digits=3) )
 end
 
 function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
@@ -449,11 +637,13 @@ end
 #
 # end
 
-function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
+# save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, theta, eta)
+function save_result(Theta, Obj, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, theta, eta,
+    Theta1, theta1, eta1, Obj1)
     h5open(string("result",NumbDevs,".h5"), "w") do file
         # write(file,"kaps", kaps)
-        write(file,"Theta1", Theta1)
-        write(file,"Obj1", Obj1)
+        write(file,"Theta", Theta)
+        write(file,"Obj", Obj)
         write(file,"Obj_E", Obj_E)
         write(file,"Obj_T", Obj_T)
         write(file,"T_cmp", T_cmp)
@@ -470,15 +660,20 @@ function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2
         write(file,"f1", f1)
         write(file,"tau1", tau1)
         write(file,"p1", p1)
-        write(file,"d_eta", d_eta)
+        write(file,"theta", theta)
+        write(file,"eta", eta)
+        write(file,"Theta1", Theta1)
+        write(file,"theta1", theta1)
+        write(file,"eta1", eta1)
+        write(file,"Obj1", Obj1)
     end
 end
 
 function read_result(filename)
     h5open(filename, "r") do file
         # kaps =read(file,"kaps")
-        Theta1 = read(file,"Theta1")
-        Obj1  = read(file,"Obj1")
+        Theta = read(file,"Theta")
+        Obj  = read(file,"Obj")
         Obj_E = read(file,"Obj_E")
         Obj_T = read(file,"Obj_T")
         T_cmp = read(file,"T_cmp")
@@ -495,7 +690,13 @@ function read_result(filename)
         f1 = read(file,"f1")
         tau1 = read(file,"tau1")
         p1 = read(file,"p1")
-        d_eta = read(file,"d_eta")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta
+        theta = read(file,"theta")
+        eta = read(file,"eta")
+        Theta1 = read(file,"Theta1")
+        theta1 = read(file,"theta1")
+        eta1 = read(file,"eta1")
+        Obj1 = read(file,"Obj1")
+        return Theta, Obj, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, theta, eta,
+        Theta1, theta1, eta1, Obj1
     end
 end
