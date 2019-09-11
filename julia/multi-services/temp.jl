@@ -36,21 +36,21 @@
 
 ENV["MPLBACKEND"]="qt5agg" #tkagg, qt5agg, gtkagg
 using PyPlot
-# pygui(true)
+pygui(true)
 clf()
 figure(1)
 x = LinRange(0,2*pi,1000);
  y = sin.(5*x + 4*cos.(2*x))
 plot(x, y, color="red", linewidth=2.0, linestyle="--")
 show()
-# savefig("plot.png")
-
-# using Plots
-# pyplot() # Switch to using the PyPlot.jl backend
-# plot(rand(5,5),linewidth=2,title="My Plot") # The same plotting command works
-using Printf
-print(@sprintf("abc %.2f",log2(2)))
-print(1:3)
+# # savefig("plot.png")
+#
+# # using Plots
+# # pyplot() # Switch to using the PyPlot.jl backend
+# # plot(rand(5,5),linewidth=2,title="My Plot") # The same plotting command works
+# using Printf
+# print(@sprintf("abc %.2f",log2(2)))
+# print(1:3)
 
 # x = collect(0:.1:10)
 # println(1/x)
@@ -83,3 +83,10 @@ print(1:3)
 # println(collect(1:0.7:10))
 #
 # # println(int(0.5))
+
+
+# using PyPlot
+# clf()
+# cfig = figure(3,figsize=(5,5))
+# ax = subplot(1,1,1)
+# ax.tick_params("both",labelsize=12)
