@@ -149,7 +149,7 @@ function simple_save_data(dist_list, gain_list, ratios, D_n, filename="data.h5")
 end
 
 function simple_read_data(filename="data.h5")
-    h5open("data.h5", "r") do file
+    h5open(filename, "r") do file
         dist_list =read(file,"dist_list")
         gain_list =read(file,"gain_list")
         ratios =read(file,"ratios")
