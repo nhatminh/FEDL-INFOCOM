@@ -40,8 +40,8 @@ if(READ_RESULT)
 end
 
 Numb_Iteration = 200 #1000
-stop_epsilon1 = 1e-8
-stop_epsilon2 = 1e-8
+stop_epsilon1 = 1e-7
+stop_epsilon2 = 1e-7
 # RHO =1e-2
 RHO1 =5e-1
 RHO2 =5e-1
