@@ -20,7 +20,7 @@ NUMERICAL_RS = false      # Result for Section V: NUMERICAL RESULTS in the paper
 # 1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 3e1, 5e1, 7e1, 1e2, 3e2, 5e2, 7e2, 1e3]
 
 # kaps = [1e-1]
-kaps = [0.5]
+kaps = [0.2]
 
 
 if(NUMERICAL_RS)

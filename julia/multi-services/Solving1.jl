@@ -108,7 +108,7 @@ function Solving_global_prob(D_n,capacity)
         println("Theta: ", rs_Theta)
     end
 
-    return Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta
+    return Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f
 end
 
 

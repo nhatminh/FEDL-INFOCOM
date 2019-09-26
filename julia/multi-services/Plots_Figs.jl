@@ -397,7 +397,7 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
     savefig(string(folder,"pareto.pdf"))
 end
 
-function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, stop1, stop2)
+function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
     clf()
     t = Int(max(stop1[1],stop2[1]))
     figure(1,figsize=fig_size)
@@ -407,16 +407,18 @@ function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, 
 
 
     # ylim(6.4,6.8)
-    savefig(string(folder,"Obj_convergence.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Obj.pdf"))
+
 
     clf()
     figure(2,figsize=fig_size)
     for n=1:NumbDevs
         plot(r1[1,n,1:stop2[1]])
     end
-    savefig(string(folder,"Residual1_convergence.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Residual1.pdf"))
+
 
     clf()
     figure(3,figsize=fig_size)
@@ -425,8 +427,9 @@ function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, 
             plot(r2[1,s,n,1:stop2[1]])
         end
     end
-    savefig(string(folder,"Residual2_convergence.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Residual2.pdf"))
+
 
 
     clf()
@@ -437,12 +440,38 @@ function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, 
         plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
 
     end
-
-    savefig(string(folder,"Theta_convergence.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Theta.pdf"))
+
+
+    clf()
+    figure(5,figsize=fig_size)
+    for n=1:NumbDevs
+        plot(rs_w[n]*ones(t),label="Solver",linestyle=":")
+        plot(w2[1,n,1:stop2[1]],label="miADMM",linestyle="-")
+        for s=1:Numb_Services
+            plot(ws2[1,s,n,1:stop2[1]],label="miADMM",linestyle="--")
+        end
+        # plot(w1[1,n,1:stop1[1]],label="BCD",linestyle="--")
+
+    end
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_w.pdf"))
 
 
 
+    clf()
+    figure(6,figsize=fig_size)
+    for n=1:NumbDevs
+        for s=1:Numb_Services
+            plot(rs_f[s,n]*ones(t),label="Solver",linestyle=":")
+            plot(f2[1,s,n,1:stop2[1]],label="miADMM",linestyle="-")
+            # plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
+        end
+    end
+
+    savefig(string(folder,"Convergence_f.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
 
 end
 

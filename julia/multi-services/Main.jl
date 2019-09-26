@@ -12,13 +12,13 @@ include("Plots_Figs.jl")
 function main()
     #Generate data
     dist_list, gain_list, capacity, D_n = mobile_gen()
-    Obj1, Theta1, stop1 = BCD(dist_list, gain_list, capacity, D_n)
-    Obj2, r1, r2, Theta2, stop2 = ADMM(dist_list, gain_list, capacity, D_n)
+    Obj1, Theta1, w1, f1, stop1 = BCD(dist_list, gain_list, capacity, D_n)
+    Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n)
 
     ### Global ###
-    rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta = Solving_global_prob(D_n,capacity)
+    rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f = Solving_global_prob(D_n,capacity)
 
-    plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, stop1, stop2)
+    plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
 
 end
 
@@ -26,14 +26,14 @@ function BCD(dist_list, gain_list, capacity, D_n)
     println("**** BCD Method ****")
     T_cmp   = zeros(Numb_kaps,Numb_Services)
     E_cmp   = zeros(Numb_kaps,Numb_Services)
-    f       = ones(Numb_kaps,Numb_Services,NumbDevs)
+    f       = ones(Numb_kaps,Numb_Services,NumbDevs,Numb_Iteration)
     for n=1:NumbDevs
-        f =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,n)
+        f[:,:,n,:] =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,1,Numb_Iteration)
     end
 
     T_com   = zeros(Numb_kaps,Numb_Services)
     E_com   = zeros(Numb_kaps,Numb_Services)
-    w       = 1/NumbDevs*ones(Numb_kaps,NumbDevs)
+    w       = 1/NumbDevs*ones(Numb_kaps,NumbDevs,Numb_Iteration)
     tau     = zeros(Numb_kaps,Numb_Services,NumbDevs)
 
     Theta   = 0.1*ones(Numb_kaps,Numb_Services,Numb_Iteration)
@@ -42,38 +42,35 @@ function BCD(dist_list, gain_list, capacity, D_n)
     stop_k  = zeros(Int32,Numb_kaps)
 
     for k=1:Numb_kaps
-        w_old = zeros(NumbDevs)
         global kappa = kaps[k]
-        Obj[k,1] = compute_obj(f[k,:,:], w[k,:], Theta[k,:,1], D_n, capacity)
+        Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:,1], Theta[k,:,1], D_n, capacity)
 
         for t =1:Numb_Iteration
             print("--> Iteration: ",t )
 
             ### Sub1 ###
-            T_cmp[k,:], f[k,:,:], E_cmp[k,:]     = Solving_sub_prob1(Theta[k,:,t],D_n)
+            T_cmp[k,:], f[k,:,:,t+1], E_cmp[k,:]     = Solving_sub_prob1(Theta[k,:,t],D_n)
 
             ### Sub2 ###
-            T_com[k,:], w[k,:], tau[k,:,:], E_com[k,:]     = Solving_sub_prob2(Theta[k,:,t],capacity)
+            T_com[k,:], w[k,:,t+1], tau[k,:,:], E_com[k,:]     = Solving_sub_prob2(Theta[k,:,t],capacity)
 
             ### Sub3 ###
             Theta[k,:,t+1], Obj[k,t+1]  = Solving_sub_prob3(T_cmp[k,:],E_cmp[k,:],T_com[k,:],E_com[k,:])
 
-            if ((norm(Theta[k, :, t+1] - Theta[k, :, t] ) <= stop_epsilon1) && (norm(w[k, :] - w_old) <= stop_epsilon2))
+            if ((norm(Theta[k, :, t+1] - Theta[k, :, t] ) <= stop_epsilon1) && (norm(w[k, :,t+1] - w[k, :,t] ) <= stop_epsilon2))
                 println("Theta:", Theta[k, :, t+1])
-                println("w:", w[k,:])
-                println("f:", f[k,:,:])
+                println("w:", w[k,:,t+1])
+                println("f:", f[k,:,:,t+1])
                 println("Obj:", Obj[k,t])
                 stop_k[k]= t
                 break
-            else
-                w_old = w[k, :]
             end
         end
    end
 
    # save_BCD_result()
    # # save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
-   return Obj, Theta, stop_k
+   return Obj, Theta, w, f, stop_k
 end
 
 function ADMM(dist_list, gain_list, capacity, D_n)
@@ -82,12 +79,12 @@ function ADMM(dist_list, gain_list, capacity, D_n)
     E_cmp   = zeros(Numb_kaps,Numb_Services)
     f       = ones(Numb_kaps, Numb_Services,NumbDevs,Numb_Iteration+1)
     for n=1:NumbDevs
-        f =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,n,Numb_Iteration+1)
+        f[:,:,n,:] =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,1,Numb_Iteration+1)
     end
 
     T_com   = zeros(Numb_kaps,Numb_Services)
     E_com   = zeros(Numb_kaps,Numb_Services)
-    w, w1   = 1/NumbDevs*ones(Numb_kaps,NumbDevs), 1/NumbDevs*ones(Numb_kaps,Numb_Services,NumbDevs)  #w1 is for each service, while w is original variable
+    w, w1   = 1/NumbDevs*ones(Numb_kaps,NumbDevs), 1/NumbDevs*ones(Numb_kaps,Numb_Services,NumbDevs,Numb_Iteration+1)  #w1 is for each service, while w is original variable
     tau     = zeros(Numb_kaps,Numb_Services,NumbDevs)
 
     Theta           = 0.1*ones(Numb_kaps,Numb_Services, Numb_Iteration+1)
@@ -97,8 +94,10 @@ function ADMM(dist_list, gain_list, capacity, D_n)
 
     r1, y  = zeros(Numb_kaps,NumbDevs,Numb_Iteration+1), zeros(Numb_kaps,NumbDevs)    #primal residual and dual variable for SUB1
     r2, v  = zeros(Numb_kaps,Numb_Services,NumbDevs,Numb_Iteration+1), zeros(Numb_kaps,Numb_Services,NumbDevs)    #primal residual and dual variable for SUB2
-    z      = zeros(Numb_kaps,NumbDevs) # consensus variable for SUB2
+    z      = zeros(Numb_kaps,NumbDevs,Numb_Iteration+1) # consensus variable for SUB2
     stop_k  = Numb_Iteration*ones(Int32,Numb_kaps)
+
+    z[:,:,1] = w[:,:]
 
     for k=1:Numb_kaps
         w_old = zeros(NumbDevs)
@@ -118,7 +117,7 @@ function ADMM(dist_list, gain_list, capacity, D_n)
                 # T_cmp[k,s], f[k,s,:,t+1], E_cmp[k,s]  = Solving_isub_prob1(Theta[k,:,t],D_n,s,f[k,:,:,t],y[k,:]) # parallel update in primal ADMM
 
                 ### Sub2 ###
-                T_com[k,s], w1[k,s,:], tau[k,s,:], E_com[k,s] = Solving_isub_prob2(Theta[k,:,t],capacity,s, v[k,:,:], z[k,:])
+                T_com[k,s], w1[k,s,:,t+1], tau[k,s,:], E_com[k,s] = Solving_isub_prob2(Theta[k,:,t],capacity,s, v[k,:,:], z[k,:,t])
 
                 ### Sub3 ###
                 # Theta[k,s], Obj1[k,s]  = Solving_isub_prob3(T_cmp[k,s],E_cmp[k,s],T_com[k,s],E_com[k,s])
@@ -133,31 +132,29 @@ function ADMM(dist_list, gain_list, capacity, D_n)
 
             ### Dual Update ###
             for n=1:NumbDevs
-                z[k,n]      = 1/Numb_Services * (sum(w1[k,:,n] + (1/RHO2)*v[k,:,n]))
+                z[k,n,t+1]      = 1/Numb_Services * (sum(w1[k,:,n,t+1] + (1/RHO2)*v[k,:,n]))
                 r1[k,n,t]   = sum(f[k,:,n,t+1]) - f_max[n]*1e-9
                 y[k,n]      = y[k,n] + RHO1*r1[k,n,t]
-                r2[k,:,n,t] = w1[k,:,n] - z[k,n]*ones(Numb_Services)
+                r2[k,:,n,t] = w1[k,:,n,t+1] - z[k,n,t+1]*ones(Numb_Services)
                 v[k,:,n]    = v[k,:,n] + RHO2*r2[k,:,n,t]
             end
             # println("Primal Residual1:",r1)
             # println("Primal Residual2:",r2)
 
-            if ((norm(Theta[k, :,t+1] - Theta[k, :,t]) <= stop_epsilon1) && (norm(z[k, :] - w_old) <= stop_epsilon2) )
+            if ((norm(Theta[k, :,t+1] - Theta[k, :,t]) <= stop_epsilon1) && (norm(z[k, :,t+1] - z[k, :,t]) <= stop_epsilon2) )
                 println("Theta:", Theta[k, :, t+1])
-                println("z:", z[k,:])
-                println("f:", f[k,:,:,t])
+                println("z:", z[k,:,t+1])
+                println("f:", f[k,:,:,t+1])
                 # println("Obj:", Obj[k])
                 println("Obj1:", Obj[k,t])
                 stop_k[k]= t
                 break
-            else
-                w_old = z[k, :]
             end
 
         end
    end
    # # save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
-   return Obj, r1, r2, Theta, stop_k
+   return Obj, r1, r2, Theta, z, w1, f, stop_k
 end
 
 
