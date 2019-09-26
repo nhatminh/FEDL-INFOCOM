@@ -14,6 +14,12 @@ using LinearAlgebra
 
 eps = 1e-4
 function Solving_global_prob(D_n,capacity)
+    up_capacity = capacity[1]
+    down_capacity = capacity[2]
+    tau_dl=zeros(Numb_Services) # Downlink transmission time
+    for s =1:Numb_Services
+        tau_dl[s]= maximum(V_s[s]/down_capacity[:])
+    end
     println("\n===== Solving Global: Solver =====\n")
     # println("ratios: ", ratios)
 
@@ -49,15 +55,15 @@ function Solving_global_prob(D_n,capacity)
 
     for s =1:Numb_Services
         for n=1:NumbDevs
-            @NLconstraint(prob, S_s[s]/(w[n]*capacity[n]) <= T_com[s])
+            @NLconstraint(prob, V_s[s]/(w[n]*up_capacity[n]) + tau_dl[s] <= T_com[s])
         end
     end
 
     # @NLobjective(prob, Min, sum(log(1/Theta[s])/(1-Theta[s]) * (sum( alpha/2 * C_s[s] * D_n[s,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s]) for s =1:Numb_Services))
-    # @NLobjective(prob, Min, sum(1/(1-Theta[s]) * (sum( Tx_Power*S_s[s]/(w[n]*capacity[n]) for n =1:NumbDevs) + kappa*T_com[s]) for s =1:Numb_Services))
+    # @NLobjective(prob, Min, sum(1/(1-Theta[s]) * (sum( Tx_Power*V_s[s]/(w[n]*capacity[n]) for n =1:NumbDevs) + kappa*T_com[s]) for s =1:Numb_Services))
     # @NLobjective(prob, Min, sum(1/(1 - Theta[s]) * (E_com[s] - log(Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(Theta[s])*T_cmp[s])) for s=1:Numb_Services) )
 
-    @NLobjective(prob, Min, sum(1/(1-Theta[s])  * (sum( Tx_Power*S_s[s]/(w[n]*capacity[n]) for n =1:NumbDevs) -
+    @NLobjective(prob, Min, sum(1/(1-Theta[s])  * (sum( Tx_Power*V_s[s]/(w[n]*up_capacity[n]) for n =1:NumbDevs) -
                             log(Theta[s])*sum( alpha/2 * C_s[s] * D_n[s,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) +
                             kappa * (T_com[s] - log(Theta[s])*T_cmp[s])) for s=1:Numb_Services))
 
@@ -78,7 +84,7 @@ function Solving_global_prob(D_n,capacity)
 
     for s =1:Numb_Services
         for n=1:NumbDevs
-            rs_tau[s,n] = S_s[s]/(rs_w[n]*capacity[n])
+            rs_tau[s,n] = V_s[s]/(rs_w[n]*up_capacity[n])
         end
         rs_E_com[s] =sum(Tx_Power*rs_tau[s,:])
     end
@@ -113,6 +119,13 @@ end
 
 
 function compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity)
+    up_capacity = capacity[1]
+    down_capacity = capacity[2]
+    tau_dl=zeros(Numb_Services) # Downlink transmission time
+    for s =1:Numb_Services
+        tau_dl[s]= maximum(V_s[s]/down_capacity[:])
+    end
+
     rs_E_cmp = zeros(Numb_Services)
     rs_T_cmp = zeros(Numb_Services)
     for s =1:Numb_Services
@@ -126,9 +139,9 @@ function compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity)
 
     for s =1:Numb_Services
         for n=1:NumbDevs
-            rs_tau[s,n] = S_s[s]/(rs_w[n]*capacity[n])
+            rs_tau[s,n] = V_s[s]/(rs_w[n]*up_capacity[n])
         end
-        rs_T_com[s] = maximum(rs_tau[s,:])
+        rs_T_com[s] = maximum(rs_tau[s,:]) + tau_dl[s]
         rs_E_com[s] =sum(Tx_Power*rs_tau[s,:])
     end
 
@@ -138,7 +151,7 @@ function compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity)
     end
     # println("rs_T_com:",rs_T_com)
     # println("rs_T_cmp:",rs_T_cmp)
-    return Obj
+    return rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, Obj
 end
 
 function Solving_sub_prob1(Theta, D_n)
@@ -232,8 +245,12 @@ end
 
 function Solving_sub_prob2(Theta, capacity)
     println("\n===== Solving Sub2: Solver =====\n")
-    # println("capacity: ", capacity)
-    # println("S_s:", S_s)
+    up_capacity = capacity[1]
+    down_capacity = capacity[2]
+    tau_dl=zeros(Numb_Services) # Downlink transmission time
+    for s =1:Numb_Services
+        tau_dl[s]= maximum(V_s[s]/down_capacity[:])
+    end
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=100000, print_level =0))
 
     @variable(prob, T_com[1:Numb_Services] >= 0 + eps)         # T communications
@@ -243,11 +260,11 @@ function Solving_sub_prob2(Theta, capacity)
 
     for s =1:Numb_Services
         for n=1:NumbDevs
-            @NLconstraint(prob, S_s[s]/(w[n]*capacity[n]) <= T_com[s])
+            @NLconstraint(prob, V_s[s]/(w[n]*up_capacity[n]) + tau_dl[s] <= T_com[s])
         end
     end
 
-    @NLobjective(prob, Min, sum(1/(1-Theta[s]) * (sum( Tx_Power*S_s[s]/(w[n]*capacity[n]) for n =1:NumbDevs) + kappa*T_com[s]) for s =1:Numb_Services))
+    @NLobjective(prob, Min, sum(1/(1-Theta[s]) * (sum( Tx_Power*V_s[s]/(w[n]*up_capacity[n]) for n =1:NumbDevs) + kappa*T_com[s]) for s =1:Numb_Services))
 
 
     optimize!(prob)
@@ -260,7 +277,7 @@ function Solving_sub_prob2(Theta, capacity)
 
     for s =1:Numb_Services
         for n=1:NumbDevs
-            rs_tau[s,n] = S_s[s]/(rs_w[n]*capacity[n])
+            rs_tau[s,n] = V_s[s]/(rs_w[n]*up_capacity[n])
         end
         rs_E_com[s] =sum(Tx_Power*rs_tau[s,:])
     end
@@ -275,7 +292,7 @@ function Solving_sub_prob2(Theta, capacity)
         # println("Objective: ", JuMP.objective_value(prob) )
     end
     # for n = 1:NumbDevs
-    #     x = S_s/(rs_tau[n]*BW)
+    #     x = V_s/(rs_tau[n]*BW)
     #     println("Check 1st derivative = 0: ", ratios[n]*(e^x - 1 - x*e^x) + kappa )
     # end
 
@@ -285,8 +302,12 @@ end
 function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
     numb_serv = 1
     println("\n===== Solving iSub2: Solver =====\n")
-    # println("capacity: ", capacity)
-    # println("S_s:", S_s)
+    up_capacity = capacity[1]
+    down_capacity = capacity[2]
+    tau_dl=zeros(Numb_Services) # Downlink transmission time
+    for s =1:Numb_Services
+        tau_dl[s]= maximum(V_s[s]/down_capacity[:])
+    end
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=100000, print_level =0))
 
     @variable(prob, T_com[1:numb_serv] >= 0 + eps)         # T communications
@@ -296,12 +317,12 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
 
     for s =1:numb_serv
         for n=1:NumbDevs
-            @NLconstraint(prob, S_s[s_idx]/(w[s,n]*capacity[n]) <= T_com[s])
+            @NLconstraint(prob, V_s[s_idx]/(w[s,n]*up_capacity[n]) + tau_dl[s] <= T_com[s])
         end
     end
 
     @NLobjective(prob, Min, sum(1/(1-Theta[s_idx]) *
-                                (sum( Tx_Power*S_s[s_idx]/(w[s,n]*capacity[n]) for n =1:NumbDevs) + kappa*T_com[s])
+                                (sum( Tx_Power*V_s[s_idx]/(w[s,n]*up_capacity[n]) for n =1:NumbDevs) + kappa*T_com[s])
                                 + sum(v[s_idx,n]*(w[s,n]-z[n]) for n =1:NumbDevs)
                                 + RHO2/2*sum((w[s,n]-z[n])^2 for n =1:NumbDevs) for s =1:numb_serv) )
     optimize!(prob)
@@ -314,7 +335,7 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
 
     for s =1:numb_serv
         for n=1:NumbDevs
-            rs_tau[s,n] = S_s[s_idx]/(rs_w[s,n]*capacity[n])
+            rs_tau[s,n] = V_s[s_idx]/(rs_w[s,n]*up_capacity[n])
         end
         rs_E_com[s] =sum(Tx_Power*rs_tau[s,:])
     end
@@ -329,7 +350,7 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
         # println("Objective: ", getobjectivevalue(prob) )
     end
     # for n = 1:NumbDevs
-    #     x = S_s/(rs_tau[n]*BW)
+    #     x = V_s/(rs_tau[n]*BW)
     #     println("Check 1st derivative = 0: ", ratios[n]*(e^x - 1 - x*e^x) + kappa )
     # end
 
@@ -399,7 +420,7 @@ end
 function Solving_isub3( T_cmp, E_cmp, T_com, E_com)
     println("\n===== Solving iSub3: Closed Form =====\n")
     eta   = (E_cmp + kappa*T_cmp)/(E_cmp + E_com + kappa*(T_cmp + T_com))
-    println("Eta: ", eta)
+    # println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta
 
     rs_Theta = find_zero(fx,1e-7)

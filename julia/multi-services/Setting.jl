@@ -41,7 +41,7 @@ if(READ_RESULT)
     HETEROGENEOUS = 2
 end
 
-Numb_Iteration = 200 #1000
+Numb_Iteration = 200 #1000 200
 stop_epsilon1 = 5e-5
 stop_epsilon2 = 5e-5
 # RHO =1e-2
@@ -55,8 +55,8 @@ D_avg   = (D_max + D_min)/2.
 println("D_avg:",D_avg)  # 15 MB
 
 D_Total = 8* 20e6 #20 MB (-> bits)
-# S_s     = 25e3 #weight params size (-> bits), and gradient => 25K nats (1bits/ln2) -> 4.5KB
-S_s     = 8* 4.5e3 # 4.5KB
+# V_s     = 25e3 #weight params size (-> bits), and gradient => 25K nats (1bits/ln2) -> 4.5KB
+V_s     = 8* 4.5e3 # 4.5KB
 # kappa   = 0.001   #coeff of T_iter
 
 ### COMMUNICATIONS PARAMS ###
@@ -73,12 +73,12 @@ Dist_max = 50 #50m
 Dist_avg   = (Dist_max + Dist_min)/2.
 println("Dist_avg:",Dist_avg)  # 26m
 ### COMPUTING PARAMS ###
-function save_setting(f_max, C_s, S_s)
+function save_setting(f_max, C_s, V_s)
     h5open("setting.h5", "w") do file
         # write(file,"f_min", f_min)
         write(file,"f_max", f_max)
         write(file,"C_s", C_s)
-        write(file,"S_s", S_s)
+        write(file,"V_s", V_s)
     end
 end
 
@@ -87,8 +87,8 @@ function read_setting()
         # f_min =read(file,"f_min")
         f_max =read(file,"f_max")
         C_s = read(file,"C_s")
-        S_s = read(file,"S_s")
-        return f_max, C_s, S_s
+        V_s = read(file,"V_s")
+        return f_max, C_s, V_s
     end
 end
 
@@ -97,8 +97,8 @@ if (HETEROGENEOUS == 0) # Homogeneous
     # f_min = cpu_min*ones(NumbDevs)*1e9  #Hz
     f_max = cpu_max*ones(NumbDevs)*1e9  #Hz
     C_s   = 20*ones(Numb_Services)   #cycles/bits
-    S_s   =  5*ones(Numb_Services)*8e3
-    save_setting(f_max,C_s,S_s)
+    V_s   =  5*ones(Numb_Services)*8e3
+    save_setting(f_max,C_s,V_s)
 
 elseif (HETEROGENEOUS == 1) # Heterogeneous
     # cpu_min1  = .1  #GHz, cyles/1sec
@@ -109,11 +109,11 @@ elseif (HETEROGENEOUS == 1) # Heterogeneous
     f_max = rand(Uniform(cpu_max1,cpu_max2),NumbDevs)*1e9  #Hz
     # C_s   = rand(10:30,Numb_Services)   #cycles/bits
     C_s   = [10, 20, 30]      #cycles/bits
-    S_s   = [1, 5, 10] *8e3   #bits
-    save_setting(f_max,C_s,S_s)
+    V_s   = [1, 5, 10] *8e3   #bits
+    save_setting(f_max,C_s,V_s)
 
 elseif (HETEROGENEOUS == 2) # Reused params
-    f_max, C_s, S_s = read_setting()
+    f_max, C_s, V_s = read_setting()
 end
 cpu_min  = .3 #GHz, cyles/1sec
 f_min = cpu_min/Numb_Services*ones(Numb_Services)*1e9  #Hz

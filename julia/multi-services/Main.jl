@@ -12,12 +12,13 @@ include("Plots_Figs.jl")
 function main()
     #Generate data
     dist_list, gain_list, capacity, D_n = mobile_gen()
-    Obj1, Theta1, w1, f1, stop1 = BCD(dist_list, gain_list, capacity, D_n)
+    Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
     Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n)
 
     ### Global ###
     rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f = Solving_global_prob(D_n,capacity)
 
+    println("Heuristic_Obj:",Heuristic_Obj[1])
     plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
 
 end
@@ -40,10 +41,12 @@ function BCD(dist_list, gain_list, capacity, D_n)
     Obj     = zeros(Numb_kaps, Numb_Iteration)
     Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
     stop_k  = zeros(Int32,Numb_kaps)
+    Heuristic_Obj = zeros(Numb_kaps)
 
     for k=1:Numb_kaps
         global kappa = kaps[k]
-        Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:,1], Theta[k,:,1], D_n, capacity)
+        t_cmp,e_cmp,t_com,e_com, Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:,1], Theta[k,:,1], D_n, capacity)
+        _, Heuristic_Obj[k]  = Solving_sub_prob3(t_cmp,e_cmp,t_com,e_com)
 
         for t =1:Numb_Iteration
             print("--> Iteration: ",t )
@@ -70,7 +73,7 @@ function BCD(dist_list, gain_list, capacity, D_n)
 
    # save_BCD_result()
    # # save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
-   return Obj, Theta, w, f, stop_k
+   return Obj, Theta, w, f, stop_k, Heuristic_Obj
 end
 
 function ADMM(dist_list, gain_list, capacity, D_n)
@@ -102,7 +105,7 @@ function ADMM(dist_list, gain_list, capacity, D_n)
     for k=1:Numb_kaps
         w_old = zeros(NumbDevs)
         global kappa = kaps[k]
-        Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:], Theta[k,:,1], D_n, capacity)
+        _,_,_,_,Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:], Theta[k,:,1], D_n, capacity)
 
         for t =1:Numb_Iteration
             print("--> Iteration: ",t )

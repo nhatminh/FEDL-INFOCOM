@@ -41,26 +41,31 @@ function mobile_gen()
     if(REUSED_TRAFFIC)
         return simple_read_data()
     else
-        dist_list = zeros(Numb_Services,NumbDevs)
-        gain_list = zeros(Numb_Services,NumbDevs)
-        capacity  = zeros(Numb_Services,NumbDevs)
+        dist_list = zeros(NumbDevs)
+        gain_list = zeros(NumbDevs)
+        up_capacity  = zeros(NumbDevs)
+        down_capacity = zeros(NumbDevs)
         D_n       = zeros(Numb_Services,NumbDevs)
+
+        dist_list = rand(Uniform(Dist_min,Dist_max),NumbDevs)
+
+        for n=1:NumbDevs
+            gain_list[n] = exp_gain(dist_list[n])
+            up_capacity[n]    = shanon_capacity(gain_list[n])
+            down_capacity[n]    = shanon_capacity(gain_list[n])
+        end
+
         for s =1:Numb_Services
-            dist_list[s,:] = rand(Uniform(Dist_min,Dist_max),NumbDevs)
             if(ByDataset)
                 D_n[s,:]   = D_DS*ones(NumbDevs)
             else
                 D_n[s,:]   = rand(Uniform(D_min,D_max),NumbDevs)
             end
-
-            for n=1:NumbDevs
-                gain_list[s,n] = exp_gain(dist_list[s,n])
-                capacity[s,n]    = shanon_capacity(gain_list[s,n])
-            end
-
         end
-        simple_save_data(dist_list, gain_list, capacity, D_n)
-        return dist_list, gain_list, capacity, D_n
+
+
+        simple_save_data(dist_list, gain_list, up_capacity, down_capacity, D_n)
+        return dist_list, gain_list, [up_capacity, down_capacity], D_n
     end
 end
 
@@ -142,11 +147,12 @@ end
 #     end
 # end
 
-function simple_save_data(dist_list, gain_list, capacity, D_n, filename="data.h5")
+function simple_save_data(dist_list, gain_list, up_capacity, down_capacity, D_n, filename="data.h5")
     h5open(filename, "w") do file
         write(file,"dist_list", dist_list)
         write(file,"gain_list", gain_list)
-        write(file,"capacity", capacity)
+        write(file,"up_capacity", up_capacity)
+        write(file,"down_capacity", down_capacity)
         write(file,"D_n", D_n)
     end
 end
@@ -155,9 +161,10 @@ function simple_read_data(filename="data.h5")
     h5open("data.h5", "r") do file
         dist_list =read(file,"dist_list")
         gain_list =read(file,"gain_list")
-        capacity =read(file,"capacity")
+        up_capacity =read(file,"up_capacity")
+        down_capacity =read(file,"down_capacity")
         D_n = read(file,"D_n")
-        return dist_list, gain_list, capacity, D_n
+        return dist_list, gain_list, [up_capacity, down_capacity], D_n
     end
 end
 
