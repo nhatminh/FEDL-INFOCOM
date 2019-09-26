@@ -92,6 +92,9 @@ function Solving_global_prob(D_n,capacity)
     println("w: ",rs_w)
     println("f: ",rs_f)
     println("Obj-Global:",Obj)
+    # println("rs_T_com:",rs_T_com)
+    # println("rs_T_cmp:",rs_T_cmp)
+    println("Computed-Obj:",compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity))
 
 
     if (DEBUG > 0)
@@ -105,7 +108,37 @@ function Solving_global_prob(D_n,capacity)
         println("Theta: ", rs_Theta)
     end
 
-    return [rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta]
+    return Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta
+end
+
+
+function compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity)
+    rs_E_cmp = zeros(Numb_Services)
+    rs_T_cmp = zeros(Numb_Services)
+    for s =1:Numb_Services
+        rs_T_cmp[s] = maximum(C_s[s]*(D_n[s,:].*1e-9./rs_f[s,:]))
+        rs_E_cmp[s] = alpha / 2 * sum(C_s[s]* D_n[s,:].*(rs_f[s,:].^2)) * 1e18
+    end
+
+    rs_tau =  zeros(Numb_Services,NumbDevs)
+    rs_E_com = zeros(Numb_Services)
+    rs_T_com = zeros(Numb_Services)
+
+    for s =1:Numb_Services
+        for n=1:NumbDevs
+            rs_tau[s,n] = S_s[s]/(rs_w[n]*capacity[n])
+        end
+        rs_T_com[s] = maximum(rs_tau[s,:])
+        rs_E_com[s] =sum(Tx_Power*rs_tau[s,:])
+    end
+
+    Obj = 0
+    for s =1:Numb_Services
+        Obj += 1/(1 - rs_Theta[s]) * (rs_E_com[s] - log(rs_Theta[s])*rs_E_cmp[s] + kappa * (rs_T_com[s] - log(rs_Theta[s])*rs_T_cmp[s]))
+    end
+    # println("rs_T_com:",rs_T_com)
+    # println("rs_T_cmp:",rs_T_cmp)
+    return Obj
 end
 
 function Solving_sub_prob1(Theta, D_n)

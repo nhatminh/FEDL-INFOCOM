@@ -18,7 +18,9 @@ NUMERICAL_RS = false      # Result for Section V: NUMERICAL RESULTS in the paper
 # 5e-4, 5.5e-4, 6e-4, 6.5e-4, 7e-4, 7.5e-4, 8e-4, 8.5e-4, 9e-4, 9.5e-4,
 # 1e-3, 1.5e-3, 2e-3, 2.5e-3, 3e-3, 4e-3, 6e-3, 8e-3, 1e-2, 3e-2, 5e-2, 7e-2,
 # 1e-1, 0.3, 0.5, 0.7, 0.85, 1.,1.5, 2.,2.5, 3., 3.5, 4., 4.5, 5., 6., 7., 8., 9., 1e1, 3e1, 5e1, 7e1, 1e2, 3e2, 5e2, 7e2, 1e3]
-kaps = [1e-1]
+
+# kaps = [1e-1]
+kaps = [0.5]
 
 
 if(NUMERICAL_RS)
@@ -40,8 +42,8 @@ if(READ_RESULT)
 end
 
 Numb_Iteration = 200 #1000
-stop_epsilon1 = 1e-7
-stop_epsilon2 = 1e-7
+stop_epsilon1 = 5e-5
+stop_epsilon2 = 5e-5
 # RHO =1e-2
 RHO1 =5e-1
 RHO2 =5e-1

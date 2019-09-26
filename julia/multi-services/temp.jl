@@ -90,3 +90,5 @@ show()
 # cfig = figure(3,figsize=(5,5))
 # ax = subplot(1,1,1)
 # ax.tick_params("both",labelsize=12)
+
+println(zeros(Int32,3))

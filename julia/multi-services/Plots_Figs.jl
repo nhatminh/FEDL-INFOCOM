@@ -397,77 +397,54 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
     savefig(string(folder,"pareto.pdf"))
 end
 
-# function plot_scale_result()
-#     Sims = size(Numb_devs)[1]
-#     Thetas = zeros(Sims, Numb_kaps)
-#     Objs   = zeros(Sims, Numb_kaps)
-#     Objs_E = zeros(Sims, Numb_kaps)
-#     Objs_T = zeros(Sims, Numb_kaps)
-#
-#     for i = 1:Sims
-#         Thetas[i,:], Objs[i,:], Objs_E[i,:], Objs_T[i,:], T_cmp1, E_cmp1, T_com1, E_com1,
-#         N1, N2, N3, f1, tau1, p1,
-#         d_eta = read_result(string("result",Numb_devs[i],".h5"))
-#     end
-#
-#     # clf()
-#     # figure(8,figsize=fig_size)
-#     # plot(Numb_devs, Objs[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[11]))
-#     # plot(Numb_devs, Objs[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[15]))
-#     # plot(Numb_devs, Objs[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[19]))
-#     # plot(Numb_devs, Objs[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("Objective: \$\\kappa\$ =", kaps[23]))
-#     #
-#     # legend(loc="best",fontsize=legend_fontsize-2)
-#     # xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     # # ylabel("Objective",fontsize=label_fontsize1+1)
-#     # # yscale("log")
-#     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     # savefig(string(folder,"Scale_obj.pdf"))
-#     #
-#     # clf()
-#     # figure(9,figsize=fig_size)
-#     # plot(Numb_devs, Thetas[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\theta\$: \$\\kappa\$ =", kaps[11]))
-#     # plot(Numb_devs, Thetas[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\theta\$: \$\\kappa\$ =", kaps[15]))
-#     # plot(Numb_devs, Thetas[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\theta\$: \$\\kappa\$ =", kaps[19]))
-#     # plot(Numb_devs, Thetas[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\theta\$: \$\\kappa\$ =", kaps[23]))
-#     # # plot(Numb_devs, Thetas[:,id],linestyle="-",color="k", label="\$\\theta\$")
-#     #
-#     # legend(loc="best",fontsize=legend_fontsize-2)
-#     # xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     # # ylabel("Objective",fontsize=label_fontsize1+1)
-#     # # yscale("log")
-#     # tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     # savefig(string(folder,"Scale_theta.pdf"))
-#
-#     clf()
-#     figure(10,figsize=fig_size)
-#     # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-#     plot(Numb_devs, Objs_E[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[15]))
-#     plot(Numb_devs, Objs_E[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[19]))
-#     plot(Numb_devs, Objs_E[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[23]))
-#
-#     legend(loc="best",fontsize=legend_fontsize-2)
-#     xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     ylabel("Energy cost",fontsize=label_fontsize1+1)
-#     # yscale("log")
-#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     savefig(string(folder,"Scale_obj_E.pdf"))
-#
-#     clf()
-#     figure(11,figsize=fig_size)
-#     # plot(Numb_devs, Objs_T[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-#     plot(Numb_devs, Objs_T[:,15],linestyle="--",color=colors[2],marker=markers[2], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[15]))
-#     plot(Numb_devs, Objs_T[:,19],linestyle="--",color=colors[3],marker=markers[3], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[19]))
-#     plot(Numb_devs, Objs_T[:,23],linestyle="--",color=colors[4],marker=markers[4], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[23]))
-#
-#     legend(loc="best",fontsize=legend_fontsize-2)
-#     xlabel("Number of Devs",fontsize=label_fontsize1+1)
-#     ylabel("Time cost",fontsize=label_fontsize1+1)
-#     # yscale("log")
-#     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-#     savefig(string(folder,"Scale_obj_T.pdf"))
-#
-# end
+function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, stop1, stop2)
+    clf()
+    t = Int(max(stop1[1],stop2[1]))
+    figure(1,figsize=fig_size)
+    plot(rs_Obj*ones(t),label="Solver",linestyle=":")
+    plot(Obj2[1:stop2[1]],label="miADMM",linestyle="-")
+    plot(Obj1[1:stop1[1]],label="BCD",linestyle="--")
+
+
+    # ylim(6.4,6.8)
+    savefig(string(folder,"Obj_convergence.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+    clf()
+    figure(2,figsize=fig_size)
+    for n=1:NumbDevs
+        plot(r1[1,n,1:stop2[1]])
+    end
+    savefig(string(folder,"Residual1_convergence.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+    clf()
+    figure(3,figsize=fig_size)
+    for s=1:Numb_Services
+        for n=1:NumbDevs
+            plot(r2[1,s,n,1:stop2[1]])
+        end
+    end
+    savefig(string(folder,"Residual2_convergence.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+
+    clf()
+    figure(4,figsize=fig_size)
+    for s=1:Numb_Services
+        plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":")
+        plot(Theta2[1,s,1:stop2[1]],label="miADMM",linestyle="-")
+        plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
+
+    end
+
+    savefig(string(folder,"Theta_convergence.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+
+
+
+end
 
 function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
     h5open(string("result",NumbDevs,".h5"), "w") do file
