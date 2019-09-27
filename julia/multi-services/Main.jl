@@ -10,7 +10,6 @@ include("Plots_Figs.jl")
 
 
 function main()
-    # run_multiple_time()
     #Generate data
     dist_list, gain_list, capacity, D_n = mobile_gen()
     Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
@@ -203,5 +202,6 @@ if READ_RESULT
     plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 
 else
+    # run_multiple_time()
     main()
 end
