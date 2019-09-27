@@ -10,10 +10,11 @@ include("Plots_Figs.jl")
 
 
 function main()
+    # run_multiple_time()
     #Generate data
     dist_list, gain_list, capacity, D_n = mobile_gen()
     Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
-    Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n)
+    Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n,jpadmm=false)
 
     ### Global ###
     rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f = Solving_global_prob(D_n,capacity)
@@ -23,22 +24,39 @@ function main()
 
 end
 
+function run_multiple_time()
+    global REUSED_TRAFFIC = false
+    stop1 =zeros(Numb_kaps,NUM_SIM)
+    stop2 =zeros(Numb_kaps,NUM_SIM)
+    stop3=zeros(Numb_kaps,NUM_SIM)
+    for i =1:NUM_SIM
+        #Generate data
+        println("---- Simulation ",i)
+        dist_list, gain_list, capacity, D_n = mobile_gen()
+        _, _, _, _, stop1[:,i], _ = BCD(dist_list, gain_list, capacity, D_n)
+        _, _, _, _, _, _, _, stop2[:,i] = ADMM(dist_list, gain_list, capacity, D_n,false)
+        _, _, _, _, _, _, _, stop3[:,i] = ADMM(dist_list, gain_list, capacity, D_n,true)
+    end
+    save_result_iteration(stop1,stop2,stop3)
+
+end
+
 function BCD(dist_list, gain_list, capacity, D_n)
     println("**** BCD Method ****")
     T_cmp   = zeros(Numb_kaps,Numb_Services)
     E_cmp   = zeros(Numb_kaps,Numb_Services)
-    f       = ones(Numb_kaps,Numb_Services,NumbDevs,Numb_Iteration)
+    f       = ones(Numb_kaps,Numb_Services,NumbDevs,Numb_Iteration+1)
     for n=1:NumbDevs
-        f[:,:,n,:] =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,1,Numb_Iteration)
+        f[:,:,n,:] =f_max[n]/Numb_Services*1e-9*ones(Numb_kaps, Numb_Services,1,Numb_Iteration+1)
     end
 
     T_com   = zeros(Numb_kaps,Numb_Services)
     E_com   = zeros(Numb_kaps,Numb_Services)
-    w       = 1/NumbDevs*ones(Numb_kaps,NumbDevs,Numb_Iteration)
+    w       = 1/NumbDevs*ones(Numb_kaps,NumbDevs,Numb_Iteration+1)
     tau     = zeros(Numb_kaps,Numb_Services,NumbDevs)
 
-    Theta   = 0.1*ones(Numb_kaps,Numb_Services,Numb_Iteration)
-    Obj     = zeros(Numb_kaps, Numb_Iteration)
+    Theta   = 0.1*ones(Numb_kaps,Numb_Services,Numb_Iteration+1)
+    Obj     = zeros(Numb_kaps, Numb_Iteration+1)
     Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
     stop_k  = zeros(Int32,Numb_kaps)
     Heuristic_Obj = zeros(Numb_kaps)
@@ -76,7 +94,7 @@ function BCD(dist_list, gain_list, capacity, D_n)
    return Obj, Theta, w, f, stop_k, Heuristic_Obj
 end
 
-function ADMM(dist_list, gain_list, capacity, D_n)
+function ADMM(dist_list, gain_list, capacity, D_n, jpadmm=false)
     println("**** ADMM Method ****")
     T_cmp   = zeros(Numb_kaps,Numb_Services)
     E_cmp   = zeros(Numb_kaps,Numb_Services)
@@ -116,8 +134,11 @@ function ADMM(dist_list, gain_list, capacity, D_n)
 
             for s=1:Numb_Services
                 ### Sub1 ###
-                T_cmp[k,s], f[k,s,:,t+1], E_cmp[k,s]  = Solving_isub_prob1(Theta[k,:,t],D_n,s,f[k,:,:,t+1],y[k,:]) # trick for cyclic update in primal ADMM
-                # T_cmp[k,s], f[k,s,:,t+1], E_cmp[k,s]  = Solving_isub_prob1(Theta[k,:,t],D_n,s,f[k,:,:,t],y[k,:]) # parallel update in primal ADMM
+                if(jpadmm)
+                    T_cmp[k,s], f[k,s,:,t+1], E_cmp[k,s]  = Solving_isub_prob1(Theta[k,:,t],D_n,s,f[k,:,:,t],y[k,:], jpadmm) # parallel update in primal JPADMM
+                else
+                    T_cmp[k,s], f[k,s,:,t+1], E_cmp[k,s]  = Solving_isub_prob1(Theta[k,:,t],D_n,s,f[k,:,:,t+1],y[k,:],jpadmm) # trick for cyclic update in primal ADMM
+                end
 
                 ### Sub2 ###
                 T_com[k,s], w1[k,s,:,t+1], tau[k,s,:], E_com[k,s] = Solving_isub_prob2(Theta[k,:,t],capacity,s, v[k,:,:], z[k,:,t])

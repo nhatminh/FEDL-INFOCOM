@@ -103,7 +103,7 @@ function Solving_global_prob(D_n,capacity)
     println("Computed-Obj:",compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity))
 
 
-    if (DEBUG > 0)
+    if (DEBUG > 1)
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
@@ -155,7 +155,7 @@ function compute_obj(rs_f, rs_w, rs_Theta, D_n, capacity)
 end
 
 function Solving_sub_prob1(Theta, D_n)
-    println("\n===== Solving Sub1: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving Sub1: Solver =====\n") end
     # println("D_n: ",D_n)
     prob = Model(with_optimizer(Ipopt.Optimizer, tol=1e-7, max_iter=100000, print_level =0))
     # prob = Model(with_optimizer(ECOS.Optimizer))
@@ -178,7 +178,7 @@ function Solving_sub_prob1(Theta, D_n)
     @NLobjective(prob, Min, sum(log(1/Theta[s])/(1-Theta[s]) * (sum( alpha/2 * C_s[s] * D_n[s,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s]) for s =1:Numb_Services))
 
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_T_cmp = value.(T_cmp)
     rs_f = value.(f)
@@ -187,7 +187,7 @@ function Solving_sub_prob1(Theta, D_n)
         rs_E_cmp[s] = alpha / 2 * sum(C_s[s]* D_n[s,:].*(rs_f[s,:].^2)) * 1e18
     end
 
-    if (DEBUG > 0)
+    if (DEBUG > 1)
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
@@ -197,9 +197,9 @@ function Solving_sub_prob1(Theta, D_n)
     return rs_T_cmp, rs_f, rs_E_cmp
 end
 
-function Solving_isub_prob1(Theta, D_n, s_idx, f_k, y)
+function Solving_isub_prob1(Theta, D_n, s_idx, f_k, y, jpadmm = false) ## jpadmm  for parallel update
     numb_serv = 1
-    println("\n===== Solving iSub1: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving iSub1: Solver =====\n") end
     # println("D_n: ",D_n)
     prob = Model(with_optimizer(Ipopt.Optimizer, tol=1e-7, max_iter=100000, print_level =0))
     # prob = Model(with_optimizer(ECOS.Optimizer))
@@ -216,14 +216,28 @@ function Solving_isub_prob1(Theta, D_n, s_idx, f_k, y)
             @NLconstraint(prob, C_s[s_idx]*(D_n[s_idx,n]*1e-9/f[s,n]) <= T_cmp[s])
         end
     end
+    # obj_func = sum(log(1/Theta[s_idx])/(1-Theta[s_idx]) *
+    #                             (sum( alpha/2 * C_s[s_idx] * D_n[s_idx,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s])
+    #                             + sum(y[n]*f[s,n] for n =1:NumbDevs) for s =1:numb_serv)
+    #                             + RHO1/2*sum((sum(f_k[s,n] for s =1:Numb_Services)-f_k[s_idx,n] + f[1,n] - f_max[n]*1e-9)^2 for n =1:NumbDevs)
+    if(jpadmm)
+        @NLobjective(prob, Min, sum(log(1/Theta[s_idx])/(1-Theta[s_idx]) *
+                                    (sum( alpha/2 * C_s[s_idx] * D_n[s_idx,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s])
+                                    + sum(y[n]*f[s,n] for n =1:NumbDevs) for s =1:numb_serv)
+                                    + RHO1/2*sum((sum(f_k[s,n] for s =1:Numb_Services)-f_k[s_idx,n] + f[1,n] - f_max[n]*1e-9)^2 for n =1:NumbDevs)
+                                    + NU/2*sum((f[1,n]-f_k[s_idx,n])^2 for n =1:NumbDevs) )
 
-    @NLobjective(prob, Min, sum(log(1/Theta[s_idx])/(1-Theta[s_idx]) *
-                                (sum( alpha/2 * C_s[s_idx] * D_n[s_idx,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s])
-                                + sum(y[n]*f[s,n] for n =1:NumbDevs) for s =1:numb_serv)
-                                + RHO1/2*sum((sum(f_k[s,n] for s =1:Numb_Services)-f_k[s_idx,n] + f[1,n] - f_max[n]*1e-9)^2 for n =1:NumbDevs) )
+    else
+        @NLobjective(prob, Min,  sum(log(1/Theta[s_idx])/(1-Theta[s_idx]) *
+                                    (sum( alpha/2 * C_s[s_idx] * D_n[s_idx,n] *f[s,n]^2 * 1e18 for n =1:NumbDevs) + kappa*T_cmp[s])
+                                    + sum(y[n]*f[s,n] for n =1:NumbDevs) for s =1:numb_serv)
+                                    + RHO1/2*sum((sum(f_k[s,n] for s =1:Numb_Services)-f_k[s_idx,n] + f[1,n] - f_max[n]*1e-9)^2 for n =1:NumbDevs) )
+    end
+
+    # @NLobjective(prob, Min, obj_func)
 
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_T_cmp = value.(T_cmp)
     rs_f = value.(f)
@@ -233,7 +247,7 @@ function Solving_isub_prob1(Theta, D_n, s_idx, f_k, y)
         rs_E_cmp[s] = alpha / 2 * sum(C_s[s_idx]* D_n[s_idx,:].*(rs_f[s,:].^2)) * 1e18
     end
 
-    if (DEBUG > 0)
+    if (DEBUG > 1)
         println("T_cmp: ", rs_T_cmp)
         println("f: ",rs_f)
         println("E_cmp: ", rs_E_cmp)
@@ -244,7 +258,7 @@ function Solving_isub_prob1(Theta, D_n, s_idx, f_k, y)
 end
 
 function Solving_sub_prob2(Theta, capacity)
-    println("\n===== Solving Sub2: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving Sub2: Solver =====\n") end
     up_capacity = capacity[1]
     down_capacity = capacity[2]
     tau_dl=zeros(Numb_Services) # Downlink transmission time
@@ -268,7 +282,7 @@ function Solving_sub_prob2(Theta, capacity)
 
 
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_T_com = value.(T_com)
     rs_w = value.(w)
@@ -283,7 +297,7 @@ function Solving_sub_prob2(Theta, capacity)
     end
 
 
-    if (DEBUG > 0)
+    if (DEBUG > 1)
         println("T_com: ", rs_T_com)
         println("w: ",rs_w)
         println("tau: ", rs_tau)
@@ -301,7 +315,7 @@ end
 
 function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
     numb_serv = 1
-    println("\n===== Solving iSub2: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving iSub2: Solver =====\n") end
     up_capacity = capacity[1]
     down_capacity = capacity[2]
     tau_dl=zeros(Numb_Services) # Downlink transmission time
@@ -326,7 +340,7 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
                                 + sum(v[s_idx,n]*(w[s,n]-z[n]) for n =1:NumbDevs)
                                 + RHO2/2*sum((w[s,n]-z[n])^2 for n =1:NumbDevs) for s =1:numb_serv) )
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_T_com = value.(T_com)
     rs_w = value.(w)
@@ -341,7 +355,7 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
     end
 
 
-    if (DEBUG > 0)
+    if (DEBUG > 1)
         println("T_com: ", rs_T_com)
         println("w: ",rs_w)
         println("tau: ", rs_tau)
@@ -358,7 +372,7 @@ function Solving_isub_prob2(Theta, capacity, s_idx, v, z)
 end
 
 function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
-    println("\n===== Solving Sub3: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving Sub3: Solver =====\n") end
 
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=1000000, print_level =1))
 
@@ -367,15 +381,14 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
     @NLobjective(prob, Min, sum(1/(1 - Theta[s]) * (E_com[s] - log(Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(Theta[s])*T_cmp[s])) for s=1:Numb_Services) )
 
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_Theta = value.(Theta)
     Obj = 0
     for s =1:Numb_Services
         Obj += 1/(1 - rs_Theta[s]) * (E_com[s] - log(rs_Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(rs_Theta[s])*T_cmp[s]))
     end
-    println("Theta: ", rs_Theta)
-    println("Obj1: ", JuMP.objective_value(prob))
+
     if (DEBUG > 0)
         println("Theta: ", rs_Theta)
         println("Obj: ", Obj)
@@ -386,7 +399,7 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
 end
 
 function Solving_isub_prob3( T_cmp, E_cmp, T_com, E_com)
-    println("\n===== Solving Sub3: Solver =====\n")
+    if (DEBUG > 0) println("\n===== Solving Sub3: Solver =====\n") end
     numb_serv = 1
     prob = Model(with_optimizer(Ipopt.Optimizer,tol=1e-10, max_iter=1000000, print_level =1))
 
@@ -395,15 +408,14 @@ function Solving_isub_prob3( T_cmp, E_cmp, T_com, E_com)
     @NLobjective(prob, Min, sum(1/(1 - Theta[s]) * (E_com[s] - log(Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(Theta[s])*T_cmp[s])) for s=1:numb_serv) )
 
     optimize!(prob)
-    println("Solve Status: ",termination_status(prob))
+    # println("Solve Status: ",termination_status(prob))
 
     rs_Theta = value.(Theta)
     Obj = 0
     for s =1:numb_serv
         Obj += 1/(1 - rs_Theta[s]) * (E_com[s] - log(rs_Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(rs_Theta[s])*T_cmp[s]))
     end
-    println("Theta: ", rs_Theta)
-    println("Obj1: ", JuMP.objective_value(prob))
+
     if (DEBUG > 0)
         println("Theta: ", rs_Theta)
         println("Obj: ", Obj)
@@ -418,7 +430,7 @@ end
 ############ ############ ############
 
 function Solving_isub3( T_cmp, E_cmp, T_com, E_com)
-    println("\n===== Solving iSub3: Closed Form =====\n")
+    if (DEBUG > 0) println("\n===== Solving iSub3: Closed Form =====\n") end
     eta   = (E_cmp + kappa*T_cmp)/(E_cmp + E_com + kappa*(T_cmp + T_com))
     # println("Eta: ", eta)
     fx(x)  = log(x) + 1/x - 1/eta

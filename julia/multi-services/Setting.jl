@@ -2,7 +2,7 @@ using Distributions
 using HDF5
 
 NumbDevs = 5 #1, 5, 10, 15, 20
-
+NUM_SIM = 100
 ### PROGRAM SETTING ###
 Numb_Services = 3  #Number of simulations
 REUSED_TRAFFIC = true
@@ -41,12 +41,13 @@ if(READ_RESULT)
     HETEROGENEOUS = 2
 end
 
-Numb_Iteration = 200 #1000 200
+Numb_Iteration = 300 #1000 200
 stop_epsilon1 = 5e-5
 stop_epsilon2 = 5e-5
 # RHO =1e-2
 RHO1 =5e-1
 RHO2 =5e-1
+NU = RHO1 *(Numb_Services/(2-1) - 1) + 0.1 ## rho *(Numbservice/(2-alpha) - 1) (0< alpha <2)
 
 ### LEARNING PARAMS ###
 D_min   = 8* 5e6   #5 MB, datasize range (-> bits)

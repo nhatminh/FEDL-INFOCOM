@@ -525,3 +525,23 @@ function read_result(filename)
         return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta
     end
 end
+
+
+function save_result_iteration(stop1,stop2,stop3)
+    h5open(string("result_iter_",NUM_SIM,".h5"), "w") do file
+        # write(file,"kaps", kaps)
+        write(file,"stop1", stop1)
+        write(file,"stop2", stop2)
+        write(file,"stop3", stop3)
+    end
+end
+
+function read_result_iteration()
+    h5open(string("result_iter_",NUM_SIM,".h5"), "r") do file
+        # write(file,"kaps", kaps)
+        stop1 = read(file,"stop1")
+        stop2  = read(file,"stop2")
+        stop3 = read(file,"stop3")
+    end
+    return stop1, stop2, stop3
+end
