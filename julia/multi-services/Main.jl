@@ -8,38 +8,6 @@ using LinearAlgebra
 # Result for Section IV: Closed-Form solution
 include("Plots_Figs.jl")
 
-
-function main()
-    #Generate data
-    dist_list, gain_list, capacity, D_n = mobile_gen()
-    Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
-    Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n,jpadmm=false)
-
-    ### Global ###
-    rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f = Solving_global_prob(D_n,capacity)
-
-    println("Heuristic_Obj:",Heuristic_Obj[1])
-    plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
-
-end
-
-function run_multiple_time()
-    global REUSED_TRAFFIC = false
-    stop1 =zeros(Numb_kaps,NUM_SIM)
-    stop2 =zeros(Numb_kaps,NUM_SIM)
-    stop3=zeros(Numb_kaps,NUM_SIM)
-    for i =1:NUM_SIM
-        #Generate data
-        println("---- Simulation ",i)
-        dist_list, gain_list, capacity, D_n = mobile_gen()
-        _, _, _, _, stop1[:,i], _ = BCD(dist_list, gain_list, capacity, D_n)
-        _, _, _, _, _, _, _, stop2[:,i] = ADMM(dist_list, gain_list, capacity, D_n,false)
-        _, _, _, _, _, _, _, stop3[:,i] = ADMM(dist_list, gain_list, capacity, D_n,true)
-    end
-    save_result_iteration(stop1,stop2,stop3)
-
-end
-
 function BCD(dist_list, gain_list, capacity, D_n)
     println("**** BCD Method ****")
     T_cmp   = zeros(Numb_kaps,Numb_Services)
@@ -181,6 +149,40 @@ function ADMM(dist_list, gain_list, capacity, D_n, jpadmm=false)
 end
 
 
+
+function main()
+    jpadmm=false
+    #Generate data
+    dist_list, gain_list, capacity, D_n = mobile_gen()
+    Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
+    Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n,jpadmm)
+
+    ### Global ###
+    rs_Obj, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Theta, rs_w, rs_f = Solving_global_prob(D_n,capacity)
+
+    println("Heuristic_Obj:",Heuristic_Obj[1])
+    plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+
+end
+
+function run_multiple_time()
+    global REUSED_TRAFFIC = false
+    stop1 =zeros(Numb_kaps,NUM_SIM)
+    stop2 =zeros(Numb_kaps,NUM_SIM)
+    stop3=zeros(Numb_kaps,NUM_SIM)
+    for i =1:NUM_SIM
+        #Generate data
+        println("---- Simulation ",i)
+        dist_list, gain_list, capacity, D_n = mobile_gen()
+        _, _, _, _, stop1[:,i], _ = BCD(dist_list, gain_list, capacity, D_n)
+        _, _, _, _, _, _, _, stop2[:,i] = ADMM(dist_list, gain_list, capacity, D_n,false)
+        _, _, _, _, _, _, _, stop3[:,i] = ADMM(dist_list, gain_list, capacity, D_n,true)
+    end
+    save_result_iteration(stop1,stop2,stop3)
+
+end
+
+
  # Result for Section IV: Closed-Form solution in the paper (5 devs)
 if READ_RESULT
     dist_list, gain_list, ratios, D_n = mobile_gen()
@@ -202,6 +204,6 @@ if READ_RESULT
     plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 
 else
-    # run_multiple_time()
-    main()
+    run_multiple_time()
+    # main()
 end

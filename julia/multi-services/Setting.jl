@@ -1,7 +1,7 @@
 using Distributions
 using HDF5
 
-NumbDevs = 5 #1, 5, 10, 15, 20
+NumbDevs = 10 #1, 5, 10, 15, 20
 NUM_SIM = 100
 ### PROGRAM SETTING ###
 Numb_Services = 3  #Number of simulations
@@ -41,12 +41,22 @@ if(READ_RESULT)
     HETEROGENEOUS = 2
 end
 
-Numb_Iteration = 300 #1000 200
-stop_epsilon1 = 5e-5
-stop_epsilon2 = 5e-5
-# RHO =1e-2
-RHO1 =5e-1
-RHO2 =5e-1
+Numb_Iteration = 200 #1000 200
+stop_epsilon1 = 1e-5 #5e-5
+stop_epsilon2 = 1e-5 #5e-5
+
+# RHO1 = 8e-1  #5e-1
+# RHO2 = 8e-1
+RHO1 = 1
+RHO2 = 1
+
+if NumbDevs > 10
+    RHO1 = 1
+    RHO2 = 1
+    stop_epsilon1 = 5e-6
+    stop_epsilon2 = 5e-6
+end
+
 NU = RHO1 *(Numb_Services/(2-1) - 1) + 0.1 ## rho *(Numbservice/(2-alpha) - 1) (0< alpha <2)
 
 ### LEARNING PARAMS ###

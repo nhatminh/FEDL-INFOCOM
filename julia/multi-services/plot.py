@@ -20,6 +20,7 @@ def plot_final():
     sns.swarmplot(x="Algorithm",y="Iterations", data=df_iters)
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.xlabel('')
+    plt.ylim(0,150)
     plt.savefig("figs\Iters_Stat_100.pdf")
     plt.show()
 
