@@ -385,8 +385,13 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
 
     rs_Theta = value.(Theta)
     Obj = 0
+    E_Obj = zeros(Numb_Services)
+    T_Obj = zeros(Numb_Services)
+
     for s =1:Numb_Services
-        Obj += 1/(1 - rs_Theta[s]) * (E_com[s] - log(rs_Theta[s])*E_cmp[s] + kappa * (T_com[s] - log(rs_Theta[s])*T_cmp[s]))
+        E_Obj[s] =  1/(1 - rs_Theta[s]) * (E_com[s] - log(rs_Theta[s])*E_cmp[s] )
+        T_Obj[s] =  1/(1 - rs_Theta[s]) * (T_com[s] - log(rs_Theta[s])*T_cmp[s] )
+        Obj += E_Obj[s] + kappa * T_Obj[s]
     end
 
     if (DEBUG > 0)
@@ -395,7 +400,7 @@ function Solving_sub_prob3( T_cmp, E_cmp, T_com, E_com)
         println("Obj1: ", JuMP.objective_value(prob))
     end
 
-    return rs_Theta, Obj
+    return rs_Theta, E_Obj, T_Obj, Obj
 end
 
 function Solving_isub_prob3( T_cmp, E_cmp, T_com, E_com)

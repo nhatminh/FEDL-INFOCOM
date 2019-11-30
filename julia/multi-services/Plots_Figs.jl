@@ -7,11 +7,12 @@ using Printf
 # include("plt_FL.jl")
 
 # fig_size = (7.,5.1)
-fig_size = (6.,4.3)
+# fig_size = (6.,4.3)
+fig_size = (6.,4.)
 fig_size1 = (5.5,4.)
 label_fontsize = 18-1.5
 legend_fontsize = label_fontsize - 3
-patterns = ["","."]
+patterns = ["", ".","/"]
 
 label_fontsize1 = label_fontsize
 marker_size=6
@@ -20,6 +21,9 @@ l_width=1.2
 stride = 6
 
 colors=["m","b","coral","g","k","r"]
+colors1 = ["dodgerblue", "mediumseagreen", "coral"]
+colors2 = ["skyblue", "mediumaquamarine", "sandybrown"]
+colors3 = ["dodgerblue", "mediumseagreen", "coral", "crimson", "violet"]
 algs = ["PBCD", "Consensus_BCD2", "JP-ADMM", "JP-ADMM_BCD4","IpOpt Solver","Exhaustive Search"]
 markers = ["x","o",">","^", "s","."]
 
@@ -398,30 +402,29 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 end
 
 function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+    Stride=8
     clf()
     t = Int(max(stop1[1],stop2[1]))
-    figure(1,figsize=fig_size)
-    plot(rs_Obj*ones(t),label="Solver",linestyle=":")
-    plot(Obj2[1:stop2[1]],label="miADMM",linestyle="-")
-    plot(Obj1[1:stop1[1]],label="BCD",linestyle="--")
-
+    figure(2,figsize=fig_size)
+    plot(rs_Obj*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+    plot(Obj2[1:stop2[1]],label="miADMM",linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
+    plot(Obj1[1:stop1[1]],label="BCD",linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
 
     # ylim(6.4,6.8)
+    legend(loc="best",fontsize=legend_fontsize-1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Convergence_Obj.pdf"))
 
-
     clf()
-    figure(2,figsize=fig_size)
+    figure(3,figsize=fig_size)
     for n=1:NumbDevs
         plot(r1[1,n,1:stop2[1]])
     end
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Convergence_Residual1.pdf"))
 
-
     clf()
-    figure(3,figsize=fig_size)
+    figure(4,figsize=fig_size)
     for s=1:Numb_Services
         for n=1:NumbDevs
             plot(r2[1,s,n,1:stop2[1]])
@@ -430,47 +433,182 @@ function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, 
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Convergence_Residual2.pdf"))
 
-
-
-    clf()
-    figure(4,figsize=fig_size)
-    for s=1:Numb_Services
-        plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":")
-        plot(Theta2[1,s,1:stop2[1]],label="miADMM",linestyle="-")
-        plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
-
-    end
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Convergence_Theta.pdf"))
-
-
     clf()
     figure(5,figsize=fig_size)
-    for n=1:NumbDevs
-        plot(rs_w[n]*ones(t),label="Solver",linestyle=":")
-        plot(w2[1,n,1:stop2[1]],label="miADMM",linestyle="-")
-        for s=1:Numb_Services
-            plot(ws2[1,s,n,1:stop2[1]],label="miADMM",linestyle="--")
+
+    for s=1:Numb_Services
+        if(s==1)
+            plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+            plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
+
+        else
+            plot(rs_Theta[s]*ones(t),linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+            plot(Theta1[1,s,1:stop1[1]],linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
         end
-        # plot(w1[1,n,1:stop1[1]],label="BCD",linestyle="--")
-
+        plot(Theta2[1,s,1:stop2[1]],label=string("miADMM:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
     end
+
+    legend(loc="best",fontsize=legend_fontsize-1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Convergence_w.pdf"))
-
-
+    savefig(string(folder,"Convergence_Theta.pdf"))
 
     clf()
     figure(6,figsize=fig_size)
     for n=1:NumbDevs
-        for s=1:Numb_Services
-            plot(rs_f[s,n]*ones(t),label="Solver",linestyle=":")
-            plot(f2[1,s,n,1:stop2[1]],label="miADMM",linestyle="-")
-            # plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
+        if(n==1)
+            plot(rs_w[n]*ones(t),label="Solver",linestyle=":")
+            plot(w2[1,n,1:stop2[1]],label="miADMM",linestyle="-")
+        else
+            plot(rs_w[n]*ones(t),linestyle=":")
+            plot(w2[1,n,1:stop2[1]], linestyle="-")
+            # for s=1:Numb_Services
+            #     plot(ws2[1,s,n,1:stop2[1]],label="miADMM",linestyle="--")
+            # end
+        end
+        # plot(w1[1,n,1:stop1[1]],label="BCD",linestyle="--")
+    end
+    legend(loc="best",fontsize=legend_fontsize-1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_w.pdf"))
+
+    clf()
+    figure(7,figsize=fig_size)
+    for n=1:NumbDevs
+        if(n==1)
+            for s=1:Numb_Services
+                if(s==1)
+                    plot(rs_f[s,n]*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+                else
+                    plot(rs_f[s,n]*ones(t),linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+                end
+
+                plot(f2[1,s,n,1:stop2[1]],label=string("miADMM:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
+                # plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
+            end
         end
     end
-
+    legend(loc="best",fontsize=legend_fontsize-1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     savefig(string(folder,"Convergence_f.pdf"))
+
+
+end
+
+# FOR BCD Only
+function plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+    fig_size = (4.5,5)
+    clf()
+    t = Int(stop1[1])
+    figure(1,figsize=fig_size)
+    plot(rs_Obj*ones(t),label="Solver",linestyle=":")
+    plot(Obj1[1:stop1[1]],label="BCD",linestyle="--")
+    xlabel("Iteration",fontsize=label_fontsize1)
+    ylabel("Total Cost",fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Obj.pdf"))
+
+    clf()
+    figure(4,figsize=fig_size)
+    for s=1:Numb_Services
+        if(s==1)
+            plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":")
+        else
+            plot(rs_Theta[s]*ones(t),linestyle=":")
+        end
+
+        plot(Theta1[1,s,1:stop1[1]],label=string("BCD-Service",s),linestyle="-")
+    end
+    xlabel("Iteration",fontsize=label_fontsize1)
+    ylabel("\$\\theta\$",fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_Theta.pdf"))
+
+    clf()
+    figure(5,figsize=fig_size)
+    for n=1:NumbDevs
+        if(n==1)
+            plot(rs_w[n]*ones(t),label="Solver",linestyle=":")
+            plot(w1[1,n,1:stop1[1]],label="BCD",linestyle="-")
+        else
+            plot(rs_w[n]*ones(t),linestyle=":")
+            plot(w1[1,n,1:stop1[1]],linestyle="-")
+        end
+    end
+    xlabel("Iteration",fontsize=label_fontsize1)
+    ylabel("\$w\$",fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Convergence_w.pdf"))
+
+    clf()
+    figure(6,figsize=fig_size)
+    for n=1:NumbDevs
+        # for s=1:Numb_Services
+        if(n==1)
+            plot(rs_f[1,n]*ones(t),label="Solver",linestyle=":")
+            plot(f1[1,1,n,1:stop1[1]],label="BCD",linestyle="-")
+        else
+            plot(rs_f[1,n]*ones(t),linestyle=":")
+            plot(f1[1,1,n,1:stop1[1]],linestyle="-")
+        end
+        # end
+    end
+    xlabel("Iteration",fontsize=label_fontsize1)
+    ylabel("\$f\$",fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    savefig(string(folder,"Convergence_f.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+end
+
+function plot_comparison(rs_Obj, Obj_E, Obj_T, Heuristic_Obj,Heuristic_Obj_E, Heuristic_Obj_T)
+    # println("HERE")
+    # fig_size = (8,4)
+    clf()
+    figure(20,figsize=fig_size)
+    alg_labels = ["Heuristic","Optimal"]
+    Service_labels = ["Service 1", "Service 2", "Service 3"]
+    idx = [1:1:Numb_Services;]
+    width = 0.25
+    barlist1 = bar(idx.-width/2, Heuristic_Obj_E, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx.+width/2, Obj_E, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+
+    xticks(idx, Service_labels, fontsize=label_fontsize1)
+    ylabel("Energy Consumption", fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    savefig(string(folder,"E_Comparison.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+    clf()
+    figure(21,figsize=fig_size)
+    alg_labels = ["Heuristic","Optimal"]
+    Service_labels = ["Service 1", "Service 2", "Service 3"]
+    idx = [1:1:Numb_Services;]
+    width = 0.25
+    barlist1 = bar(idx.-width/2, Heuristic_Obj_T, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx.+width/2, Obj_T, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+
+    xticks(idx, Service_labels, fontsize=label_fontsize1)
+    ylabel("Total Time", fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    savefig(string(folder,"T_Comparison.pdf"))
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+    clf()
+    figure(22,figsize=fig_size)
+    alg_labels = ["Heuristic","Optimal"]
+    Service_labels = ["Service 1", "Service 2", "Service 3"]
+    idx = [1:1:Numb_Services;]
+    width = 0.25
+    barlist1 = bar(idx.-width/2, Heuristic_Obj_E + Heuristic_Obj_T, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx.+width/2, Obj_E + Obj_T, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+
+    xticks(idx, Service_labels, fontsize=label_fontsize1)
+    ylabel("Total cost", fontsize=label_fontsize1)
+    legend(loc="best",fontsize=legend_fontsize-1)
+    savefig(string(folder,"Service_Cost_Comparison.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
 
 end

@@ -92,3 +92,34 @@ show()
 # ax.tick_params("both",labelsize=12)
 
 println(zeros(Int32,3))
+
+
+
+print(range(1,Numb_Services) .-0.1)
+
+
+using PyPlot
+
+#################
+#  Create Data  #
+#################
+x = range(1,3)
+y = ones(3);
+
+# x = [1:1:3;]
+# y = rand(3);
+
+println(size(x))
+println(size(y))
+
+################
+##  Bar Plot  ##
+################
+fig = figure("pyplot_barplot",figsize=(10,10))
+subplot(211)
+b = bar(x,y,color="#0f87bf",align="center",alpha=0.4)
+axis("tight")
+PyPlot.title("Vertical Bar Plot")
+grid("on")
+xlabel("X")
+ylabel("Y")

@@ -24,14 +24,14 @@ function BCD(dist_list, gain_list, capacity, D_n)
 
     Theta   = 0.1*ones(Numb_kaps,Numb_Services,Numb_Iteration+1)
     Obj     = zeros(Numb_kaps, Numb_Iteration+1)
-    Obj_E, Obj_T    = zeros(Numb_kaps), zeros(Numb_kaps)
+    Obj_E, Obj_T    = zeros(Numb_kaps, Numb_Services), zeros(Numb_kaps, Numb_Services)
     stop_k  = zeros(Int32,Numb_kaps)
     Heuristic_Obj = zeros(Numb_kaps)
-
+    Heuristic_Obj_E, Heuristic_Obj_T = zeros(Numb_kaps, Numb_Services), zeros(Numb_kaps, Numb_Services)
     for k=1:Numb_kaps
         global kappa = kaps[k]
         t_cmp,e_cmp,t_com,e_com, Obj[k,1] = compute_obj(f[k,:,:,1], w[k,:,1], Theta[k,:,1], D_n, capacity)
-        _, Heuristic_Obj[k]  = Solving_sub_prob3(t_cmp,e_cmp,t_com,e_com)
+        _, Heuristic_Obj_E[k,:], Heuristic_Obj_T[k,:], Heuristic_Obj[k]  = Solving_sub_prob3(t_cmp,e_cmp,t_com,e_com)
 
         for t =1:Numb_Iteration
             print("--> Iteration: ",t )
@@ -43,7 +43,7 @@ function BCD(dist_list, gain_list, capacity, D_n)
             T_com[k,:], w[k,:,t+1], tau[k,:,:], E_com[k,:]     = Solving_sub_prob2(Theta[k,:,t],capacity)
 
             ### Sub3 ###
-            Theta[k,:,t+1], Obj[k,t+1]  = Solving_sub_prob3(T_cmp[k,:],E_cmp[k,:],T_com[k,:],E_com[k,:])
+            Theta[k,:,t+1], Obj_E[k,:], Obj_T[k,:], Obj[k,t+1]  = Solving_sub_prob3(T_cmp[k,:],E_cmp[k,:],T_com[k,:],E_com[k,:])
 
             if ((norm(Theta[k, :, t+1] - Theta[k, :, t] ) <= stop_epsilon1) && (norm(w[k, :,t+1] - w[k, :,t] ) <= stop_epsilon2))
                 println("Theta:", Theta[k, :, t+1])
@@ -58,7 +58,7 @@ function BCD(dist_list, gain_list, capacity, D_n)
 
    # save_BCD_result()
    # # save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
-   return Obj, Theta, w, f, stop_k, Heuristic_Obj
+   return Obj, Obj_E, Obj_T, Theta, w, f, stop_k, Heuristic_Obj, Heuristic_Obj_E, Heuristic_Obj_T
 end
 
 function ADMM(dist_list, gain_list, capacity, D_n, jpadmm=false)
@@ -154,7 +154,7 @@ function main()
     jpadmm=false
     #Generate data
     dist_list, gain_list, capacity, D_n = mobile_gen()
-    Obj1, Theta1, w1, f1, stop1, Heuristic_Obj = BCD(dist_list, gain_list, capacity, D_n)
+    Obj1, Obj_E, Obj_T, Theta1, w1, f1, stop1, Heuristic_Obj, Heuristic_Obj_E, Heuristic_Obj_T   = BCD(dist_list, gain_list, capacity, D_n)
     Obj2, r1, r2, Theta2, w2, ws2, f2, stop2 = ADMM(dist_list, gain_list, capacity, D_n,jpadmm)
 
     ### Global ###
@@ -162,7 +162,8 @@ function main()
 
     println("Heuristic_Obj:",Heuristic_Obj[1])
     plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
-
+    # plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+    plot_comparison(rs_Obj, Obj_E[1,:], Obj_T[1,:], Heuristic_Obj[1,:],Heuristic_Obj_E[1,:], Heuristic_Obj_T[1,:])
 end
 
 function run_multiple_time()
@@ -174,7 +175,7 @@ function run_multiple_time()
         #Generate data
         println("---- Simulation ",i)
         dist_list, gain_list, capacity, D_n = mobile_gen()
-        _, _, _, _, stop1[:,i], _ = BCD(dist_list, gain_list, capacity, D_n)
+        _, _, _, _, _, _, stop1[:,i], _, _, _ = BCD(dist_list, gain_list, capacity, D_n)
         _, _, _, _, _, _, _, stop2[:,i] = ADMM(dist_list, gain_list, capacity, D_n,false)
         _, _, _, _, _, _, _, stop3[:,i] = ADMM(dist_list, gain_list, capacity, D_n,true)
     end
@@ -204,6 +205,9 @@ if READ_RESULT
     plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
 
 else
-    run_multiple_time()
-    # main()
+    if(NUM_SIM>1)
+        run_multiple_time()
+    else
+        main()
+    end
 end

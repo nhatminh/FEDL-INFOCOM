@@ -56,11 +56,12 @@ function mobile_gen()
         end
 
         for s =1:Numb_Services
-            if(ByDataset)
-                D_n[s,:]   = D_DS*ones(NumbDevs)
-            else
-                D_n[s,:]   = rand(Uniform(D_min,D_max),NumbDevs)
-            end
+            # if(ByDataset)
+            #     D_n[s,:]   = D_DS*ones(NumbDevs)
+            # else
+            #     D_n[s,:]   = rand(Uniform(D_min,D_max),NumbDevs)
+            # end
+            D_n[s,:]   = rand(Uniform(D_min,D_max),NumbDevs)
         end
 
 
