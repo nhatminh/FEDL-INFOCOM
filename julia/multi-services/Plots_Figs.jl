@@ -8,7 +8,7 @@ using Printf
 
 # fig_size = (7.,5.1)
 # fig_size = (6.,4.3)
-fig_size = (6.,4.)
+fig_size = (6.,4.1)
 fig_size1 = (5.5,4.)
 label_fontsize = 18-1.5
 legend_fontsize = label_fontsize - 3
@@ -89,7 +89,7 @@ function plot_sub1_T(T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3)
     clf()
     cfig = figure(1,figsize=fig_size)
     ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize-1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     plot(kaps,T_cmp1 .+ 0.02*maximum(T_cmp1),color=colors[6],linestyle="-",linewidth=l_width+0.3,label="\$T_{cmp}^*\$")
     # plot(kaps,T_cmp + 0.02*maximum(T_cmp1),color="gold",linestyle=":",linewidth=l_width+0.3,label="Solver")
     plot(kaps,Tcmp_N1,color=colors[2],linestyle="--",linewidth=l_width+0.2,label="\$T_{\\mathcal{N}_1}\$")
@@ -125,7 +125,7 @@ function plot_sub1_N(N1, N2, N3)
     N3[kaps_draw_idx[end]] = N3[kaps_draw_idx[end]]+1
     cfig = figure(2,figsize=fig_size)
     ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize-1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     # plot(kaps,T_cmp,color=colors[1],linestyle="-",linewidth=l_width,label="Solver")
     step(kaps,N1,color=colors[4],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_1\$", where="post", marker=markers[2], markersize=marker_size, markevery=5)
     step(kaps,N2,color=colors[3],linestyle="-",linewidth=l_width,label="\$\\mathcal{N}_2\$", where="pre", marker=markers[3], markersize=marker_size, markevery=5)
@@ -160,7 +160,7 @@ function plot_sub1_f(f1)
     clf()
     cfig = figure(3,figsize=fig_size)
     ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize-1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     plot(kaps,f_min[1]*ones(Numb_kaps)*1e-9,linestyle=":",color=colors[6])
 
     if (HETEROGENEOUS == 0) # Homogeneous
@@ -208,7 +208,7 @@ function plot_sub2_tau(tau1)
     clf()
     cfig = figure(4,figsize=fig_size)
     ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+1)
+    ax.tick_params("both",labelsize =legend_fontsize+1)
 
     for n = 1:5
         plot(kaps,tau1[:,n], color=colors[n], linestyle="-",linewidth=l_width, marker=markers[n], markersize=marker_size-1, markevery=3, label=string("UE ",n))
@@ -244,7 +244,7 @@ function plot_sub2_p(p1)
     clf()
     cfig = figure(5,figsize=fig_size)
     ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+1)
+    ax.tick_params("both",labelsize =legend_fontsize+1)
 
     plot(kaps,Ptx_Max*ones(Numb_kaps),linestyle=":",color=colors[6])
     plot(kaps,Ptx_Min*ones(Numb_kaps),linestyle=":",color=colors[6])
@@ -273,114 +273,43 @@ function plot_sub2_p(p1)
     savefig(string(folder,"Sub2_p.pdf"))
 end
 
-function plot_sub3_cvx(Theta1, Obj1, T_cmp1, E_cmp1, T_com1, E_com1)
-    clf()
-    cfig = figure(6,figsize=fig_size1)
-    ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+2)
-
-    x = collect(1.e-5:0.001:0.99)
+function plot_sub3(rs_eta, Obj_E, Obj_T)
+    x = collect(1.e-5:0.001:0.33)
     obj   = zeros(size(x)[1])
     glob_cost_iter = zeros(size(x)[1])
     glob_numb_iter = zeros(size(x)[1])
-    # id = 36
-    id = 32
-    # println("Convex for kappa: ",  kaps[id])
-    for i=1:size(x)[1]
-        obj[i] = 1/(1 - x[i])* (E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id]))
-        glob_cost_iter[i] = E_com1[id] - log(x[i])*E_cmp1[id] + kaps[id] * (T_com1[id] - log(x[i])*T_cmp1[id])
-        glob_numb_iter[i] = 1/(1 - x[i])
-        # obj[i]   = obj_E[i] + obj_T[i]
-    end
-    plot(x, obj,linestyle="-",color="k", label=string("SUB3 Obj: \$\\kappa\$ =", kaps[id]))
-    plot(x, glob_cost_iter,linestyle="--",color=colors[2], label=string("\$E_{glob} + \\kappa * T_{glob}\$"))
-    plot(x, glob_numb_iter,linestyle="--",color=colors[3], label=string("\$ K(\\theta)\$"))
-    # println(x)
-    plot(Theta1[id], Obj1[id],color="r", marker=markers[2], markersize=marker_size)
+    K_g = zeros(Numb_Services)
+    fig_size = (6.5,4.)
+    clf()
+    cfig = figure(6,figsize=fig_size)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize+1)
 
-    legend(loc="best",fontsize=legend_fontsize+6)
-    xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
-    # ylabel("Objective",fontsize=label_fontsize1+1)
+    for s=1:Numb_Services
+        C_s =  Obj_E[s] + kaps[1]*Obj_T[s]
+        for i=1:size(x)[1]
+            K_g[s] = 2*rho0*As[s]*(Bs[s]*x[i]^2 +1)/(Cs[s]*x[i] - Ds[s]*x[i]^2)
+            obj[i] = K_g[s]* C_s
+            glob_cost_iter[i] = C_s
+            glob_numb_iter[i] = K_g[s]
+        end
+        Opt_Obj= 2*rho0*As[s]*(Bs[s]*rs_eta[s]^2 +1) /(Cs[s]*rs_eta[s] - Ds[s]*rs_eta[s]^2)*C_s
+        plot(x, obj,linestyle="-",color=colors1[s], label=string("Service ",s))
+        # plot(x, glob_cost_iter,linestyle="--",color=colors[2], label=string("\$E_{gl} + \\kappa_",s," * T_{gl}\$"))
+        # plot(x, glob_numb_iter,linestyle="--",color=colors[3], label=string("\$ K_1(\\eta_",s,")\$"))
+        plot(rs_eta[s], Opt_Obj,color=colors1[s], marker=markers[2], markersize=marker_size+3)
+    end
+
+    legend(loc=2,fontsize=legend_fontsize+1)
+    xlabel("\$\\eta\$",fontsize=label_fontsize1+1)
+    ylabel("SUB1-d Objecive",fontsize=label_fontsize1+1)
     yscale("log")
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    grid(true)
     savefig(string(folder,"Sub3_obj.pdf"))
-    println("Theta: ", minimum(Theta1), " - ", maximum(Theta1))
-    println("At kap = ", kaps[id],", Optimal Theta:", Theta1[id])
-
-    plot_FL_MINIST_5users(kaps[id])
-    obj = zeros(size(local_iters))
-    obj1 = zeros(size(local_iters))
-
-    for i=1:size(local_iters)[1]
-        obj[i] = global_iters[i]/Normalized_Global* (E_com1[id] + local_iters[i]/Normalized_Local *E_cmp1[id] + kaps[id] *
-        (T_com1[id] + local_iters[i]/Normalized_Local *T_cmp1[id]))
-        obj1[i] = 1/(1 - theory_theta2[i])* (E_com1[id] - log(theory_theta2[i]) *E_cmp1[id] + kaps[id] *
-        (T_com1[id] - log(theory_theta2[i]) *T_cmp1[id]))
-    end
-    println("Thoery_obj:",obj1)
-    println("True_obj:",obj)
-
 end
 
-
-function plot_sub3_kappa_theta(Theta, d_eta)
-    clf()
-    cfig = figure(10,figsize=fig_size1)
-    ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+3.5)
-    # plot(Numb_devs, Objs_E[:,11],linestyle="--",color=colors[1],marker=markers[1], markersize=marker_size, label=string("\$\\kappa\$ =", kaps[11]))
-    plot(kaps, 1 ./d_eta,linestyle="--",color=colors[3],label="\$\\eta\$")
-    plot(kaps, Theta,linestyle="-",color=colors[2],label="\$\\theta^*\$")
-    # plot(kaps, Theta1,linestyle="-",color=colors[3],label="Homogeneous:\$\\kappa\$")
-    # plot(kaps, 1 ./d_eta,linestyle="-",color=colors[3],label="Homogeneous")
-
-    legend(loc="best",fontsize=legend_fontsize+2)
-    xlabel("\$\\kappa\$",fontsize=label_fontsize1+7)
-    ylabel("\$\\theta^*\$ and \$\\eta\$",fontsize=label_fontsize1+4)
-    xscale("log")
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"sub3_kappa_theta.pdf"))
-
-    println("kaps: ", kaps[24], ", theta:", @sprintf("%.3f",Theta[24]), ", eta: ", @sprintf("%.3f",1/d_eta[24]) )
-    println("kaps: ", kaps[end], ", theta:", @sprintf("%.3f",Theta[end]), ", eta: ", @sprintf("%.3f",1/d_eta[end]) )
-end
-
-function plot_sub3_equation(Theta, d_eta)
-    clf()
-    x = collect(1.e-6:0.001:0.999)
-
-    cfig = figure(7,figsize=fig_size1)
-    ax = subplot(1,1,1)
-    ax.tick_params("both",labelsize=legend_fontsize+2)
-    id1 = 24
-    id2 = 32
-    plot(x,d_eta[id1]*ones(size(x)),linestyle="-",color="b",label=string("\$\\kappa\$ = ",kaps[id1]))
-    plot(x,d_eta[id2]*ones(size(x)),linestyle="-",color="g",label=string("\$\\kappa\$ = ",kaps[id2]))
-    # hlines(y=d_eta[20],xmin=0, xmax=Theta[20], linestyle=":",color="k", zorder=1)
-    # hlines(y=d_eta[30],xmin=0, xmax=Theta[30], linestyle=":",color="k", zorder=1)
-    vlines(x=Theta[id1],ymin=0, ymax=d_eta[id1], linestyle=":",color="k", zorder=2)
-    vlines(x=Theta[id2],ymin=0, ymax=d_eta[id2], linestyle=":",color="k", zorder=2)
-
-    plot(x, 1 ./x + log.(x),linestyle="-",color=colors[6], label="\$\\log(e^{1/\\theta} \\theta)\$")
-    # for k = 1:Numb_kaps
-    #     plot(x,d_eta[k]*ones(size(x)),linestyle=":",color="k")
-    # end
-
-    annotate(string("(",@sprintf("%.3f",Theta[id1]),", 1/",@sprintf("%.3f",1/d_eta[id1]),")"), xy=[Theta[id1];1.05*d_eta[id1]], xycoords="data",size=18)
-    annotate(string("(",@sprintf("%.3f",Theta[id2]),", 1/",@sprintf("%.3f",1/d_eta[id2]),")"), xy=[0.9*Theta[id2];1.1*d_eta[id2]], xycoords="data",size=18)
-    scatter(Theta[id1], d_eta[id1],color="k")
-    scatter(Theta[id2], d_eta[id2],color="k")
-
-    legend(loc="best",fontsize=legend_fontsize+6)
-    xlim(0, 1.)
-    ylim(0.98,maximum(d_eta)+0.1*maximum(d_eta))
-    xlabel("\$\\theta\$",fontsize=label_fontsize1+3)
-    ylabel("\$1/\\eta\$",fontsize=label_fontsize1+3)
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Sub3_eq.pdf"))
-end
-
-function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
+function plot_numerical_pareto(eta1, T_cmp1, E_cmp1, T_com1, E_com1)
     clf()
     figure(9,figsize=fig_size)
 
@@ -388,8 +317,8 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
     T_obj   = zeros(Numb_kaps)
 
     for i=1:Numb_kaps
-        E_obj[i] = 1/(1 - Theta1[i])* (E_com1[i] - log(Theta1[i])*E_cmp1[i])
-        T_obj[i] = 1/(1 - Theta1[i])* (T_com1[i] - log(Theta1[i])*T_cmp1[i])
+        E_obj[i] = 1/(1 - eta1[i])* (E_com1[i] - log(eta1[i])*E_cmp1[i])
+        T_obj[i] = 1/(1 - eta1[i])* (T_com1[i] - log(eta1[i])*T_cmp1[i])
     end
     scatter(E_obj, T_obj)
 
@@ -401,65 +330,90 @@ function plot_numerical_pareto(Theta1, T_cmp1, E_cmp1, T_com1, E_com1)
     savefig(string(folder,"pareto.pdf"))
 end
 
-function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
-    Stride=8
+function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, eta1, eta2, rs_eta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+    Stride=10
+    Stride1=2
     clf()
     t = Int(max(stop1[1],stop2[1]))
     figure(2,figsize=fig_size)
-    plot(rs_Obj*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
-    plot(Obj2[1:stop2[1]],label="miADMM",linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
-    plot(Obj1[1:stop1[1]],label="BCD",linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize=legend_fontsize-1)
+    plot(rs_Obj*ones(t),label="Solver", color="k",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+    plot(Obj2[1:stop2[1]],label="Decentralized",linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
+    plot(Obj1[1:3],label="Centralized", color="r",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
 
     # ylim(6.4,6.8)
     legend(loc="best",fontsize=legend_fontsize-1)
+    xlabel("Iteration", fontsize=label_fontsize)
+    ylabel("Total Cost", fontsize=label_fontsize)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    grid(true)
     savefig(string(folder,"Convergence_Obj.pdf"))
 
     clf()
     figure(3,figsize=fig_size)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     for n=1:NumbDevs
         plot(r1[1,n,1:stop2[1]])
     end
+
+    xlabel("Iteration", fontsize=label_fontsize)
+    ylabel("Primal Residual (\$r_1\$)", fontsize=label_fontsize)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    grid(true)
     savefig(string(folder,"Convergence_Residual1.pdf"))
 
     clf()
     figure(4,figsize=fig_size)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     for s=1:Numb_Services
         for n=1:NumbDevs
             plot(r2[1,s,n,1:stop2[1]])
         end
     end
+    # ylim(-0.00001,0.00001)
+    xlabel("Iteration", fontsize=label_fontsize)
+    ylabel("Primal Residual (\$r_2\$)", fontsize=label_fontsize)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    grid(true)
     savefig(string(folder,"Convergence_Residual2.pdf"))
 
     clf()
     figure(5,figsize=fig_size)
-
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     for s=1:Numb_Services
         if(s==1)
-            plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
-            plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
+            plot(rs_eta[s]*ones(t),label="Solver",linestyle=":", color="k", marker=markers[1], markersize=marker_size,markevery=Stride)
+            plot(eta1[1,s,1:3], color="r",label="Centralized",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
 
         else
-            plot(rs_Theta[s]*ones(t),linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
-            plot(Theta1[1,s,1:stop1[1]],linestyle="-", marker=markers[3], markersize=marker_size,markevery=4)
+            plot(rs_eta[s]*ones(t),linestyle=":", color="k", marker=markers[1], markersize=marker_size,markevery=Stride)
+            plot(eta1[1,s,1:3], color="r",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
         end
-        plot(Theta2[1,s,1:stop2[1]],label=string("miADMM:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
+        plot(eta2[1,s,1:stop2[1]], color=colors1[s],label=string("Decentralized:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
     end
-
+    xlabel("Iteration", fontsize=label_fontsize)
+    ylabel("Learning paramter (\$\\eta\$)", fontsize=label_fontsize)
     legend(loc="best",fontsize=legend_fontsize-1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Convergence_Theta.pdf"))
+    grid(true)
+    savefig(string(folder,"Convergence_eta.pdf"))
 
     clf()
-    figure(6,figsize=fig_size)
+    figure(30,figsize=fig_size)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
     for n=1:NumbDevs
-        if(n==1)
-            plot(rs_w[n]*ones(t),label="Solver",linestyle=":")
-            plot(w2[1,n,1:stop2[1]],label="miADMM",linestyle="-")
+        if(n==9)
+            plot(rs_w[n]*ones(t),label="Solver",linestyle=":", color="k")
+            plot(w1[1,n,1:3], color="r",label="Centralized",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
+            plot(w2[1,n,1:stop2[1]],label=string("Decentralized:UE",n),linestyle="-")
         else
-            plot(rs_w[n]*ones(t),linestyle=":")
+            plot(rs_w[n]*ones(t),linestyle=":", color="k")
+            plot(w1[1,n,1:3],color="r",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
             plot(w2[1,n,1:stop2[1]], linestyle="-")
             # for s=1:Numb_Services
             #     plot(ws2[1,s,n,1:stop2[1]],label="miADMM",linestyle="--")
@@ -468,34 +422,42 @@ function plot_convergence(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, 
         # plot(w1[1,n,1:stop1[1]],label="BCD",linestyle="--")
     end
     legend(loc="best",fontsize=legend_fontsize-1)
+    xlabel("Iteration", fontsize=label_fontsize)
+    ylabel("Fraction of Bandwidth (\$w\$)", fontsize=label_fontsize)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    grid(true)
     savefig(string(folder,"Convergence_w.pdf"))
 
-    clf()
-    figure(7,figsize=fig_size)
     for n=1:NumbDevs
         if(n==1)
+            clf()
+            figure(7,figsize=fig_size)
+            ax = subplot(1,1,1)
+            ax.tick_params("both",labelsize =legend_fontsize-1)
             for s=1:Numb_Services
                 if(s==1)
-                    plot(rs_f[s,n]*ones(t),label="Solver",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+                    plot(rs_f[s,n]*ones(t),label="Solver", color="k",linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+                    plot(f1[1,s,n,1:3], color="r",label=string("Centralized"),linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
                 else
-                    plot(rs_f[s,n]*ones(t),linestyle=":", marker=markers[1], markersize=marker_size,markevery=Stride)
+                    plot(rs_f[s,n]*ones(t),linestyle=":", color="k", marker=markers[1], markersize=marker_size,markevery=Stride)
+                    plot(f1[1,s,n,1:3], color="r",linestyle="-", marker=markers[3], markersize=marker_size,markevery=Stride1)
                 end
 
-                plot(f2[1,s,n,1:stop2[1]],label=string("miADMM:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
-                # plot(Theta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
+                plot(f2[1,s,n,1:stop2[1]], color=colors1[s],label=string("Decentralized:S",s),linestyle="--", marker=markers[2], markersize=marker_size,markevery=Stride)
+                # plot(eta1[1,s,1:stop1[1]],label="BCD",linestyle="--")
             end
+            xlabel("Iteration", fontsize=label_fontsize)
+            ylabel("CPU frequency (\$f\$)", fontsize=label_fontsize)
+            legend(loc="best",fontsize=legend_fontsize-1)
+            tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+            grid(true)
+            savefig(string(folder,"Convergence_f.pdf"))
         end
     end
-    legend(loc="best",fontsize=legend_fontsize-1)
-    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Convergence_f.pdf"))
-
-
 end
 
 # FOR BCD Only
-function plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
+function plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, eta1, eta2, rs_eta, w1, w2, ws2, rs_w, f1, f2, rs_f, stop1, stop2)
     fig_size = (4.5,5)
     clf()
     t = Int(stop1[1])
@@ -512,18 +474,18 @@ function plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta,
     figure(4,figsize=fig_size)
     for s=1:Numb_Services
         if(s==1)
-            plot(rs_Theta[s]*ones(t),label="Solver",linestyle=":")
+            plot(rs_eta[s]*ones(t),label="Solver",linestyle=":")
         else
-            plot(rs_Theta[s]*ones(t),linestyle=":")
+            plot(rs_eta[s]*ones(t),linestyle=":")
         end
 
-        plot(Theta1[1,s,1:stop1[1]],label=string("BCD-Service",s),linestyle="-")
+        plot(eta1[1,s,1:stop1[1]],label=string("BCD-Service",s),linestyle="-")
     end
     xlabel("Iteration",fontsize=label_fontsize1)
-    ylabel("\$\\theta\$",fontsize=label_fontsize1)
+    ylabel("\$\\eta\$",fontsize=label_fontsize1)
     legend(loc="best",fontsize=legend_fontsize-1)
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    savefig(string(folder,"Convergence_Theta.pdf"))
+    savefig(string(folder,"Convergence_eta.pdf"))
 
     clf()
     figure(5,figsize=fig_size)
@@ -563,114 +525,356 @@ function plot_convergence1(Obj1, Obj2, rs_Obj, r1, r2, Theta1, Theta2, rs_Theta,
 
 end
 
-function plot_comparison(rs_Obj, Obj_E, Obj_T, Heuristic_Obj,Heuristic_Obj_E, Heuristic_Obj_T)
-    # println("HERE")
-    # fig_size = (8,4)
+function plot_comparison(rs_Obj, Obj_E, Obj_T, Heuristic_Obj,Heuristic_Obj_E, Heuristic_Obj_T, Heuristic_Obj1,Heuristic_Obj_E1, Heuristic_Obj_T1,
+    rs_eta, Heuristic_eta, Heuristic_eta1)
+    # # println("HERE")
+    # # fig_size = (8,4)
+    # Theta = zeros(Numb_Services)
+    # for s =1:Numb_Services
+    #     eta = -B2s[s]/(2*A2s[s])
+    #     Theta[s] = A2s[s]*eta^2 + B2s[s]*eta
+    #     # Theta[s] = A2s[s]*rs_eta[s]^2 + B2s[s]*rs_eta[s]
+    #     println("bound1:", B2s[s]^2 +4*A2s[s])
+    #     # println("bound2:", (-B2s[s]+sqrt(B2s[s]^2 +4*A2s[s]) )/(2*A2s[s]) )
+    # end
+    #
+    # println("Big_Theta:",Theta)
+
+    K_g = zeros(Numb_Services)
+    for s=1:Numb_Services
+        # K_g[s] = A1s[s]/(A2s[s]*rs_eta[s]^2 + B2s[s]*rs_eta[s])
+        K_g[s] = 2*rho0*As[s]*(Bs[s]*Heuristic_eta[s]^2 +1)/(Cs[s]*Heuristic_eta[s] - Ds[s]*Heuristic_eta[s]^2)
+    end
+
     clf()
     figure(20,figsize=fig_size)
-    alg_labels = ["Heuristic","Optimal"]
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
+    alg_labels = ["Heuristic 1","Heuristic 2","Optimal"]
     Service_labels = ["Service 1", "Service 2", "Service 3"]
     idx = [1:1:Numb_Services;]
     width = 0.25
-    barlist1 = bar(idx.-width/2, Heuristic_Obj_E, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
-    barlist2 = bar(idx.+width/2, Obj_E, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+    barlist1 = bar(idx.-width, K_g.*Heuristic_Obj_E, width, color=colors1, alpha=.5, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx, K_g.*Heuristic_Obj_E1, width, color=colors1, alpha=.7, hatch=patterns[2], label=alg_labels[2])
+    barlist3 = bar(idx.+width, K_g.*Obj_E, width, color=colors1, alpha=.9, hatch=patterns[3], label=alg_labels[3])
 
     xticks(idx, Service_labels, fontsize=label_fontsize1)
-    ylabel("Energy Consumption", fontsize=label_fontsize1)
+    ylabel("Energy Consumption of UEs", fontsize=label_fontsize1)
     legend(loc="best",fontsize=legend_fontsize-1)
-    savefig(string(folder,"E_Comparison.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"E_Comparison.pdf"))
+
+
+    K_g = zeros(Numb_Services)
+    for s=1:Numb_Services
+        # K_g[s] = A1s[s]/(A2s[s]*rs_eta[s]^2 + B2s[s]*rs_eta[s])
+        K_g[s] = 2*rho0*As[s]*(Bs[s]*Heuristic_eta1[s]^2 +1)/(Cs[s]*Heuristic_eta1[s] - Ds[s]*Heuristic_eta1[s]^2)
+    end
 
     clf()
     figure(21,figsize=fig_size)
-    alg_labels = ["Heuristic","Optimal"]
-    Service_labels = ["Service 1", "Service 2", "Service 3"]
-    idx = [1:1:Numb_Services;]
-    width = 0.25
-    barlist1 = bar(idx.-width/2, Heuristic_Obj_T, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
-    barlist2 = bar(idx.+width/2, Obj_T, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
+    # alg_labels = ["Heuristic","Optimal"]
+    # Service_labels = ["Service 1", "Service 2", "Service 3"]
+    # idx = [1:1:Numb_Services;]
+    # width = 0.25
+    barlist1 = bar(idx.-width, K_g.*Heuristic_Obj_T, width, color=colors1, alpha=.5, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx, K_g.*Heuristic_Obj_T1, width, color=colors1, hatch=patterns[2], alpha=.7, label=alg_labels[2])
+    barlist3 = bar(idx.+width, K_g.*Obj_T, width, color=colors1, alpha=.9, hatch=patterns[3], label=alg_labels[3])
 
+    ylim(0,3900)
     xticks(idx, Service_labels, fontsize=label_fontsize1)
     ylabel("Total Time", fontsize=label_fontsize1)
     legend(loc="best",fontsize=legend_fontsize-1)
-    savefig(string(folder,"T_Comparison.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"T_Comparison.pdf"))
+
 
     clf()
     figure(22,figsize=fig_size)
-    alg_labels = ["Heuristic","Optimal"]
-    Service_labels = ["Service 1", "Service 2", "Service 3"]
-    idx = [1:1:Numb_Services;]
-    width = 0.25
-    barlist1 = bar(idx.-width/2, Heuristic_Obj_E + Heuristic_Obj_T, width, color=colors1[1], alpha=.8, hatch=patterns[1], label=alg_labels[1])
-    barlist2 = bar(idx.+width/2, Obj_E + Obj_T, width, color=colors1[3], alpha=.8, hatch=patterns[2], label=alg_labels[2])
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-1)
+    # alg_labels = ["Heuristic","Optimal"]
+    # Service_labels = ["Service 1", "Service 2", "Service 3"]
+    # idx = [1:1:Numb_Services;]
+    # width = 0.25
+    K_g = zeros(Numb_Services)
+    for s=1:Numb_Services
+        # K_g[s] = A1s[s]/(A2s[s]*rs_eta[s]^2 + B2s[s]*rs_eta[s])
+        K_g[s] = 2*rho0*As[s]*(Bs[s]*rs_eta[s]^2 +1)/(Cs[s]*rs_eta[s] - Ds[s]*rs_eta[s]^2)
+    end
+
+    barlist1 = bar(idx.-width, K_g.*(Heuristic_Obj_E + kaps[1]*Heuristic_Obj_T), width, color=colors1, alpha=.5, hatch=patterns[1], label=alg_labels[1])
+    barlist2 = bar(idx, K_g.*(Heuristic_Obj_E1 + kaps[1]*Heuristic_Obj_T1), width, color=colors1, hatch=patterns[2], alpha=.7, label=alg_labels[2])
+    barlist3 = bar(idx.+width, K_g.*(Obj_E + kaps[1]*Obj_T), width, color=colors1, alpha=.9, hatch=patterns[3], label=alg_labels[3])
 
     xticks(idx, Service_labels, fontsize=label_fontsize1)
     ylabel("Total cost", fontsize=label_fontsize1)
     legend(loc="best",fontsize=legend_fontsize-1)
-    savefig(string(folder,"Service_Cost_Comparison.pdf"))
     tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    savefig(string(folder,"Service_Cost_Comparison.pdf"))
+end
+
+function plot_data_distance(D_n,dist_list)
+    clf()
+    fig_size2 = (5.5,4.9)
+    figure(23,figsize=fig_size2)
+    ax = subplot(4,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize-3)
+    alg_labels = ["Heuristic","Optimal"]
+    # UE_labels = ["UE1", "UE2", "UE3", "UE4", "UE5", "UE6", "UE7", "UE8", "UE9", "UE10"]
+    UE_labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+    idx = [1:1:NumbDevs;]
+    width = 0.35
+    barlist1 = bar(idx, dist_list, width, color="k", alpha=.8, hatch=patterns[1])
+
+    # xticks(idx, UE_labels, fontsize=label_fontsize1-4)
+    ylabel("Distance", fontsize=label_fontsize1-2)
+    # xlabel("UE", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+    # savefig(string(folder,"Distance.pdf"))
+
+    ax = subplot(4,1,2)
+    # ax.tick_params("both",labelsize =legend_fontsize-1)
+
+    barlist1 = bar(idx, D_n[1,:]*1e-6/8, width, color=colors1[1], alpha=.8, hatch=patterns[1])
+
+    # xticks(idx, UE_labels, fontsize=label_fontsize1-4)
+    ylabel("\$D_{1,n}\$", fontsize=label_fontsize1-2)
+    # xlabel("UE", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+
+    ax = subplot(4,1,3)
+    # ax.tick_params("both",labelsize =legend_fontsize-1)
+
+    barlist1 = bar(idx, D_n[2,:]*1e-6/8, width, color=colors1[2], alpha=.8, hatch=patterns[1])
+
+    # xticks(idx, UE_labels, fontsize=label_fontsize1-4)
+    ylabel("\$D_{2,n}\$", fontsize=label_fontsize1-2)
+    # xlabel("UE", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+
+    ax = subplot(4,1,4)
+    # ax.tick_params("both",labelsize =legend_fontsize-1)
+
+    barlist1 = bar(idx, D_n[3,:]*1e-6/8, width, color=colors1[3], alpha=.8, hatch=patterns[1])
+
+    # xticks(idx, UE_labels, fontsize=label_fontsize1-4)
+    ylabel("\$D_{3,n}\$", fontsize=label_fontsize1-2)
+    xlabel("UE index", fontsize=label_fontsize1-2)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+
+    savefig(string(folder,"Distance_DataSize.pdf"))
 
 end
 
-function save_result(Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta)
+function plot_pareto(rs_T_cmp1, rs_E_cmp1, rs_T_com1, rs_E_com1, rs_eta1)
+    clf()
+    figure(30,figsize=fig_size) #(8.7,5.8)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize)
+
+    K_g = zeros(Numb_kaps1,Numb_Services)
+    for s=1:Numb_Services
+        for k= 1:Numb_kaps1
+        # K_g[s] = A1s[s]/(A2s[s]*rs_eta[s]^2 + B2s[s]*rs_eta[s])
+            K_g[k,s] = 2*rho0*As[s]*(Bs[s]*rs_eta1[k,s]^2 +1)/(Cs[s]*rs_eta1[k,s] - Ds[s]*rs_eta1[k,s]^2)
+        end
+    end
+
+
+    Obj_E, Obj_T=zeros(Numb_kaps1), zeros(Numb_kaps1)
+
+    for k=1:Numb_kaps1
+        for s=1:Numb_Services
+            Obj_E[k] += K_g[k,s]*(rs_E_com1[k,s] +K_l[s]*rs_E_cmp1[k,s])
+            Obj_T[k] += K_g[k,s]*(rs_T_com1[k,s] +K_l[s]*rs_T_cmp1[k,s])
+            # println("Obj_E1:",K_g[k,s]*(rs_E_com1[k,s] +K_l[s]*rs_E_cmp1[k,s]))
+            # println("Obj_T1:",K_g[k,s]*(rs_T_com1[k,s] +K_l[s]*rs_T_cmp1[k,s]))
+        end
+    end
+    println("Obj_E:",Obj_E)
+    println("Obj_T:",Obj_T)
+
+    plot(Obj_E, Obj_T, linestyle=":", marker=markers[2], markersize=marker_size)
+
+
+    # Obj_E, Obj_T=zeros(Numb_kaps1, Numb_Services), zeros(Numb_kaps1, Numb_Services)
+    # for s =1:Numb_Services
+    #     Obj_E[:,s] = rs_E_com1[:,s] +K_l[s]*rs_E_cmp1[:,s]
+    #     Obj_T[:,s] = rs_T_com1[:,s] +K_l[s]*rs_T_cmp1[:,s]
+    # end
+    #
+    # for s=1:Numb_Services
+    # # for s=1:1
+    #     plot(K_g[:,s].*Obj_E[:,s],K_g[:,s].*Obj_T[:,s],linestyle=":", color=colors1[s], marker=markers[s], markersize=marker_size)
+    # end
+
+    ylabel("Total Time", fontsize=label_fontsize1)
+    xlabel("Energy Consumption of UEs", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+    grid(true)
+    savefig(string(folder,"Pareto.pdf"))
+end
+
+function plot_priority(rs_T_cmp2, rs_E_cmp2, rs_T_com2, rs_E_com2, rs_eta2)
+    clf()
+    figure(31,figsize=fig_size) #(8.7,5.8)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize)
+    Service_labels = ["Service 1", "Service 2", "Service 3"]
+
+    K_g = zeros(Numb_Kap_Vals,Numb_Services)
+    Obj_T=zeros(Numb_Kap_Vals,Numb_Services)
+    Obj_E=zeros(Numb_Kap_Vals,Numb_Services)
+    kap_p = zeros(Numb_Kap_Vals)
+
+    for s=1:Numb_Services
+        for k=1:Numb_Kap_Vals
+            kap_p[k] = k
+            K_g[k,s] = 2*rho0*As[s]*(Bs[s]*rs_eta2[k,s]^2 +1)/(Cs[s]*rs_eta2[k,s] - Ds[s]*rs_eta2[k,s]^2)
+            Obj_T[k,s] = K_g[k,s]*(rs_T_com2[k,s] + K_l[s]*rs_T_cmp2[k,s])
+            Obj_E[k,s] = K_g[k,s]*(rs_E_com2[k,s] +K_l[s]*rs_E_cmp2[k,s])
+        end
+        plot(kap_p,Obj_T[:,s], linestyle=":", color=colors1[s], marker=markers[s], markersize=marker_size, label = Service_labels[s])
+    end
+
+    legend(loc="best",fontsize=legend_fontsize)
+    ylabel("Total Time", fontsize=label_fontsize1)
+    xlabel("\$\\kappa_3\$", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+    grid(true)
+    savefig(string(folder,"Priority_Time.pdf"))
+
+    clf()
+    figure(32,figsize=fig_size) #(8.7,5.8)
+    ax = subplot(1,1,1)
+    ax.tick_params("both",labelsize =legend_fontsize)
+
+    for s=1:Numb_Services
+        plot(kap_p,Obj_E[:,s], linestyle=":", color=colors1[s], marker=markers[s], markersize=marker_size, label = Service_labels[s])
+    end
+
+    legend(loc=4,fontsize=legend_fontsize)
+    ylabel("Energy Consumption of UEs", fontsize=label_fontsize1)
+    xlabel("\$\\kappa_3\$", fontsize=label_fontsize1)
+    tight_layout(pad=0.5, w_pad=0.5, h_pad=0.25)
+    grid(true)
+    savefig(string(folder,"Priority_Energy.pdf"))
+end
+
+function save_result(rs_eta, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Obj, rs_w, rs_f, Obj1, Obj2, r1, r2,
+eta1, eta2, w1, w2, ws2, f1, f2, stop1, stop2, Obj_E, Obj_T, Heuristic_Obj, Heuristic_Obj_E, Heuristic_Obj_T, Heuristic_eta,
+Heuristic_Obj1, Heuristic_Obj_E1, Heuristic_Obj_T1, Heuristic_eta1, rs_T_cmp1, rs_E_cmp1, rs_T_com1, rs_E_com1, rs_eta1,
+rs_T_cmp2, rs_E_cmp2, rs_T_com2, rs_E_com2, rs_eta2)
     h5open(string("result",NumbDevs,".h5"), "w") do file
         # write(file,"kaps", kaps)
-        write(file,"Theta1", Theta1)
+        write(file,"rs_eta", rs_eta)
+        write(file,"rs_T_cmp", rs_T_cmp)
+        write(file,"rs_E_cmp", rs_E_cmp)
+        write(file,"rs_T_com", rs_T_com)
+        write(file,"rs_E_com", rs_E_com)
+        write(file,"rs_Obj", rs_Obj)
+        write(file,"rs_w", rs_w)
+        write(file,"rs_f", rs_f)
         write(file,"Obj1", Obj1)
+        write(file,"Obj2", Obj2)
+        write(file,"r1", r1)
+        write(file,"r2", r2)
+        write(file,"eta1", eta1)
+        write(file,"eta2", eta2)
+        write(file,"w1", w1)
+        write(file,"w2", w2)
+        write(file,"ws2", ws2)
+        write(file,"f1", f1)
+        write(file,"f2", f2)
+        write(file,"stop1", stop1)
+        write(file,"stop2", stop2)
         write(file,"Obj_E", Obj_E)
         write(file,"Obj_T", Obj_T)
-        write(file,"T_cmp", T_cmp)
-        write(file,"T_cmp1", T_cmp1)
-        write(file,"Tcmp_N1", Tcmp_N1)
-        write(file,"Tcmp_N2", Tcmp_N2)
-        write(file,"Tcmp_N3", Tcmp_N3)
-        write(file,"E_cmp1", E_cmp1)
-        write(file,"T_com1", T_com1)
-        write(file,"E_com1", E_com1)
-        write(file,"N1", N1)
-        write(file,"N2", N2)
-        write(file,"N3", N3)
-        write(file,"f1", f1)
-        write(file,"tau1", tau1)
-        write(file,"p1", p1)
-        write(file,"d_eta", d_eta)
+        write(file,"Heuristic_Obj", Heuristic_Obj)
+        write(file,"Heuristic_Obj_E", Heuristic_Obj_E)
+        write(file,"Heuristic_Obj_T", Heuristic_Obj_T)
+        write(file,"Heuristic_eta", Heuristic_eta)
+        write(file,"Heuristic_Obj1", Heuristic_Obj1)
+        write(file,"Heuristic_Obj_E1", Heuristic_Obj_E1)
+        write(file,"Heuristic_Obj_T1", Heuristic_Obj_T1)
+        write(file,"Heuristic_eta1", Heuristic_eta1)
+        write(file,"rs_T_cmp1", rs_T_cmp1)
+        write(file,"rs_E_cmp1", rs_E_cmp1)
+        write(file,"rs_T_com1", rs_T_com1)
+        write(file,"rs_E_com1", rs_E_com1)
+        write(file,"rs_eta1", rs_eta1)
+        write(file,"rs_T_cmp2", rs_T_cmp2)
+        write(file,"rs_E_cmp2", rs_E_cmp2)
+        write(file,"rs_T_com2", rs_T_com2)
+        write(file,"rs_E_com2", rs_E_com2)
+        write(file,"rs_eta2", rs_eta2)
     end
 end
 
 function read_result(filename)
     h5open(filename, "r") do file
         # kaps =read(file,"kaps")
-        Theta1 = read(file,"Theta1")
-        Obj1  = read(file,"Obj1")
+        rs_eta = read(file,"rs_eta")
+        rs_T_cmp  = read(file,"rs_T_cmp")
+        rs_E_cmp = read(file,"rs_E_cmp")
+        rs_T_com = read(file,"rs_T_com")
+        rs_E_com = read(file,"rs_E_com")
+        rs_Obj = read(file,"rs_Obj")
+        rs_w = read(file,"rs_w")
+        rs_f = read(file,"rs_f")
+        Obj1 = read(file,"Obj1")
+        Obj2 = read(file,"Obj2")
+        r1 = read(file,"r1")
+        r2 = read(file,"r2")
+        eta1 = read(file,"eta1")
+        eta2 = read(file,"eta2")
+        w1 = read(file,"w1")
+        w2 = read(file,"w2")
+        ws2 = read(file,"ws2")
+        f1 = read(file,"f1")
+        f2 = read(file,"f2")
+        stop1 = read(file,"stop1")
+        stop2 = read(file,"stop2")
         Obj_E = read(file,"Obj_E")
         Obj_T = read(file,"Obj_T")
-        T_cmp = read(file,"T_cmp")
-        T_cmp1 = read(file,"T_cmp1")
-        Tcmp_N1 = read(file,"Tcmp_N1")
-        Tcmp_N2 = read(file,"Tcmp_N2")
-        Tcmp_N3 = read(file,"Tcmp_N3")
-        E_cmp1 = read(file,"E_cmp1")
-        T_com1 = read(file,"T_com1")
-        E_com1 = read(file,"E_com1")
-        N1 = read(file,"N1")
-        N2 = read(file,"N2")
-        N3 = read(file,"N3")
-        f1 = read(file,"f1")
-        tau1 = read(file,"tau1")
-        p1 = read(file,"p1")
-        d_eta = read(file,"d_eta")
-        return Theta1, Obj1, Obj_E, Obj_T, T_cmp, T_cmp1, Tcmp_N1, Tcmp_N2, Tcmp_N3, E_cmp1, T_com1, E_com1, N1, N2, N3, f1, tau1, p1, d_eta
+        Heuristic_Obj = read(file,"Heuristic_Obj")
+        Heuristic_Obj_E = read(file,"Heuristic_Obj_E")
+        Heuristic_Obj_T = read(file,"Heuristic_Obj_T")
+        Heuristic_eta = read(file,"Heuristic_eta")
+        Heuristic_Obj1 = read(file,"Heuristic_Obj1")
+        Heuristic_Obj_E1 = read(file,"Heuristic_Obj_E1")
+        Heuristic_Obj_T1 = read(file,"Heuristic_Obj_T1")
+        Heuristic_eta1 = read(file,"Heuristic_eta1")
+        rs_T_cmp1  = read(file,"rs_T_cmp1")
+        rs_E_cmp1 = read(file,"rs_E_cmp1")
+        rs_T_com1 = read(file,"rs_T_com1")
+        rs_E_com1 = read(file,"rs_E_com1")
+        rs_eta1 = read(file,"rs_eta1")
+        rs_T_cmp2  = read(file,"rs_T_cmp2")
+        rs_E_cmp2 = read(file,"rs_E_cmp2")
+        rs_T_com2 = read(file,"rs_T_com2")
+        rs_E_com2 = read(file,"rs_E_com2")
+        rs_eta2 = read(file,"rs_eta2")
+
+        return rs_eta, rs_T_cmp, rs_E_cmp, rs_T_com, rs_E_com, rs_Obj, rs_w, rs_f, Obj1, Obj2, r1, r2,
+        eta1, eta2, w1, w2, ws2, f1, f2, stop1, stop2, Obj_E, Obj_T, Heuristic_Obj, Heuristic_Obj_E, Heuristic_Obj_T, Heuristic_eta,
+        Heuristic_Obj1, Heuristic_Obj_E1, Heuristic_Obj_T1, Heuristic_eta1, rs_T_cmp1, rs_E_cmp1, rs_T_com1, rs_E_com1, rs_eta1,
+        rs_T_cmp2, rs_E_cmp2, rs_T_com2, rs_E_com2, rs_eta2
     end
 end
 
 
-function save_result_iteration(stop1,stop2,stop3)
+function save_result_iteration(stop1,stop2,stop3,stop4,rs_Objs)
     h5open(string("result_iter_",NUM_SIM,".h5"), "w") do file
         # write(file,"kaps", kaps)
         write(file,"stop1", stop1)
         write(file,"stop2", stop2)
         write(file,"stop3", stop3)
+        write(file,"stop4", stop4)
+        write(file,"rs_Objs", rs_Objs)
     end
 end
 
@@ -680,6 +884,8 @@ function read_result_iteration()
         stop1 = read(file,"stop1")
         stop2  = read(file,"stop2")
         stop3 = read(file,"stop3")
+        stop4 = read(file,"stop4")
+        rs_Objs = read(file,"rs_Objs")
     end
-    return stop1, stop2, stop3
+    return stop1, stop2, stop3, stop4, Obj2,Obj3,Obj4
 end

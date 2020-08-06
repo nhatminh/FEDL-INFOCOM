@@ -31,8 +31,12 @@ end
 #     return N0/gain
 # end
 
-function shanon_capacity(gain)
-    SNR = Tx_Power * gain / N0
+function shanon_capacity(gain,mode=0)
+    if (mode ==0)
+        SNR = Tx_Power * gain / N0
+    else
+        SNR = Tx_Power_BS * gain / N0
+    end
     Capacity = BW * log2(1 + SNR)     #Shannon capacity bps
     return Capacity
 end
@@ -51,8 +55,8 @@ function mobile_gen()
 
         for n=1:NumbDevs
             gain_list[n] = exp_gain(dist_list[n])
-            up_capacity[n]    = shanon_capacity(gain_list[n])
-            down_capacity[n]    = shanon_capacity(gain_list[n])
+            up_capacity[n]    = shanon_capacity(gain_list[n],0)
+            down_capacity[n]    = shanon_capacity(gain_list[n],1)
         end
 
         for s =1:Numb_Services
