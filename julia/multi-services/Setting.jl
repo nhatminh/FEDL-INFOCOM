@@ -2,11 +2,11 @@ using Distributions
 using HDF5
 
 NumbDevs = 50 #1, 5, 10, 15, 20, 50
-NUM_SIM = 100  #1, 100
+NUM_SIM = 1  #1, 100
 ### PROGRAM SETTING ###
 Numb_Services = 3  #Number of simulations
 REUSED_TRAFFIC = true
-READ_RESULT = false       # Read results from result files
+READ_RESULT = true       # Read results from result files
 
 DEBUG = 0 #LEVEL 0, 1, 2, 3
 HETEROGENEOUS = 2  # 1: heterogeneous, 2: reused  #Change setting paremeter
@@ -120,14 +120,16 @@ if (HETEROGENEOUS == 1) # Heterogeneous
     V_s   = [100, 200, 300] *8e3   #bits  #300, 500, 700
     T_avg = [0.5, 1.,2.]
     tau_extra = zeros(Numb_Services,NumbDevs)
+    tau_mem = zeros(Numb_Services,NumbDevs)
     for s =1:Numb_Services
         T_avg = zeros(Numb_Services)
         tau_extra[s,:] = rand(Uniform(0.,1.),NumbDevs) #extra time in second for communications
+        tau_mem[s,:] = rand(Uniform(0.1,0.5),NumbDevs) #extra time in second for communications
     end
-    save_setting(f_max,C_s,V_s,tau_extra)
+    save_setting(f_max,C_s,V_s,tau_extra, tau_mem)
 
 elseif (HETEROGENEOUS == 2) # Reused params
-    f_max, C_s, V_s, tau_extra = read_setting()
+    f_max, C_s, V_s, tau_extra, tau_mem = read_setting()
     C_s   = [50, 70, 90]      #cycles/bits
     V_s   = [100, 200, 300] *8e3   #bits
     T_avg = [0.5, 1.,2.]

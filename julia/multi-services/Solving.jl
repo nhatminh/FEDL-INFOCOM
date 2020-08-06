@@ -45,7 +45,7 @@ function Solving_global_prob(D_n,capacity)
         for n =1:NumbDevs
             # @constraint(prob, f[n] <= f_max[n] *1e-9)
             @constraint(prob, f[s,n] >= f_min[s] *1e-9)
-            @NLconstraint(prob, C_s[s]*(D_n[s,n]*1e-9/f[s,n]) <= T_cmp[s])
+            @NLconstraint(prob, C_s[s]*(D_n[s,n]*1e-9/f[s,n]) + tau_mem[s,n] <= T_cmp[s])
         end
     end
     for n =1:NumbDevs
@@ -133,7 +133,7 @@ function compute_obj(rs_f, rs_w, rs_eta, D_n, capacity)
     rs_E_cmp = zeros(Numb_Services)
     rs_T_cmp = zeros(Numb_Services)
     for s =1:Numb_Services
-        rs_T_cmp[s] = maximum(C_s[s]*(D_n[s,:].*1e-9./rs_f[s,:]))
+        rs_T_cmp[s] = maximum(C_s[s]*(D_n[s,:].*1e-9./rs_f[s,:]) + tau_mem[s,:])
         rs_E_cmp[s] = alpha / 2 * sum(C_s[s]* D_n[s,:].*(rs_f[s,:].^2)) * 1e18
     end
 
@@ -193,7 +193,7 @@ function Solving_sub_prob1(K_g, D_n)
         for n =1:NumbDevs
             # @constraint(prob, f[n] <= f_max[n] *1e-9)
             @constraint(prob, f[s,n] >= f_min[s] *1e-9)
-            @NLconstraint(prob, C_s[s]*(D_n[s,n]*1e-9/f[s,n]) <= T_cmp[s])
+            @NLconstraint(prob, C_s[s]*(D_n[s,n]*1e-9/f[s,n]) + tau_mem[s,n] <= T_cmp[s])
         end
     end
     for n =1:NumbDevs
@@ -238,7 +238,7 @@ function Solving_isub_prob1(K_g, D_n, s_idx, f_k, y, jpadmm = false) ## jpadmm  
         for n =1:NumbDevs
             # @constraint(prob, f[n] <= f_max[n] *1e-9)
             @constraint(prob, f[s,n] >= f_min[s_idx] *1e-9)
-            @NLconstraint(prob, C_s[s_idx]*(D_n[s_idx,n]*1e-9/f[s,n]) <= T_cmp[s])
+            @NLconstraint(prob, C_s[s_idx]*(D_n[s_idx,n]*1e-9/f[s,n]) + tau_mem[s,n]<= T_cmp[s])
         end
     end
 
