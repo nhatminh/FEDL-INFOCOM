@@ -1,4 +1,4 @@
-# OnDevAI
+# FEDL-INFOCOM
 
 This repository is a simulation code for the paper
 
