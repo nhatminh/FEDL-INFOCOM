@@ -7,7 +7,7 @@ Nguyen H. Tran, Wei Bao, Albert Zomaya, Minh N. H. Nguyen, Choong Seon Hong
 
 
 We use Julia version 0.6.
-Please go to `julia` folder to run the julia optimization code.
+Please go to `julia-INFOCOM` folder to run the julia optimization code.
 
 All of Figures will be generated in `figs` folder.
 
